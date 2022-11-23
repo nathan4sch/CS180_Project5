@@ -43,9 +43,9 @@ public class LoginFrame extends JComponent implements Runnable {
                                 JOptionPane.INFORMATION_MESSAGE);
                         String userRole = bufferedReader.readLine();
                         if (userRole.equals("Buyer")){
-
+                            SwingUtilities.invokeLater(new MainBuyerFrame(socket));
                         } else if (userRole.equals("Seller")) {
-
+                            SwingUtilities.invokeLater(new MainSellerFrame(socket));
                         }
 
                     } else if (successOrFailure.equals("Failure")) {
@@ -64,8 +64,22 @@ public class LoginFrame extends JComponent implements Runnable {
                     printWriter.println("Create Account");
                     printWriter.println(userEmail);
                     printWriter.println(userPassword);
+                    printWriter.println(userRole);
                     printWriter.flush();
                     String successOrFailure = bufferedReader.readLine();
+                    if (successOrFailure.equals("Success")) {
+                        JOptionPane.showMessageDialog(null, "Account Created", "Success",
+                                JOptionPane.INFORMATION_MESSAGE);
+                        if (userRole.equals("Buyer")){
+                            SwingUtilities.invokeLater(new MainBuyerFrame(socket));
+                        } else if (userRole.equals("Seller")) {
+                            SwingUtilities.invokeLater(new MainSellerFrame(socket));
+                        }
+                    } else if (successOrFailure.equals("Failure")) {
+                        JOptionPane.showMessageDialog(null, "This email already owns an account",
+                                "Create Account Failure", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
@@ -105,7 +119,7 @@ public class LoginFrame extends JComponent implements Runnable {
         panel.add(passwordText , gridBagConstraints);
 
         //Buyer or Seller
-        JLabel userRole = new JLabel("Buyer or Seller:");
+        JLabel userRole = new JLabel("Role:");
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
         panel.add(userRole , gridBagConstraints);
@@ -116,15 +130,16 @@ public class LoginFrame extends JComponent implements Runnable {
         panel.add(userRoleSelection , gridBagConstraints);
 
         //SignIn Button
-        JButton signInButton = new JButton("SignIn");
+        signInButton = new JButton("SignIn");
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 4;
         signInButton.addActionListener(actionListener);
         panel.add(signInButton , gridBagConstraints);
 
         //CreateAccount Button
-        JButton createAccountButton = new JButton("Create Account");
-        gridBagConstraints.gridx = 4;
+        createAccountButton = new JButton("Create Account");
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 4;
         createAccountButton.addActionListener(actionListener);
         panel.add(createAccountButton , gridBagConstraints);
 

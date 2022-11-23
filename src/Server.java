@@ -8,19 +8,16 @@ import java.util.Scanner;
 
 public class Server implements Runnable {
     Socket socket;
+
     public Server(Socket socket) {
         this.socket = socket;
     }
+
     Object currentUser = null;
 
     public static void main(String[] args) {
         try {
-            ServerSocket serverSocket = new ServerSocket(1112);
-            /*
-             * Use a while loop to accept all socket receives with multithreading
-             * A thread would be start whenever the a socket is accepted
-             * The socket would be pass to a thread to interacting with the client.
-             */
+            ServerSocket serverSocket = new ServerSocket(4444);
             while (true) {
                 Socket socket = serverSocket.accept();
                 Server server = new Server(socket);
@@ -43,22 +40,33 @@ public class Server implements Runnable {
                         String emailInput = bufferedReader.readLine();
                         String passwordInput = bufferedReader.readLine();
 
-                        if (!checkExistingCredentials(emailInput, passwordInput, "signIn").equals("No Duplicate Account Found")) {
-                            currentUser = signInAccount(emailInput, passwordInput);
+                        currentUser = signInAccount(emailInput, passwordInput);
+                        if (currentUser == null) {
                             printWriter.println("Failure");
                             printWriter.flush();
-                            if (currentUser instanceof Buyer) {
-
-                            } else if (currentUser instanceof Seller) {
-
-                            }
-
                         } else {
-                            printWriter.println("Failure");
+                            printWriter.println("Success");
+                            if (currentUser instanceof Buyer) {
+                                printWriter.println("Buyer");
+                            } else if (currentUser instanceof Seller) {
+                                printWriter.println("Seller");
+                            }
+                            printWriter.flush();
                         }
                     }
                     case "Create Account" -> {
+                        String emailInput = bufferedReader.readLine();
+                        String passwordInput = bufferedReader.readLine();
+                        String roleInput = bufferedReader.readLine();
 
+                        currentUser = createAccount(emailInput, passwordInput, roleInput);
+                        if (currentUser == null) {
+                            printWriter.println("Failure");
+                            printWriter.flush();
+                        } else {
+                            printWriter.println("Success");
+                            printWriter.flush();
+                        }
                     }
                 }
             }
@@ -69,20 +77,20 @@ public class Server implements Runnable {
 
     //Purpose: checks if the user has an account with the email and password and returns that Buyer or Seller object
     public static Object signInAccount(String signInEmail, String signInPassword) {
-        while (true) {
-            String accountSearch = checkExistingCredentials(signInEmail, signInPassword, "signIn");
-            if (!accountSearch.equals("No Duplicate Account Found")) {
-                accountSearch = accountSearch.substring(1, accountSearch.length() - 1);
-                String[] accountDetails = accountSearch.split(", ");
-                if (accountDetails[3].equals("buyer")) {
-                    return new Buyer(accountDetails[1], accountDetails[0], accountDetails[2],
-                            buyerDataArray(accountDetails[0], "hist"),
-                            buyerDataArray(accountDetails[0], "cart"));
-                } else if (accountDetails[3].equals("seller")) {
-                    return new Seller(accountDetails[1], accountDetails[0], accountDetails[2]);
-                }
-            }
+        if (checkExistingCredentials(signInEmail, signInPassword, "signIn").equals("No Account Found")) {
+            return null;
         }
+        String accountSearch = checkExistingCredentials(signInEmail, signInPassword, "signIn");
+        accountSearch = accountSearch.substring(1, accountSearch.length() - 1);
+        String[] accountDetails = accountSearch.split(", ");
+        if (accountDetails[2].equals("buyer")) {
+            return new Buyer(accountDetails[0], accountDetails[1],
+                    buyerDataArray(accountDetails[0], "hist"),
+                    buyerDataArray(accountDetails[0], "cart"));
+        } else if (accountDetails[2].equals("seller")) {
+            return new Seller(accountDetails[0], accountDetails[1]);
+        }
+        return null;
     }
 
     public static String checkExistingCredentials(String email, String password, String purpose) {
@@ -93,7 +101,7 @@ public class Server implements Runnable {
                 String[] currentLine = line.split(",");
 
                 if (purpose.equals("signIn")) {
-                    if (currentLine[0].equals(email) && currentLine[2].equals(password)) {
+                    if (currentLine[0].equals(email) && currentLine[1].equals(password)) {
                         return Arrays.toString(currentLine);
                     }
                 } else if (purpose.equals("newAccount")) {
@@ -103,7 +111,7 @@ public class Server implements Runnable {
                 }
             }
             bfr.close();
-            return "No Duplicate Account Found";
+            return "No Account Found";
         } catch (Exception e) {
             return "";
         }
@@ -125,17 +133,17 @@ public class Server implements Runnable {
                 String[] currentLine = line.split(",");
                 if (currentLine[0].equals(userEmail)) { // first checks for user creds to give correct history
                     if (cartOrHist.equals("hist")) { // if hist, get Purchase history
+                        if (currentLine[3].equals("")) {
+                            return null;
+                        } else {
+                            String[] initialData = currentLine[3].split("~"); // Split each purchase
+                            Collections.addAll(buyerData, initialData);
+                        }
+                    } else { // if cart, get cart
                         if (currentLine[4].equals("")) {
                             return null;
                         } else {
                             String[] initialData = currentLine[4].split("~"); // Split each purchase
-                            Collections.addAll(buyerData, initialData);
-                        }
-                    } else { // if cart, get cart
-                        if (currentLine[5].equals("")) {
-                            return null;
-                        } else {
-                            String[] initialData = currentLine[5].split("~"); // Split each purchase
                             Collections.addAll(buyerData, initialData);
                         }
                     }
@@ -147,10 +155,37 @@ public class Server implements Runnable {
         }
     }
 
+    public static Object createAccount(String email, String password, String role) {
+        if (checkExistingCredentials(email, password, "newAccount").equals("DuplicateEmail")) {
+            return null;
+        }
+        Buyer currentBuyer = null;
+        Seller currentSeller = null;
+
+        if (role.equals("Buyer")) {
+            currentBuyer = new Buyer(email, password, null, null);
+        } else if (role.equals("Seller")) {
+            currentSeller = new Seller(email, password);
+        }
+        try {                                   //writes the new user's account to the csv file
+            PrintWriter CredentialPrintWriter = new PrintWriter(new BufferedWriter(new FileWriter("FMCredentials.csv"
+                    , true)));
+            CredentialPrintWriter.println(email + "," + password + "," + role.toLowerCase() + ",x,x");
+            CredentialPrintWriter.flush();
+            CredentialPrintWriter.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (role.equals("Buyer")) {
+            return currentBuyer;
+        } else if (role.equals("Seller")) {
+            return currentSeller;
+        }
+        return null;
+    }
+
 }
-
-
-
 
 
 //import java.io.*;

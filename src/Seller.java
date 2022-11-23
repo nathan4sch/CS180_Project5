@@ -9,13 +9,11 @@ import java.util.ArrayList;
  * @version 2022-3-11
  */
 public class Seller {
-    private String name; // the user's name
     private final String email; // the user's email (cannot be changed)
     private String password; // the user's password
     private ArrayList<Store> stores; // a list of stores the seller owns
 
-    public Seller(String name, String email, String password) {
-        this.name = name;
+    public Seller(String email, String password) {
         this.email = email;
         this.password = password;
 

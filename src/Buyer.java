@@ -11,7 +11,6 @@ import java.util.Collections;
  * @version 2022-3-11
  */
 public class Buyer {
-    private String name; // Buyer username
     private final String email; // Buyer email - This is the unique identifier (Cannot be changed)
     private String password; // Account Password
     private ArrayList<String> purchaseHistory; // ArrayList of purchase history
@@ -20,14 +19,12 @@ public class Buyer {
     /**
      * Buyer constructor
      *
-     * @param name            Buyer name
      * @param email           Buyer email
      * @param password        Buyer password
      * @param purchaseHistory Buyer ArrayList storing purchase history
      * @param cart            Buyer ArrayList storing shopping cart items
      **/
-    public Buyer(String name, String email, String password, ArrayList<String> purchaseHistory, ArrayList<String> cart) {
-        this.name = name;
+    public Buyer(String email, String password, ArrayList<String> purchaseHistory, ArrayList<String> cart) {
         this.email = email;
         this.password = password;
         if (purchaseHistory == null) { //creating account

@@ -8,7 +8,7 @@ public class Client {
     public static void main(String[] args) {
         Socket socket;
         try {
-            socket = new Socket("localhost", 1112);
+            socket = new Socket("localhost", 4444);
         } catch (IOException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Failed to Connect to Server", "Error",
