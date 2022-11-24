@@ -35,4 +35,33 @@ public class Seller {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Purpose: prints the new store to FMStores.csv
+     *
+     * @param store contains the object for store that is to be added
+     */
+    public void createStore(Store store) {
+        stores.add(store);
+        try {
+            PrintWriter printStore = new PrintWriter(new FileOutputStream("FMStores.csv", true));
+            printStore.println(store.getStoreName() + "," + store.getOwner());
+            printStore.flush();
+            printStore.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Store[] getStore() {
+        Store[] userStores = new Store[this.stores.size()];
+        for (int i = 0; i < this.stores.size(); i++) {
+            userStores[i] = this.stores.get(i);
+        }
+        return userStores;
+    }
+
+    public String getEmail() {
+        return email;
+    }
 }
