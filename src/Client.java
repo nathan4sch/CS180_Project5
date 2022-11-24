@@ -3,7 +3,13 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-
+/**
+ * Client class
+ *
+ * Allows the user to access the FurnitureMarketplace
+ *
+ * @version 24/11/2022
+ */
 public class Client {
     public static void main(String[] args) {
         Socket socket;
