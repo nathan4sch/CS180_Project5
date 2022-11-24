@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,6 +12,7 @@ import java.net.Socket;
 
 public class LoginFrame extends JComponent implements Runnable {
     Socket socket;
+    JFrame loginFrame;
     BufferedReader bufferedReader;
     PrintWriter printWriter;
     JButton signInButton;
@@ -44,10 +47,11 @@ public class LoginFrame extends JComponent implements Runnable {
                         String userRole = bufferedReader.readLine();
                         if (userRole.equals("Buyer")){
                             SwingUtilities.invokeLater(new MainBuyerFrame(socket));
+                            loginFrame.dispose();
                         } else if (userRole.equals("Seller")) {
                             SwingUtilities.invokeLater(new MainSellerFrame(socket));
+                            loginFrame.dispose();
                         }
-
                     } else if (successOrFailure.equals("Failure")) {
                         JOptionPane.showMessageDialog(null, "No Account Found",
                                 "Sign In Failure", JOptionPane.ERROR_MESSAGE);
@@ -72,8 +76,10 @@ public class LoginFrame extends JComponent implements Runnable {
                                 JOptionPane.INFORMATION_MESSAGE);
                         if (userRole.equals("Buyer")){
                             SwingUtilities.invokeLater(new MainBuyerFrame(socket));
+                            loginFrame.dispose();
                         } else if (userRole.equals("Seller")) {
                             SwingUtilities.invokeLater(new MainSellerFrame(socket));
+                            loginFrame.dispose();
                         }
                     } else if (successOrFailure.equals("Failure")) {
                         JOptionPane.showMessageDialog(null, "This email already owns an account",
@@ -96,7 +102,7 @@ public class LoginFrame extends JComponent implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        JFrame loginFrame = new JFrame("Account Frame");
+        loginFrame = new JFrame("Account Frame");
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridy = 0;
@@ -147,7 +153,20 @@ public class LoginFrame extends JComponent implements Runnable {
         loginFrame.add(panel);
         loginFrame.setSize(500 , 400);
         loginFrame.setLocationRelativeTo(null);
-        loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        loginFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+        loginFrame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                try {
+                    bufferedReader.close();
+                    printWriter.close();
+                    socket.close();
+                    loginFrame.dispose();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
         loginFrame.setVisible(true);
     }
 }

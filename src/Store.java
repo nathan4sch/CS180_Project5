@@ -43,4 +43,12 @@ public class Store {
             e.printStackTrace();
         }
     }
+
+    public String getStoreName() {
+        return storeName;
+    }
+    public String getOwner() {
+        return owner;
+    }
+
 }
