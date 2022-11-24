@@ -6,14 +6,25 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Scanner;
 
+/**
+ * Server class
+ *
+ * Handles all the information sent to client
+ *
+ * @version 24/11/2022
+ */
 public class Server implements Runnable {
     Socket socket;
+    Object currentUser = null;
 
+    /**
+     * Constructs Server object
+     *
+     * @param socket The socket that connect this computer connect with the server
+     */
     public Server(Socket socket) {
         this.socket = socket;
     }
-
-    Object currentUser = null;
 
     public static void main(String[] args) {
         try {
@@ -28,6 +39,9 @@ public class Server implements Runnable {
         }
     }
 
+    /**
+     * Run method that contains the main interface; is synchronized by threads
+     */
     @Override
     public void run() {
         try {
@@ -71,12 +85,18 @@ public class Server implements Runnable {
                 }
             }
         } catch (IOException e) {
-
+            e.printStackTrace();
         }
     }
 
-    //Purpose: checks if the user has an account with the email and password and returns that Buyer or Seller object
-    public static Object signInAccount(String signInEmail, String signInPassword) {
+    /**
+     * Checks the email and password to see if the user signs in.
+     *
+     * @param signInEmail    The entered email of the login user
+     * @param signInPassword The entered password of the login user
+     * @return Either a Buyer or Seller object
+     */
+    public synchronized static Object signInAccount(String signInEmail, String signInPassword) {
         if (checkExistingCredentials(signInEmail, signInPassword, "signIn").equals("No Account Found")) {
             return null;
         }
@@ -84,8 +104,7 @@ public class Server implements Runnable {
         accountSearch = accountSearch.substring(1, accountSearch.length() - 1);
         String[] accountDetails = accountSearch.split(", ");
         if (accountDetails[2].equals("buyer")) {
-            return new Buyer(accountDetails[0], accountDetails[1],
-                    buyerDataArray(accountDetails[0], "hist"),
+            return new Buyer(accountDetails[0], accountDetails[1], buyerDataArray(accountDetails[0], "hist"),
                     buyerDataArray(accountDetails[0], "cart"));
         } else if (accountDetails[2].equals("seller")) {
             return new Seller(accountDetails[0], accountDetails[1]);
@@ -93,7 +112,16 @@ public class Server implements Runnable {
         return null;
     }
 
-    public static String checkExistingCredentials(String email, String password, String purpose) {
+    /**
+     * Checks user's existing credentials
+     *
+     * @param email    The entered email of the login user
+     * @param password The entered password of the login user
+     * @param purpose  The type of action to check: either checks if user is signed in
+     * @return String of email and password of user, "DuplicateEmail" if the email already exists, or
+     * "No Account Found" if the account doesn't exist
+     */
+    public synchronized static String checkExistingCredentials(String email, String password, String purpose) {
         try {
             BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
             String line = "";
@@ -122,9 +150,9 @@ public class Server implements Runnable {
      *
      * @param userEmail  User email to make sure you get the right user data
      * @param cartOrHist If Cart, Cart list is returned. If Hist, Purchase History list is returned
-     * @return
+     * @return A string ArrayList of the Buyer's information from FMCredentials.csv
      */
-    public static ArrayList<String> buyerDataArray(String userEmail, String cartOrHist) {
+    public synchronized static ArrayList<String> buyerDataArray(String userEmail, String cartOrHist) {
         try {
             ArrayList<String> buyerData = new ArrayList<>();
             BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
@@ -155,7 +183,16 @@ public class Server implements Runnable {
         }
     }
 
-    public static Object createAccount(String email, String password, String role) {
+    /**
+     * Creates a new account that's either a Buyer or Seller object based on the role,
+     * and writes the account information to FMCredentials.csv
+     *
+     * @param email    The entered email of the account
+     * @param password The entered password of the account
+     * @param role     The type of account to create: Buyer or Seller
+     * @return a Buyer or Seller object based on the role
+     */
+    public synchronized static Object createAccount(String email, String password, String role) {
         if (checkExistingCredentials(email, password, "newAccount").equals("DuplicateEmail")) {
             return null;
         }
@@ -168,8 +205,7 @@ public class Server implements Runnable {
             currentSeller = new Seller(email, password);
         }
         try {                                   //writes the new user's account to the csv file
-            PrintWriter CredentialPrintWriter = new PrintWriter(new BufferedWriter(new FileWriter("FMCredentials.csv"
-                    , true)));
+            PrintWriter CredentialPrintWriter = new PrintWriter(new BufferedWriter(new FileWriter("FMCredentials.csv", true)));
             CredentialPrintWriter.println(email + "," + password + "," + role.toLowerCase() + ",x,x");
             CredentialPrintWriter.flush();
             CredentialPrintWriter.close();
@@ -186,7 +222,6 @@ public class Server implements Runnable {
     }
 
 }
-
 
 //import java.io.*;
 //import java.net.*;
