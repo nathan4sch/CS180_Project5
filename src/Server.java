@@ -42,7 +42,6 @@ public class Server implements Runnable {
     /**
      * Run method that contains the main interface; is synchronized by threads
      */
-    @Override
     public void run() {
         try {
             PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
@@ -81,6 +80,38 @@ public class Server implements Runnable {
                             printWriter.println("Success");
                             printWriter.flush();
                         }
+                    }
+                    case "Manage Store" -> {
+                        Store[] userStoreList = ((Seller)currentUser).getStore();
+                        String[] userStoreNames = new String[userStoreList.length];
+                        for (int i = 0; i < userStoreList.length; i++) {
+                            userStoreNames[i] = userStoreList[i].getStoreName();
+                        }
+                        printWriter.println(Arrays.toString(userStoreNames));
+                        printWriter.flush();
+                    }
+                    case "Create Store" -> {
+                        String storeName = bufferedReader.readLine();
+                        String successOrFailure = validStoreName(storeName);
+                        if (successOrFailure.equals("Failure")) {
+                            printWriter.println("Failure");
+                            printWriter.flush();
+                        } else if (successOrFailure.equals("Success")) {
+                            ((Seller)currentUser).createStore(new Store(((Seller)currentUser).getEmail(), storeName));
+                            printWriter.println("Success");
+                            printWriter.flush();
+                        }
+                    }
+                    case "Delete Store" -> {
+                        String deleteStoreName = bufferedReader.readLine();
+                        ((Seller)currentUser).deleteStore(deleteStoreName);
+                        Store[] userStoreList = ((Seller)currentUser).getStore();
+                        String[] userStoreNames = new String[userStoreList.length];
+                        for (int i = 0; i < userStoreList.length; i++) {
+                            userStoreNames[i] = userStoreList[i].getStoreName();
+                        }
+                        printWriter.println(Arrays.toString(userStoreNames));
+                        printWriter.flush();
                     }
                 }
             }
@@ -221,62 +252,21 @@ public class Server implements Runnable {
         return null;
     }
 
+    public static String validStoreName(String storeName) {
+            try {
+                BufferedReader bfr = new BufferedReader(new FileReader("FMStores.csv"));
+                String line = "";
+                while ((line = bfr.readLine()) != null) {
+                    String[] storeInfo = line.split(",");
+                    if (storeName.equals(storeInfo[0])) {
+                        bfr.close();
+                        return "Failure";
+                    }
+                }
+                bfr.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        return "Success";
+    }
 }
-
-//import java.io.*;
-//import java.net.*;
-//import java.util.ArrayList;
-//
-//public class Server {
-//    public static final int[] ports = {1111 , 2222, 3333, 4444};
-//
-//    public static void main(String[] args) {
-//        Socket socket = null;
-//        try {
-//            ServerSocket serverSocket = new ServerSocket(ports[0]);
-//
-//            for (int i = 1; i <= 2; i++) {
-//
-//                try {
-//                    System.out.printf("Waiting for client %d to connect...\n", i);
-//                    socket = serverSocket.accept();
-//                    System.out.printf("Client %d connected!\n" , i);
-//
-//                    BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//                    PrintWriter writer = new PrintWriter(socket.getOutputStream());
-//
-//                    String keyword = reader.readLine();
-//                    System.out.printf("Received from client %d:\n%s\n", i, keyword);
-//                    reader.close();
-//                    writer.close();
-//                } catch (IOException e) {
-//                    System.out.println("I/O error: " + e);
-//                }
-//                // new thread for a client
-//                new Client(socket).start();
-//            }
-//
-//            serverSocket.close();
-//
-////            try {
-////                ServerSocket serverSocket1 = new ServerSocket(ports[1]);
-////                System.out.println("Waiting for the client to connect...");
-////                Socket socket1 = serverSocket1.accept();
-////                System.out.println("Client connected!");
-////
-////                BufferedReader reader1 = new BufferedReader(new InputStreamReader(socket1.getInputStream()));
-////                PrintWriter writer1 = new PrintWriter(socket1.getOutputStream());
-////
-////                String keyword = reader1.readLine();
-////                System.out.printf("Received from client 1:\n%s\n", keyword);
-////
-////                reader1.close();
-////                writer1.close();
-////            } catch (Exception e) {
-////                e.printStackTrace();
-////            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-//}
