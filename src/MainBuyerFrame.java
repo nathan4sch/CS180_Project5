@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,85 +12,70 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 
-/**
- * MainBuyerFrame class
- *
- * The interface in which users with Buyer accounts can access their information
- * Lists the marketplace where Buyers can purchase products
- *
- * @version 24/11/2022
- */
 public class MainBuyerFrame extends JComponent implements Runnable {
-    ArrayList<JComponent> currentlyVisible = new ArrayList<>();
     Socket socket;
     BufferedReader bufferedReader;
     PrintWriter printWriter;
+
+    String[] columnNames = {"Store", "Product Name", "Price"};
+    String[][] rowData = new String[3][3];
+    //Used for testing until server works
+    String[][] dummyRowData = {{"Joe's couches", "Couch", "199.99"}, {"Jim's Chairs",
+    "chair", "29.99"}};
+    DefaultTableModel tableModel;
+    JTable jTable;
     JFrame mainBuyerFrame;
     JSplitPane splitPane;
     JPanel leftPanel;
     JPanel rightPanel;
-    JButton selectProductButton; // (1) Select Product
-    JButton viewCartButton; // (2) View Cart
-    JButton searchButton; // (3) Search
-    JButton purchaseHistoryButton; // (4) Review Purchase History
-    JButton viewStatisticsButton; // (5) Manage Account
-    JButton manageAccountButton; // (6) View Statistics
-    JButton signOutButton; // (7) Sign Out
+    JButton viewCartButton;
+    JButton searchButton;
+    JTextField searchTextField = new JTextField(10);
+    JButton sortButton;
+    JButton reviewHistoryButton;
+    JButton manageAccountButton;
+    JButton logoutButton;
+    JScrollPane jScrollPane;
+    JPopupMenu popupMenu;
+    JMenuItem addToCart;
+    JMenuItem moreDetails;
 
-    //Manage Account
-    JLabel manageAccountMainLabel;
-    JButton editAccountButton;
-    JButton deleteAccountButton;
-    JTextField newEmail;
-    JTextField newPassword;
-    JLabel emailLabel;
-    JLabel passwordLabel;
-    JComponent[] manageAccountGUI;
 
-    public MainBuyerFrame(Socket socket) {
+    public MainBuyerFrame (Socket socket) {
         this.socket = socket;
     }
-
-    public static void main(String[] args) { // testing
-        try {
-            Socket socket1 = new Socket("localhost", 4444);
-            MainBuyerFrame buyer = new MainBuyerFrame(socket1);
-            buyer.run();
-        } catch (IOException e) {
-            e.printStackTrace();
+    ActionListener popupItemListener = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            JMenuItem choice = (JMenuItem) e.getSource();
+            if (choice == addToCart) {
+                //add to cart code
+            } else if (choice == moreDetails) {
+                //more details code
+            }
         }
-    }
-
+    };
     ActionListener actionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
 
             //Main options from Right Panel
-            if (source == selectProductButton) { // (1) Select Product
+            if (source == viewCartButton) { // (1) Select Product
 
-            } else if (source == viewCartButton) { // (2) View Cart
+            } else if (source == sortButton) {
 
-            } else if (source == searchButton) { // (3) Search
-
-            } else if (source == purchaseHistoryButton) { // (4) Review Purchase History
+            }else if (source == searchButton) { // (3) Search
 
             } else if (source == manageAccountButton) { // (5) Manage Account
 
-            } else if (source == viewStatisticsButton) { // (6) View Statistics
+            } else if (source == reviewHistoryButton) { // (6) View Statistics
 
-            } else if (source == signOutButton) { // (7) Sign Out
+            } else if (source == logoutButton) { // (7) Sign Out
                 SwingUtilities.invokeLater(new LoginFrame(socket));
                 mainBuyerFrame.dispose();
             }
-
-            //Manage Account Buttons
-            if (source == editAccountButton) {
-
-            } else if (source == deleteAccountButton) {
-
-            }
         }
     };
+
 
     public void run() {
         try {
@@ -98,6 +84,11 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        popupMenu = new JPopupMenu();
+        addToCart = new JMenuItem("Add to Cart");
+        moreDetails = new JMenuItem("Delete Friend");
+
         mainBuyerFrame = new JFrame("Account Frame");
         splitPane = new JSplitPane();
         leftPanel = new JPanel();
@@ -110,91 +101,54 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         splitPane.setRightComponent(rightPanel);
 
         //rightPanel
-        rightPanel.setLayout(new GridLayout(7, 1, 20, 20));
+        rightPanel.setLayout(new GridLayout(5, 1, 20, 20));
 
-        // Select Product Button
-        selectProductButton = new JButton("Select Product");
-        selectProductButton.addActionListener(actionListener);
-        rightPanel.add(selectProductButton);
-
-        // View Cart Button
         viewCartButton = new JButton("View Cart");
         viewCartButton.addActionListener(actionListener);
         rightPanel.add(viewCartButton);
 
-        // Search Button
-        searchButton = new JButton("Search");
-        searchButton.addActionListener(actionListener);
-        rightPanel.add(searchButton);
+        sortButton = new JButton("Sort Dashboard");
+        sortButton.addActionListener(actionListener);
+        rightPanel.add(sortButton);
 
-        // Purchase History Button
-        purchaseHistoryButton = new JButton("Review Purchase History");
-        purchaseHistoryButton.addActionListener(actionListener);
-        rightPanel.add(purchaseHistoryButton);
+        reviewHistoryButton = new JButton("Review Purchase History");
+        reviewHistoryButton.addActionListener(actionListener);
+        rightPanel.add(reviewHistoryButton);
 
-        //Manage Account Button
         manageAccountButton = new JButton("Manage Account");
         manageAccountButton.addActionListener(actionListener);
         rightPanel.add(manageAccountButton);
 
-        // View Statistics Button
-        viewStatisticsButton = new JButton("View Statistics");
-        viewStatisticsButton.addActionListener(actionListener);
-        rightPanel.add(viewStatisticsButton);
+        logoutButton = new JButton("Logout");
+        logoutButton.addActionListener(actionListener);
+        rightPanel.add(logoutButton);
 
-        //Sign Out Button
-        signOutButton = new JButton("Sign Out");
-        signOutButton.addActionListener(actionListener);
-        rightPanel.add(signOutButton);
+        leftPanel.add(searchTextField);
 
-        //Left Panel
-        leftPanel.setLayout(null);
+        searchButton = new JButton("Search");
+        searchButton.addActionListener(actionListener);
+        leftPanel.add(searchButton);
 
-        //Manage Account
-//        int fontSize = fontSizeToUse;
-//        manageAccountMainLabel = new JLabel("Manage Account");
-//        manageAccountMainLabel.setBounds(200, 10, 400, 60);
-//        manageAccountMainLabel.setFont(new Font(manageAccountMainLabel.getFont().getName(),
-//                Font.PLAIN, fontSizeToUse(manageAccountMainLabel)));
-//        leftPanel.add(manageAccountMainLabel);
-//        manageAccountMainLabel.setVisible(false);
-//
-//        passwordLabel = new JLabel("Input New Password: ");
-//        passwordLabel.setBounds(100, 250, 200, 40);
-//        fontSize = fontSizeToUse(passwordLabel);
-//        passwordLabel.setFont(new Font(passwordLabel.getFont().getName(), Font.PLAIN, fontSize));
-//        leftPanel.add(passwordLabel);
-//        passwordLabel.setVisible(false);
-//
-//        emailLabel = new JLabel("Input New Email: ");
-//        emailLabel.setBounds(100, 200, 200, 40);
-//        emailLabel.setFont(new Font(emailLabel.getFont().getName(), Font.PLAIN, fontSize));
-//        leftPanel.add(emailLabel);
-//        emailLabel.setVisible(false);
-//
-//        newEmail = new JTextField(100);
-//        newEmail.setBounds(300, 200, 200, 40);
-//        leftPanel.add(newEmail);
-//        newEmail.setVisible(false);
-//
-//        newPassword = new JTextField(100);
-//        newPassword.setBounds(300, 250, 200, 40);
-//        leftPanel.add(newPassword);
-//        newPassword.setVisible(false);
-//
-//        editAccountButton = new JButton("Edit Credentials");
-//        editAccountButton.addActionListener(actionListener);
-//        editAccountButton.setBounds(100, 300, 200, 70);
-//        leftPanel.add(editAccountButton);
-//        editAccountButton.setVisible(false);
-//
-//        deleteAccountButton = new JButton("Delete Account");
-//        deleteAccountButton.addActionListener(actionListener);
-//        deleteAccountButton.setBounds(310, 300, 200, 70);
-//        leftPanel.add(deleteAccountButton);
-//        deleteAccountButton.setVisible(false);
-//
-//        manageAccountGUI = new JComponent[]{manageAccountMainLabel, editAccountButton, deleteAccountButton, newEmail, newPassword, emailLabel, passwordLabel};
+        popupMenu = new JPopupMenu();
+        addToCart = new JMenuItem("Add to Cart");
+        moreDetails = new JMenuItem("Delete Friend");
+
+        addToCart.addActionListener(popupItemListener);
+        moreDetails.addActionListener(popupItemListener);
+        popupMenu.add(addToCart);
+        popupMenu.add(moreDetails);
+
+        tableModel = new DefaultTableModel(dummyRowData, columnNames) {
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        jTable = new JTable(tableModel);
+        jTable.setComponentPopupMenu(popupMenu);
+
+        jScrollPane = new JScrollPane(jTable, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        leftPanel.add(jScrollPane);
 
         //Finalize frame
         mainBuyerFrame.add(splitPane);
@@ -215,26 +169,47 @@ public class MainBuyerFrame extends JComponent implements Runnable {
             }
         });
         mainBuyerFrame.setVisible(true);
-
     }
 
-//    //FOUND THIS ONLINE (will change)
-//    public int fontSizeToUse(JLabel label) {
-//        Font currentFont = label.getFont();
-//        String textInLabel = label.getText();
-//        int stringWidth = label.getFontMetrics(currentFont).stringWidth(textInLabel);
-//        int componentWidth = label.getWidth();
-//        double widthRatio = (double) componentWidth / (double) stringWidth;
-//        int newFontSize = (int) (currentFont.getSize() * widthRatio);
-//        int componentHeight = label.getHeight();
-//        int fontSizeToUse = Math.min(newFontSize, componentHeight);
-//
-//        return fontSizeToUse;
-//    }
-
-    public void resetVisible() {
-        for (int i = 0; i < currentlyVisible.size(); i++) {
-            currentlyVisible.get(i).setVisible(false);
+    /**
+     * This method requests the item listing from the server and updates the Table in the left panel with
+     * this information.
+     *
+     * @return Updated item table.
+     */
+    public DefaultTableModel updateTable() {
+        printWriter.println("Get Item list");
+        printWriter.flush();
+        //this variable serves two purposes. If there are no items, it will be empty. If there are items, it will say how many.
+        String emptyChecker = null;
+        try {
+            emptyChecker = bufferedReader.readLine();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
         }
+        assert emptyChecker != null;
+        if (emptyChecker.equals("empty")) {
+            rowData = null;
+        } else {
+            try {
+                int count = Integer.parseInt(emptyChecker);
+                rowData = new String[count][3];
+                for (int i = 0; i < count; i++) {
+                    String store = bufferedReader.readLine();
+                    String productName = bufferedReader.readLine();
+                    String price = bufferedReader.readLine();
+                    rowData[i][0] = store;
+                    rowData[i][1] = productName;
+                    rowData[i][2] = price;
+                }
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+        }
+        return new DefaultTableModel(rowData, columnNames) {
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
     }
 }
