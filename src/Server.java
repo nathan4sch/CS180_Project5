@@ -87,7 +87,6 @@ public class Server implements Runnable {
                         for (int i = 0; i < userStoreList.length; i++) {
                             userStoreNames[i] = userStoreList[i].getStoreName();
                         }
-                        System.out.println(Arrays.toString(userStoreNames));
                         printWriter.println(Arrays.toString(userStoreNames));
                         printWriter.flush();
                     }
@@ -102,7 +101,17 @@ public class Server implements Runnable {
                             printWriter.println("Success");
                             printWriter.flush();
                         }
-
+                    }
+                    case "Delete Store" -> {
+                        String deleteStoreName = bufferedReader.readLine();
+                        ((Seller)currentUser).deleteStore(deleteStoreName);
+                        Store[] userStoreList = ((Seller)currentUser).getStore();
+                        String[] userStoreNames = new String[userStoreList.length];
+                        for (int i = 0; i < userStoreList.length; i++) {
+                            userStoreNames[i] = userStoreList[i].getStoreName();
+                        }
+                        printWriter.println(Arrays.toString(userStoreNames));
+                        printWriter.flush();
                     }
                 }
             }

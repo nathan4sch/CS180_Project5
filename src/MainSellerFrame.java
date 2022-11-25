@@ -30,8 +30,6 @@ public class MainSellerFrame extends JComponent implements Runnable {
     JLabel manageStoreMainLabel;
     JButton manageCatalogueButton;
     JButton createStoreButton;
-    JButton renameStoreButton;
-    JButton deleteStoreButton;
     JLabel newStoreName;
     JTextField inputStoreName;
     JComponent[] manageStoreGUI;
@@ -116,14 +114,8 @@ public class MainSellerFrame extends JComponent implements Runnable {
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
-                if (source == deleteStoreButton) {
-                    SwingUtilities.invokeLater(new ManageStoreFrame(socket, "Delete Store", userStoreList));
-                    mainSellerFrame.dispose();
-                } else if (source == manageCatalogueButton) {
-                    SwingUtilities.invokeLater(new ManageStoreFrame(socket, "Manage Catalogue", userStoreList));
-                    mainSellerFrame.dispose();
-                } else if (source == renameStoreButton) {
-                    SwingUtilities.invokeLater(new ManageStoreFrame(socket, "Rename Store", userStoreList));
+                if (source == manageCatalogueButton) {
+                    SwingUtilities.invokeLater(new ManageStoreFrame(socket, userStoreList));
                     mainSellerFrame.dispose();
                 }
             }
@@ -187,13 +179,13 @@ public class MainSellerFrame extends JComponent implements Runnable {
 
         //Manage Stores
         manageStoreMainLabel = new JLabel("Manage Stores");
-        manageStoreMainLabel.setBounds(200, 10, 400, 60);
+        manageStoreMainLabel.setBounds(200, 10, 400, 100);
         manageStoreMainLabel.setFont(new Font(manageStoreMainLabel.getFont().getName(),
                 Font.PLAIN, fontSizeToUse(manageStoreMainLabel)));
         leftPanel.add(manageStoreMainLabel);
         manageStoreMainLabel.setVisible(false);
 
-        newStoreName = new JLabel("Input New Store Name: ");
+        newStoreName = new JLabel("Input Store Name: ");
         newStoreName.setBounds(500, 300, 200, 40);
         int fontSize = fontSizeToUse(newStoreName);
         newStoreName.setFont(new Font(newStoreName.getFont().getName(), Font.PLAIN, fontSize));
@@ -213,29 +205,17 @@ public class MainSellerFrame extends JComponent implements Runnable {
 
         manageCatalogueButton = new JButton("Manage Catalogue");
         manageCatalogueButton.addActionListener(actionListener);
-        manageCatalogueButton.setBounds(100, 250, 200, 80);
+        manageCatalogueButton.setBounds(100, 350, 200, 80);
         leftPanel.add(manageCatalogueButton);
         manageCatalogueButton.setVisible(false);
 
-        renameStoreButton = new JButton("Rename Store");
-        renameStoreButton.addActionListener(actionListener);
-        renameStoreButton.setBounds(100, 350, 200, 80);
-        leftPanel.add(renameStoreButton);
-        renameStoreButton.setVisible(false);
-
-        deleteStoreButton = new JButton("Delete Store");
-        deleteStoreButton.addActionListener(actionListener);
-        deleteStoreButton.setBounds(100, 450, 200, 80);
-        leftPanel.add(deleteStoreButton);
-        deleteStoreButton.setVisible(false);
-
-        manageStoreGUI = new JComponent[]{manageStoreMainLabel, manageCatalogueButton, createStoreButton,
-                renameStoreButton, deleteStoreButton, newStoreName, inputStoreName};
+        manageStoreGUI = new JComponent[]{manageStoreMainLabel, manageCatalogueButton, createStoreButton
+                , newStoreName, inputStoreName};
 
 
         //Manage Account
         manageAccountMainLabel = new JLabel("Manage Account");
-        manageAccountMainLabel.setBounds(200, 10, 400, 60);
+        manageAccountMainLabel.setBounds(200, 10, 400, 100);
         manageAccountMainLabel.setFont(new Font(manageAccountMainLabel.getFont().getName(),
                 Font.PLAIN, fontSizeToUse(manageAccountMainLabel)));
         leftPanel.add(manageAccountMainLabel);
@@ -321,3 +301,4 @@ public class MainSellerFrame extends JComponent implements Runnable {
     }
 
 }
+

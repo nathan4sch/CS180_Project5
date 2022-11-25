@@ -1,6 +1,7 @@
 import java.io.*;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * The Seller class and all the variables and methods they may use.
@@ -49,6 +50,66 @@ public class Seller {
             printStore.flush();
             printStore.close();
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Purpose: deletes the store from the current users array of stores and deletes the stores from the csv along with
+     * its items.
+     *
+     * @param storeName contains the name of the store to be deleted
+     */
+    public void deleteStore(String storeName) {
+        Store currentStore = null;
+        for (int i = 0; i < stores.size(); i++) {
+            if (stores.get(i).getStoreName().equals(storeName)){
+                currentStore = stores.get(i);
+            }
+        }
+        stores.remove(currentStore);
+        ArrayList<String> storesLines = new ArrayList<>();
+        ArrayList<String> itemsLines = new ArrayList<>();
+        try {
+            // First, remove store belonging to this owner from stores file
+            BufferedReader bfrOne = new BufferedReader(new FileReader("FMStores.csv"));
+            String line = "";
+            while ((line = bfrOne.readLine()) != null) {
+                String[] splitLine = line.split(",");
+                if (!currentStore.getStoreName().equals(splitLine[0])) {
+                    storesLines.add(line);
+                }
+            }
+            bfrOne.close();
+            PrintWriter pwOne = new PrintWriter(new FileOutputStream("FMStores.csv", false));
+            for (int i = 0; i < storesLines.size(); i++) {
+                pwOne.println(storesLines.get(i));
+            }
+            pwOne.close();
+        } catch (Exception e) {
+            System.out.println("Error deleting current store!");
+            e.printStackTrace();
+        }
+        try {
+            // Second, remove all items belonging to this store from items file
+            BufferedReader bfrTwo = new BufferedReader(new FileReader("FMItems.csv"));
+            String line = "";
+
+            while ((line = bfrTwo.readLine()) != null) {
+                // Only saves items whose store doesn't match this store
+                String[] splitLine = line.split(",");
+                if (!currentStore.getStoreName().equals(splitLine[0])) {
+                    itemsLines.add(line);
+                }
+            }
+            bfrTwo.close();
+            PrintWriter pwTwo = new PrintWriter(new FileOutputStream("FMItems.csv", false));
+            for (int i = 0; i < itemsLines.size(); i++) {
+                pwTwo.println(itemsLines.get(i));
+            }
+            pwTwo.close();
+        } catch (Exception e) {
+            System.out.println("Error deleting store items!");
             e.printStackTrace();
         }
     }
