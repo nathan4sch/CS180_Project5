@@ -1,9 +1,11 @@
 import java.io.*;
+import java.lang.reflect.Array;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Scanner;
 
 /**
  * Server class
@@ -79,20 +81,6 @@ public class Server implements Runnable {
                             printWriter.println("Success");
                             printWriter.flush();
                         }
-                    }
-                    case "View Cart" -> {
-                        ArrayList<String> buyerCartList = ((Buyer)currentUser).getCart();
-                        String[] buyerCart = new String[buyerCartList.size()];
-                        for (int i = 0; i < buyerCartList.size(); i++) {
-                            if (i == buyerCartList.size() - 1) {
-                                buyerCart[i] = buyerCartList.get(i);
-                            } else {
-                                buyerCart[i] = buyerCartList.get(i) + "~";
-                            }
-                        }
-
-                        printWriter.println(Arrays.toString(buyerCart));
-                        printWriter.flush();
                     }
                     case "Manage Store" -> {
                         Store[] userStoreList = ((Seller)currentUser).getStore();
@@ -287,13 +275,7 @@ public class Server implements Runnable {
         return null;
     }
 
-    /**
-     * Checks if the store name is valid
-     *
-     * @param storeName    The entered store name
-     * @return a String denoting "Success" or "Failure", which is handled in run()
-     */
-    public synchronized static String validStoreName(String storeName) {
+    public static String validStoreName(String storeName) {
             try {
                 BufferedReader bfr = new BufferedReader(new FileReader("FMStores.csv"));
                 String line = "";
