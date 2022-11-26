@@ -40,6 +40,7 @@ public class Buyer {
             this.cart = showItemsInCart(email);
         }
     }
+
     /**
      * Returns an ArrayList to be printed as the purchase history
      *
@@ -105,7 +106,7 @@ public class Buyer {
                 // If arraylist index has email
                 if (FMCredentials.get(i).contains(email)) {
                     String[] strSplit = FMCredentials.get(i).split(",");
-                    String shoppingCartInfo = strSplit[5];
+                    String shoppingCartInfo = strSplit[4];
                     String[] shoppingCartLine = shoppingCartInfo.split("~");
 
                     return new ArrayList<>(Arrays.asList(shoppingCartLine));
@@ -115,5 +116,23 @@ public class Buyer {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * gets user's cart
+     *
+     * @return cart ArrayList
+     */
+    public ArrayList<String> getCart() {
+        return cart;
+    }
+
+    /**
+     * gets user's purchase history
+     *
+     * @return purchaseHistory ArrayList
+     */
+    public ArrayList<String> getPurchaseHistory() {
+        return purchaseHistory;
     }
 }
