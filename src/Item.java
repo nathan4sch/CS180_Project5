@@ -31,4 +31,8 @@ public class Item {
         this.quantity = quantity;
         this.price = price;
     }
+
+    public String getName() {
+        return name;
+    }
 }
