@@ -72,8 +72,18 @@ public class ManageStoreFrame extends JComponent implements Runnable {
                     JOptionPane.showMessageDialog(null, "No Store Selected",
                             "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
-                    SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected));
-                    manageStoreFrame.dispose();
+                    printWriter.println("Modify Product");
+                    printWriter.println(storeSelected);
+                    printWriter.flush();
+                    try {
+                        String storeItemsString = bufferedReader.readLine();
+                        storeItemsString = storeItemsString.substring(1, storeItemsString.length() - 1);
+                        String[] storeItemNames = storeItemsString.split(", ");
+                        SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, storeItemNames));
+                        manageStoreFrame.dispose();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             } else {
                 storeSelected = e.getActionCommand();
