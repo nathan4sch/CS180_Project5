@@ -36,7 +36,7 @@ public class LoginFrame extends JComponent implements Runnable {
                 userEmail = emailText.getText();
                 userPassword = passwordText.getText();
                 try {
-                    printWriter.println("Sign In");
+                    printWriter.println("SignIn");
                     printWriter.flush();
                     printWriter.println(userEmail);
                     printWriter.flush();
