@@ -21,6 +21,7 @@ public class Client {
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
+        SwingUtilities.invokeLater(new LoginFrame(socket));
     }
 }
 //
