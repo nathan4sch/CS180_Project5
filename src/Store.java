@@ -6,7 +6,7 @@ import java.util.Collections;
 /**
  * Store class, contains important information methods about the store of the items
  *
- * @author Dakota Baldwin
+ * @author Nathan Schneider
  * @version 13/11/2022
  */
 
@@ -49,6 +49,10 @@ public class Store {
     }
     public String getOwner() {
         return owner;
+    }
+
+    public ArrayList<Item> getItems() {
+        return items;
     }
 
 }

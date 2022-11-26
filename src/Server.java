@@ -1,4 +1,5 @@
 import java.io.*;
+import java.lang.reflect.Array;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -112,6 +113,28 @@ public class Server implements Runnable {
                         }
                         printWriter.println(Arrays.toString(userStoreNames));
                         printWriter.flush();
+                    }
+                    case "Modify Product" -> {
+                        String currentStoreString = bufferedReader.readLine();
+                        Store[] userStoreList = ((Seller)currentUser).getStore();
+                        Store currentStore = null;
+                        for (int i = 0; i < userStoreList.length; i++) {
+                            if (userStoreList[i].getStoreName().equals(currentStoreString)) {
+                                currentStore = userStoreList[i];
+                            }
+                        }
+                        ArrayList<Item> storeItems = currentStore.getItems();
+                        if (storeItems.size() == 0) {
+                            printWriter.println("[No items]");
+                            printWriter.flush();
+                        } else {
+                            String[] itemNames = new String[storeItems.size()];
+                            for (int i = 0; i < storeItems.size(); i++) {
+                                itemNames[i] = storeItems.get(i).getName();
+                            }
+                            printWriter.println(Arrays.toString(itemNames));
+                            printWriter.flush();
+                        }
                     }
                 }
             }
