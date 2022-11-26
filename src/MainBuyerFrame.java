@@ -18,16 +18,18 @@ public class MainBuyerFrame extends JComponent implements Runnable {
     PrintWriter printWriter;
 
     String[] columnNames = {"Store", "Product Name", "Price"};
-    String[][] rowData = new String[3][3];
+    String[][] rowData = new String[1][];
     //Used for testing until server works
-    String[][] dummyRowData = {{"Joe's couches", "Couch", "199.99"}, {"Jim's Chairs",
-    "chair", "29.99"}};
+    String[][] dummyRowData = {{"Joe's couches", "Couch", "199.99"}, {"Jim's Chairs", "chair", "29.99"}};
+    String[][] dummyRowData2 = {{"Jim's Chairs", "chair", "29.99"}, {"Joe's couches", "Couch", "199.99"}};
     DefaultTableModel tableModel;
     JTable jTable;
+
     JFrame mainBuyerFrame;
     JSplitPane splitPane;
     JPanel leftPanel;
     JPanel rightPanel;
+    JScrollPane jScrollPane;
     JButton viewCartButton;
     JButton searchButton;
     JTextField searchTextField = new JTextField(10);
@@ -35,10 +37,15 @@ public class MainBuyerFrame extends JComponent implements Runnable {
     JButton reviewHistoryButton;
     JButton manageAccountButton;
     JButton logoutButton;
-    JScrollPane jScrollPane;
-    JPopupMenu popupMenu;
+
+    JPopupMenu tablePopupMenu;
     JMenuItem addToCart;
     JMenuItem moreDetails;
+
+    JPopupMenu sortPopupMenu;
+    JMenuItem sortByPrice;
+    JMenuItem sortByQuantity;
+
 
 
     public MainBuyerFrame (Socket socket) {
@@ -51,6 +58,28 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                 //add to cart code
             } else if (choice == moreDetails) {
                 //more details code
+            } else if (choice == sortByPrice) {
+                printWriter.println("Sort Price");
+                printWriter.flush();
+                try {
+                    int numItems = Integer.parseInt(bufferedReader.readLine());
+                    tableModel = updateTable(numItems);
+                    jTable.setModel(tableModel);
+                    mainBuyerFrame.repaint();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            } else if (choice == sortByQuantity) {
+                printWriter.println("Sort Quantity");
+                printWriter.flush();
+                try {
+                    int numItems = Integer.parseInt(bufferedReader.readLine());
+                    tableModel = updateTable(numItems);
+                    jTable.setModel(tableModel);
+                    mainBuyerFrame.repaint();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
             }
         }
     };
@@ -60,11 +89,21 @@ public class MainBuyerFrame extends JComponent implements Runnable {
 
             //Main options from Right Panel
             if (source == viewCartButton) { // (1) Select Product
-
-            } else if (source == sortButton) {
+                SwingUtilities.invokeLater(new CartFrame(socket));
+                mainBuyerFrame.dispose();
 
             }else if (source == searchButton) { // (3) Search
-
+                printWriter.println("Search");
+                printWriter.println(searchTextField.getText());
+                printWriter.flush();
+                try {
+                    int numItems = Integer.parseInt(bufferedReader.readLine());
+                    tableModel = updateTable(numItems);
+                    jTable.setModel(tableModel);
+                    mainBuyerFrame.repaint();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
             } else if (source == manageAccountButton) { // (5) Manage Account
 
             } else if (source == reviewHistoryButton) { // (6) View Statistics
@@ -85,10 +124,6 @@ public class MainBuyerFrame extends JComponent implements Runnable {
             e.printStackTrace();
         }
 
-        popupMenu = new JPopupMenu();
-        addToCart = new JMenuItem("Add to Cart");
-        moreDetails = new JMenuItem("Delete Friend");
-
         mainBuyerFrame = new JFrame("Account Frame");
         splitPane = new JSplitPane();
         leftPanel = new JPanel();
@@ -107,8 +142,15 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         viewCartButton.addActionListener(actionListener);
         rightPanel.add(viewCartButton);
 
+        sortPopupMenu = new JPopupMenu();
+        sortByPrice = new JMenuItem("Sort By Price");
+        sortByQuantity = new JMenuItem("Sort By Quantity");
+        sortByPrice.addActionListener(popupItemListener);
+        sortByQuantity.addActionListener(popupItemListener);
+        sortPopupMenu.add(sortByPrice);
+        sortPopupMenu.add(sortByQuantity);
         sortButton = new JButton("Sort Dashboard");
-        sortButton.addActionListener(actionListener);
+        sortButton.setComponentPopupMenu(sortPopupMenu);
         rightPanel.add(sortButton);
 
         reviewHistoryButton = new JButton("Review Purchase History");
@@ -129,22 +171,18 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         searchButton.addActionListener(actionListener);
         leftPanel.add(searchButton);
 
-        popupMenu = new JPopupMenu();
+        tablePopupMenu = new JPopupMenu();
         addToCart = new JMenuItem("Add to Cart");
         moreDetails = new JMenuItem("Delete Friend");
 
         addToCart.addActionListener(popupItemListener);
         moreDetails.addActionListener(popupItemListener);
-        popupMenu.add(addToCart);
-        popupMenu.add(moreDetails);
+        tablePopupMenu.add(addToCart);
+        tablePopupMenu.add(moreDetails);
 
-        tableModel = new DefaultTableModel(dummyRowData, columnNames) {
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
+        tableModel = initialTable();
         jTable = new JTable(tableModel);
-        jTable.setComponentPopupMenu(popupMenu);
+        jTable.setComponentPopupMenu(tablePopupMenu);
 
         jScrollPane = new JScrollPane(jTable, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -172,12 +210,12 @@ public class MainBuyerFrame extends JComponent implements Runnable {
     }
 
     /**
-     * This method requests the item listing from the server and updates the Table in the left panel with
+     * This method requests the item listing from the server and creates the unsorted table in the left panel with
      * this information.
      *
      * @return Updated item table.
      */
-    public DefaultTableModel updateTable() {
+    public DefaultTableModel initialTable() {
         printWriter.println("Get Item list");
         printWriter.flush();
         //this variable serves two purposes. If there are no items, it will be empty. If there are items, it will say how many.
@@ -205,6 +243,37 @@ public class MainBuyerFrame extends JComponent implements Runnable {
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
+        }
+        return new DefaultTableModel(rowData, columnNames) {
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+    }
+
+    /**
+     * Returns sorted Table Model
+     * @param numItems how many rows the table will contain
+     * @return Updated Item Table
+     */
+    public DefaultTableModel updateTable(int numItems) {
+        if (numItems == 0) {
+            rowData = null;
+        } else {
+            rowData = new String[numItems][3];
+            try {
+                for (int i = 0; i < numItems; i++) {
+                    String store = bufferedReader.readLine();
+                    String productName = bufferedReader.readLine();
+                    String price = bufferedReader.readLine();
+                    rowData[i][0] = store;
+                    rowData[i][1] = productName;
+                    rowData[i][2] = price;
+                }
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+
         }
         return new DefaultTableModel(rowData, columnNames) {
             public boolean isCellEditable(int row, int column) {
