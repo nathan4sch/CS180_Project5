@@ -12,12 +12,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 
-/**
- * The interface in which users with Buyer accounts can access their information
- * Lists the marketplace where Buyers can purchase products
- *
- * @version 24/11/2022
- */
 public class MainBuyerFrame extends JComponent implements Runnable {
     Socket socket;
     BufferedReader bufferedReader;
@@ -52,15 +46,11 @@ public class MainBuyerFrame extends JComponent implements Runnable {
     JMenuItem sortByPrice;
     JMenuItem sortByQuantity;
 
-    /**
-     *  The constructor of MainBuyerFrame
-     *
-     * @param socket The socket that connect this local machine with the server
-     */
+
+
     public MainBuyerFrame (Socket socket) {
         this.socket = socket;
     }
-
     ActionListener popupItemListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             JMenuItem choice = (JMenuItem) e.getSource();
@@ -99,26 +89,16 @@ public class MainBuyerFrame extends JComponent implements Runnable {
             }
         }
     };
-
     ActionListener actionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
 
             //Main options from Right Panel
             if (source == viewCartButton) { // (1) Select Product
-                printWriter.println("View Cart");
-                printWriter.flush();
+                SwingUtilities.invokeLater(new CartFrame(socket));
+                mainBuyerFrame.dispose();
 
-                try {
-                    String cartLine = bufferedReader.readLine();
-                    String[] buyerCarts = cartLine.split("~");
-
-                    SwingUtilities.invokeLater(new CartFrame(socket, buyerCarts));
-                    mainBuyerFrame.dispose();
-                } catch (Exception exc) {
-                    exc.printStackTrace();
-                }
-            } else if (source == searchButton) { // (3) Search
+            }else if (source == searchButton) { // (3) Search
                 printWriter.println("Search");
                 //prints the text that the user is searching for to server
                 printWriter.println(searchTextField.getText());
@@ -141,6 +121,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
             }
         }
     };
+
 
     public void run() {
         try {
@@ -215,11 +196,11 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         //Initializes table of Items for user to view
         printWriter.println("Initial Table");
         int itemsInInitialTable = -1;
-//        try {
-//            itemsInInitialTable = Integer.parseInt(bufferedReader.readLine());
-//        } catch (IOException ioe) {
-//            ioe.printStackTrace();
-//        }
+        try {
+            itemsInInitialTable = Integer.parseInt(bufferedReader.readLine());
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
         tableModel = updateTable(itemsInInitialTable);
         jTable = new JTable(tableModel);
         //adds popups to table
@@ -262,7 +243,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         } else if (numItems == -1) {
             JOptionPane.showMessageDialog(null, "Failed to Fetch server Data",
                     "Server Issue", JOptionPane.ERROR_MESSAGE);
-        } else {
+        } else
             rowData = new String[numItems][3];
             try {
                 for (int i = 0; i < numItems; i++) {
@@ -276,12 +257,10 @@ public class MainBuyerFrame extends JComponent implements Runnable {
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
-            return new DefaultTableModel(rowData, columnNames) {
-                public boolean isCellEditable(int row, int column) {
-                    return false;
-                }
-            };
-        }
-        return null;
+        return new DefaultTableModel(rowData, columnNames) {
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
     }
 }
