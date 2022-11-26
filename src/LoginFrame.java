@@ -37,7 +37,9 @@ public class LoginFrame extends JComponent implements Runnable {
                 userPassword = passwordText.getText();
                 try {
                     printWriter.println("SignIn");
+                    printWriter.flush();
                     printWriter.println(userEmail);
+                    printWriter.flush();
                     printWriter.println(userPassword);
                     printWriter.flush();
                     String successOrFailure = bufferedReader.readLine();
@@ -55,7 +57,6 @@ public class LoginFrame extends JComponent implements Runnable {
                     } else if (successOrFailure.equals("Failure")) {
                         JOptionPane.showMessageDialog(null, "No Account Found",
                                 "Sign In Failure", JOptionPane.ERROR_MESSAGE);
-                        return;
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -84,7 +85,6 @@ public class LoginFrame extends JComponent implements Runnable {
                     } else if (successOrFailure.equals("Failure")) {
                         JOptionPane.showMessageDialog(null, "This email already owns an account",
                                 "Create Account Failure", JOptionPane.ERROR_MESSAGE);
-                        return;
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -104,28 +104,35 @@ public class LoginFrame extends JComponent implements Runnable {
         }
         loginFrame = new JFrame("Account Frame");
         JPanel panel = new JPanel(new GridBagLayout());
+        panel.setSize(new Dimension(500, 300));
         GridBagConstraints gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridx = 0;
 
         //Email
         JLabel email = new JLabel("Email:");
-        panel.add(email , gridBagConstraints);
+        email.setHorizontalAlignment(JLabel.CENTER);
+        panel.add(email, gridBagConstraints);
         emailText = new JTextField(20);
+        gridBagConstraints.fill = GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.3;
         gridBagConstraints.gridx = 1;
-        panel.add(emailText , gridBagConstraints);
+        panel.add(emailText, gridBagConstraints);
 
         //Password
         JLabel password = new JLabel("Password:");
+        password.setHorizontalAlignment(JLabel.CENTER);
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         panel.add(password , gridBagConstraints);
         passwordText = new JTextField(20);
         gridBagConstraints.gridx = 1;
-        panel.add(passwordText , gridBagConstraints);
+        panel.add(passwordText, gridBagConstraints);
+        gridBagConstraints.weightx = 1;
 
         //Buyer or Seller
         JLabel userRole = new JLabel("Role:");
+        userRole.setHorizontalAlignment(JLabel.CENTER);
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
         panel.add(userRole , gridBagConstraints);
@@ -133,21 +140,21 @@ public class LoginFrame extends JComponent implements Runnable {
         userRoleSelection.addItem("Buyer");
         userRoleSelection.addItem("Seller");
         gridBagConstraints.gridx = 1;
-        panel.add(userRoleSelection , gridBagConstraints);
+        panel.add(userRoleSelection, gridBagConstraints);
 
         //SignIn Button
         signInButton = new JButton("SignIn");
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 4;
         signInButton.addActionListener(actionListener);
-        panel.add(signInButton , gridBagConstraints);
+        panel.add(signInButton, gridBagConstraints);
 
         //CreateAccount Button
         createAccountButton = new JButton("Create Account");
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 4;
         createAccountButton.addActionListener(actionListener);
-        panel.add(createAccountButton , gridBagConstraints);
+        panel.add(createAccountButton, gridBagConstraints);
 
         //Finalize frame
         loginFrame.add(panel);
