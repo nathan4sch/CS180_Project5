@@ -105,7 +105,7 @@ public class Buyer {
                 // If arraylist index has email
                 if (FMCredentials.get(i).contains(email)) {
                     String[] strSplit = FMCredentials.get(i).split(",");
-                    String shoppingCartInfo = strSplit[5];
+                    String shoppingCartInfo = strSplit[4];
                     String[] shoppingCartLine = shoppingCartInfo.split("~");
 
                     return new ArrayList<>(Arrays.asList(shoppingCartLine));
