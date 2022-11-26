@@ -21,18 +21,6 @@ public class Client {
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
-        try {
-            SwingUtilities.invokeLater(new LoginFrame(socket));
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            String input = reader.readLine();
-            switch (input) {
-//                case "Buyer" -> SwingUtilities.invokeLater(new MainBuyerFrame(socket));
-//                case "Seller" -> SwingUtilities.invokeLater(new MainSellerFrame(socket));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
     }
 }
 //
