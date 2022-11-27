@@ -40,6 +40,7 @@ public class Buyer {
             this.cart = showItemsInCart(email);
         }
     }
+
     /**
      * Returns an ArrayList to be printed as the purchase history
      *
@@ -115,5 +116,23 @@ public class Buyer {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * gets user's cart
+     *
+     * @return cart ArrayList
+     */
+    public ArrayList<String> getCart() {
+        return cart;
+    }
+
+    /**
+     * gets user's purchase history
+     *
+     * @return purchaseHistory ArrayList
+     */
+    public ArrayList<String> getPurchaseHistory() {
+        return purchaseHistory;
     }
 }
