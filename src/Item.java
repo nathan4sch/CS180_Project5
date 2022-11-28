@@ -14,7 +14,6 @@ public class Item {
     private String description;
     private int quantity;
     private double price;
-    private String ;
 
     /**
      * Item constructor

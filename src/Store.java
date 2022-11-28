@@ -171,7 +171,7 @@ public class Store {
         try {
             // Read through CSV file
             BufferedReader storeReader = new BufferedReader(new FileReader("FMStores.csv"));
-            //ArrayList<String> FMStores = new ArrayList<>();
+            ArrayList<String> FMStores = new ArrayList<>();
 
             // Add existing stores to ArrayList;
             String line = storeReader.readLine();
