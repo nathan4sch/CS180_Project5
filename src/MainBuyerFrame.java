@@ -22,7 +22,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
     Socket socket;
     BufferedReader bufferedReader;
     PrintWriter printWriter;
-
+    ArrayList<JComponent> currentlyVisible = new ArrayList<>();
     String[] columnNames = {"Store", "Product Name", "Price"};
     String[][] rowData = new String[1][];
     //Used for testing until server works
@@ -51,6 +51,16 @@ public class MainBuyerFrame extends JComponent implements Runnable {
     JPopupMenu sortPopupMenu;
     JMenuItem sortByPrice;
     JMenuItem sortByQuantity;
+
+    // Manage Account
+    JLabel manageAccountMainLabel;
+    JButton editAccountButton;
+    JButton deleteAccountButton;
+    JTextField newEmail;
+    JTextField newPassword;
+    JLabel emailLabel;
+    JLabel passwordLabel;
+    JComponent[] manageAccountGUI;
 
     /**
      *  The constructor of MainBuyerFrame
@@ -132,12 +142,23 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                     ioe.printStackTrace();
                 }
             } else if (source == manageAccountButton) { // (5) Manage Account
-
+                resetVisible();
+                for (int i = 0; i < manageAccountGUI.length; i++) {
+                    manageAccountGUI[i].setVisible(true);
+                    currentlyVisible.add(manageAccountGUI[i]);
+                }
             } else if (source == reviewHistoryButton) { // (6) View Statistics
 
             } else if (source == logoutButton) { // (7) Sign Out
                 SwingUtilities.invokeLater(new LoginFrame(socket));
                 mainBuyerFrame.dispose();
+            }
+
+            //Manage Account Buttons
+            if (source == editAccountButton) {
+
+            } else if (source == deleteAccountButton) {
+
             }
         }
     };
@@ -230,6 +251,52 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         leftPanel.add(jScrollPane);
 
+        //Manage Account
+        manageAccountMainLabel = new JLabel("Manage Account");
+        manageAccountMainLabel.setBounds(200, 10, 400, 100);
+        manageAccountMainLabel.setFont(new Font(manageAccountMainLabel.getFont().getName(),
+                Font.PLAIN, fontSizeToUse(manageAccountMainLabel)));
+        leftPanel.add(manageAccountMainLabel);
+        manageAccountMainLabel.setVisible(false);
+
+        passwordLabel = new JLabel("Input New Password: ");
+        passwordLabel.setBounds(100, 250, 200, 40);
+        int fontSize = fontSizeToUse(passwordLabel);
+        passwordLabel.setFont(new Font(passwordLabel.getFont().getName(), Font.PLAIN, fontSize));
+        leftPanel.add(passwordLabel);
+        passwordLabel.setVisible(false);
+
+        emailLabel = new JLabel("Input New Email: ");
+        emailLabel.setBounds(100, 200, 200, 40);
+        emailLabel.setFont(new Font(emailLabel.getFont().getName(), Font.PLAIN, fontSize));
+        leftPanel.add(emailLabel);
+        emailLabel.setVisible(false);
+
+        newEmail = new JTextField(100);
+        newEmail.setBounds(300, 200, 200, 40);
+        leftPanel.add(newEmail);
+        newEmail.setVisible(false);
+
+        newPassword = new JTextField(100);
+        newPassword.setBounds(300, 250, 200, 40);
+        leftPanel.add(newPassword);
+        newPassword.setVisible(false);
+
+        editAccountButton = new JButton("Edit Credentials");
+        editAccountButton.addActionListener(actionListener);
+        editAccountButton.setBounds(100, 300, 200, 70);
+        leftPanel.add(editAccountButton);
+        editAccountButton.setVisible(false);
+
+        deleteAccountButton = new JButton("Delete Account");
+        deleteAccountButton.addActionListener(actionListener);
+        deleteAccountButton.setBounds(310, 300, 200, 70);
+        leftPanel.add(deleteAccountButton);
+        deleteAccountButton.setVisible(false);
+
+        manageAccountGUI = new JComponent[]{manageAccountMainLabel, editAccountButton, deleteAccountButton, newEmail, newPassword, emailLabel, passwordLabel};
+
+
         //Finalize frame
         mainBuyerFrame.add(splitPane);
         mainBuyerFrame.setSize(1000, 800);
@@ -283,5 +350,25 @@ public class MainBuyerFrame extends JComponent implements Runnable {
             };
         }
         return null;
+    }
+
+    public void resetVisible() {
+        for (int i = 0; i < currentlyVisible.size(); i++) {
+            currentlyVisible.get(i).setVisible(false);
+        }
+    }
+
+    //FOUND THIS ONLINE (will change)
+    public int fontSizeToUse(JLabel label) {
+        Font currentFont = label.getFont();
+        String textInLabel = label.getText();
+        int stringWidth = label.getFontMetrics(currentFont).stringWidth(textInLabel);
+        int componentWidth = label.getWidth();
+        double widthRatio = (double) componentWidth / (double) stringWidth;
+        int newFontSize = (int) (currentFont.getSize() * widthRatio);
+        int componentHeight = label.getHeight();
+        int fontSizeToUse = Math.min(newFontSize, componentHeight);
+
+        return fontSizeToUse;
     }
 }
