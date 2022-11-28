@@ -13,6 +13,7 @@ import java.util.ArrayList;
 
 public class MainSellerFrame extends JComponent implements Runnable {
     ArrayList<JComponent> currentlyVisible = new ArrayList<>();
+    String userEmail;
     Socket socket;
     BufferedReader bufferedReader;
     PrintWriter printWriter;
@@ -38,14 +39,13 @@ public class MainSellerFrame extends JComponent implements Runnable {
     JLabel manageAccountMainLabel;
     JButton editAccountButton;
     JButton deleteAccountButton;
-    JTextField newEmail;
     JTextField newPassword;
-    JLabel emailLabel;
     JLabel passwordLabel;
     JComponent[] manageAccountGUI;
 
-    public MainSellerFrame(Socket socket) {
+    public MainSellerFrame(Socket socket, String userEmail) {
         this.socket = socket;
+        this.userEmail = userEmail;
     }
 
     ActionListener actionListener = new ActionListener() {
@@ -71,7 +71,6 @@ public class MainSellerFrame extends JComponent implements Runnable {
                     manageAccountGUI[i].setVisible(true);
                     currentlyVisible.add(manageAccountGUI[i]);
                 }
-
             } else if (source == signOutButton) {
                 SwingUtilities.invokeLater(new LoginFrame(socket));
                 mainSellerFrame.dispose();
@@ -79,9 +78,38 @@ public class MainSellerFrame extends JComponent implements Runnable {
 
             //Manage Account Buttons
             if (source == editAccountButton) {
+                String passwordInput = newPassword.getText();
+                printWriter.println("Edit Credentials");
+                printWriter.println(passwordInput);
+                printWriter.flush();
+                try {
+                    String successOrFailure = bufferedReader.readLine();
 
+                    if (successOrFailure.equals("No Changed Fields")) {
+                        JOptionPane.showMessageDialog(null, "Input a New Password",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    } else if (successOrFailure.equals("Success")) {
+                        JOptionPane.showMessageDialog(null, "Password Changed",
+                                "Success", JOptionPane.INFORMATION_MESSAGE);
+                        newPassword.setText("");
+                    }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             } else if (source == deleteAccountButton) {
+                printWriter.println("Delete Account");
+                printWriter.println(userEmail);
+                printWriter.flush();
 
+                try {
+                    String success = bufferedReader.readLine();
+                    JOptionPane.showMessageDialog(null, "Account Deleted", "Success",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    SwingUtilities.invokeLater(new LoginFrame(socket));
+                    mainSellerFrame.dispose();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
 
             //Manage Store Buttons
@@ -115,7 +143,7 @@ public class MainSellerFrame extends JComponent implements Runnable {
                     ex.printStackTrace();
                 }
                 if (source == manageCatalogueButton) {
-                    SwingUtilities.invokeLater(new ManageStoreFrame(socket, userStoreList));
+                    SwingUtilities.invokeLater(new ManageStoreFrame(socket, userStoreList, userEmail));
                     mainSellerFrame.dispose();
                 }
             }
@@ -228,23 +256,12 @@ public class MainSellerFrame extends JComponent implements Runnable {
         leftPanel.add(passwordLabel);
         passwordLabel.setVisible(false);
 
-        emailLabel = new JLabel("Input New Email: ");
-        emailLabel.setBounds(100, 200, 200, 40);
-        emailLabel.setFont(new Font(emailLabel.getFont().getName(), Font.PLAIN, fontSize));
-        leftPanel.add(emailLabel);
-        emailLabel.setVisible(false);
-
-        newEmail = new JTextField(100);
-        newEmail.setBounds(300, 200, 200, 40);
-        leftPanel.add(newEmail);
-        newEmail.setVisible(false);
-
         newPassword = new JTextField(100);
         newPassword.setBounds(300, 250, 200, 40);
         leftPanel.add(newPassword);
         newPassword.setVisible(false);
 
-        editAccountButton = new JButton("Edit Credentials");
+        editAccountButton = new JButton("Change Password");
         editAccountButton.addActionListener(actionListener);
         editAccountButton.setBounds(100, 300, 200, 70);
         leftPanel.add(editAccountButton);
@@ -256,7 +273,7 @@ public class MainSellerFrame extends JComponent implements Runnable {
         leftPanel.add(deleteAccountButton);
         deleteAccountButton.setVisible(false);
 
-        manageAccountGUI = new JComponent[]{manageAccountMainLabel, editAccountButton, deleteAccountButton, newEmail, newPassword, emailLabel, passwordLabel};
+        manageAccountGUI = new JComponent[]{manageAccountMainLabel, editAccountButton, deleteAccountButton, newPassword, passwordLabel};
 
         //Finalize frame
         mainSellerFrame.add(splitPane);
