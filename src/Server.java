@@ -187,7 +187,6 @@ public class Server implements Runnable {
                             printWriter.flush();
                         } else {
                             Store currentStore = ((Seller) currentUser).getSpecificStore(currentStoreString);
-                            //deleteing does not work and itemtodelete is null
                             Item itemToDelete = currentStore.getSpecificItem(itemNameString);
 
                             currentStore.deleteItem(itemToDelete);
@@ -409,7 +408,6 @@ public class Server implements Runnable {
     public synchronized static String validItemPrice(String itemPrice) {
         try {
             float floatItemPrice = Float.parseFloat(itemPrice);
-            System.out.println(floatItemPrice);
             if (((floatItemPrice * 100) % 1 != 0) || (floatItemPrice < 0)) {
                 throw new InputMismatchException();
             }

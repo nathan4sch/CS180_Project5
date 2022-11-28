@@ -72,7 +72,6 @@ public class Store {
     public void deleteItem(Item itemToDelete) {
         //Remove the item from the store's item list
         items.remove(itemToDelete);
-        System.out.println(itemToDelete.getName());
         ArrayList<String> lines = new ArrayList<>();
         try {
             // then remove item from FMItems.csv file
@@ -98,7 +97,7 @@ public class Store {
 
     public Item getSpecificItem (String itemName) {
         for (int i = 0; i < items.size(); i++) {
-            if (items.get(i).equals(itemName)) {
+            if (items.get(i).getName().equals(itemName)) {
                 return items.get(i);
             }
         }

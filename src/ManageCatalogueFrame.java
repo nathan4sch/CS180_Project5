@@ -128,18 +128,24 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
                 try {
                     String successOrFailure = bufferedReader.readLine();
                     if (successOrFailure.equals("Success")) {
-                        String[] newStoreItemNames = new String[storeItemNames.length - 1];
-                        int counter = 0;
+                        ArrayList<String> newStoreItemNames = new ArrayList<>();
                         for (int i = 0; i < storeItemNames.length; i++) {
                             if (!storeItemNames[i].equals(itemSelected)) {
-                                newStoreItemNames[counter] = storeItemNames[i];
-                                counter ++;
+                                newStoreItemNames.add(storeItemNames[i]);
                             }
                         }
+                        if (newStoreItemNames.size() == 0) {
+                            newStoreItemNames.add("No items");
+                        }
+                        String[] storeItemNames = new String[newStoreItemNames.size()];
+                        for (int i = 0; i < storeItemNames.length; i++) {
+                            storeItemNames[i] = newStoreItemNames.get(i);
+                        }
+
                         JOptionPane.showMessageDialog(null, "Product Deleted",
                                 "Success", JOptionPane.INFORMATION_MESSAGE);
                         manageCatalogueFrame.dispose();
-                        SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, newStoreItemNames));
+                        SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, storeItemNames));
                     } else if (successOrFailure.equals("Failure")) {
                         JOptionPane.showMessageDialog(null, "No Item Selected",
                                 "Error", JOptionPane.ERROR_MESSAGE);
@@ -306,7 +312,7 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
         int componentHeight = label.getHeight();
         int fontSizeToUse = Math.min(newFontSize, componentHeight);
 
-        return fontSizeToUse;
+        return fontSizeToUse - 3;
     }
 }
 
