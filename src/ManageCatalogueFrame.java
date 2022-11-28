@@ -23,6 +23,7 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
     JPanel rightPanel;
     String storeSelected;
     String itemSelected = "";
+    String userEmail;
     String[] storeItemNames;
     //Right Panel
     JLabel selectProduct;
@@ -46,7 +47,7 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
     JButton addProductButton;
 
 
-    public ManageCatalogueFrame(Socket socket, String storeSelected, String[] storeItemNames) {
+    public ManageCatalogueFrame(Socket socket, String storeSelected, String[] storeItemNames, String userEmail) {
         this.socket = socket;
         this.storeSelected = storeSelected;
         if (storeItemNames[0].equals("No items")) {
@@ -54,6 +55,7 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
         } else {
             this.storeItemNames = storeItemNames;
         }
+        this.userEmail = userEmail;
     }
 
     ActionListener actionListener = new ActionListener() {
@@ -61,7 +63,7 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
             Object source = e.getSource();
 
             if (source == returnToDashButton) {
-                SwingUtilities.invokeLater(new MainSellerFrame(socket));
+                SwingUtilities.invokeLater(new MainSellerFrame(socket, userEmail));
                 manageCatalogueFrame.dispose();
             } else if (source == exportFileButton) {
 
@@ -111,7 +113,7 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
                             JOptionPane.showMessageDialog(null, "Item Added",
                                     "Success", JOptionPane.INFORMATION_MESSAGE);
                             manageCatalogueFrame.dispose();
-                            SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, newStoreItemNames));
+                            SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, newStoreItemNames, userEmail));
                             break;
                     }
 
@@ -145,7 +147,7 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
                         JOptionPane.showMessageDialog(null, "Product Deleted",
                                 "Success", JOptionPane.INFORMATION_MESSAGE);
                         manageCatalogueFrame.dispose();
-                        SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, storeItemNames));
+                        SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, storeItemNames, userEmail));
                     } else if (successOrFailure.equals("Failure")) {
                         JOptionPane.showMessageDialog(null, "No Item Selected",
                                 "Error", JOptionPane.ERROR_MESSAGE);

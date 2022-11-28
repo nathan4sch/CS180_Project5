@@ -193,7 +193,33 @@ public class Server implements Runnable {
                             printWriter.println("Success");
                             printWriter.flush();
                         }
+                    }
+                    case "Edit Credentials" -> {
+                        String passwordInput = bufferedReader.readLine();
 
+                        if (passwordInput.equals("")) {
+                            printWriter.println("No Changed Fields");
+                            printWriter.flush();
+                        } else {
+                            if (changePassword(passwordInput, ((Seller)currentUser)).equals("Success")) {
+                                printWriter.println("Success");
+                                printWriter.flush();
+                            }
+                        }
+                    }
+                    case "Delete Account" -> {
+                        String userEmail = bufferedReader.readLine();
+                        BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
+                        String line = "";
+                        while ((line = bfr.readLine()) != null) {
+                            String[] splitLine = line.split(",");
+                            if (splitLine[0].equals(userEmail)) {
+                                Seller currentUser = new Seller(splitLine[0], splitLine[1]);
+                                currentUser.deleteAccount();
+                                printWriter.println("Success");
+                                printWriter.flush();
+                            }
+                        }
                     }
                 }
             }
@@ -415,5 +441,50 @@ public class Server implements Runnable {
             return "Failure";
         }
         return "Success";
+    }
+
+    /**
+     * changes the user's password in both the FMCredentials.csv and the password field in the Seller.java class
+     *
+     * @param passwordInput The user-inputted password
+     * @param currentUser The seller Object the is currently signed in
+     * @return a String denoting "Success" or "Failure" to indicate whether the requested password is valid
+     */
+    public synchronized static String changePassword(String passwordInput, Seller currentUser) {
+        currentUser.setPassword(passwordInput);
+        try {
+            File file = new File("FMCredentials.csv");
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            ArrayList<String> lines = new ArrayList<>();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                lines.add(line);
+            }
+
+            reader.close();
+
+            FileOutputStream fos = new FileOutputStream(file, false);
+            PrintWriter writer = new PrintWriter(fos);
+
+            for (int i = 0; i < lines.size(); i++) {
+                String userLine = lines.get(i);
+                String email = userLine.split(",")[0];
+
+                if (currentUser.getEmail().equals(email)) {
+                    String oldPassword = userLine.split(",")[1];
+                    lines.set(i, userLine.replaceAll(oldPassword, passwordInput));
+                }
+            }
+
+            for (String s : lines) {
+                writer.println(s);
+            }
+
+            writer.close();
+            return "Success";
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "Failure";
     }
 }

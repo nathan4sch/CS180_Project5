@@ -51,7 +51,7 @@ public class LoginFrame extends JComponent implements Runnable {
                             SwingUtilities.invokeLater(new MainBuyerFrame(socket));
                             loginFrame.dispose();
                         } else if (userRole.equals("Seller")) {
-                            SwingUtilities.invokeLater(new MainSellerFrame(socket));
+                            SwingUtilities.invokeLater(new MainSellerFrame(socket, userEmail));
                             loginFrame.dispose();
                         }
                     } else if (successOrFailure.equals("Failure")) {
@@ -79,7 +79,7 @@ public class LoginFrame extends JComponent implements Runnable {
                             SwingUtilities.invokeLater(new MainBuyerFrame(socket));
                             loginFrame.dispose();
                         } else if (userRole.equals("Seller")) {
-                            SwingUtilities.invokeLater(new MainSellerFrame(socket));
+                            SwingUtilities.invokeLater(new MainSellerFrame(socket, userEmail));
                             loginFrame.dispose();
                         }
                     } else if (successOrFailure.equals("Failure")) {

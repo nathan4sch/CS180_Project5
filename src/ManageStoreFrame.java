@@ -16,6 +16,7 @@ public class ManageStoreFrame extends JComponent implements Runnable {
 
     Socket socket;
     String[] userStores;
+    String userEmail;
     BufferedReader bufferedReader;
     PrintWriter printWriter;
     JFrame manageStoreFrame;
@@ -36,16 +37,17 @@ public class ManageStoreFrame extends JComponent implements Runnable {
     //Left Panel
     JLabel currentStore;
 
-    public ManageStoreFrame(Socket socket, String[] userStores) {
+    public ManageStoreFrame(Socket socket, String[] userStores, String userEmail) {
         this.socket = socket;
         this.userStores = userStores;
+        this.userEmail = userEmail;
     }
 
     ActionListener actionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
             if (source == returnToDashButton) {
-                SwingUtilities.invokeLater(new MainSellerFrame(socket));
+                SwingUtilities.invokeLater(new MainSellerFrame(socket, userEmail));
                 manageStoreFrame.dispose();
             } else if (source == deleteStoreButton) {
                 if (storeSelected.equals("")) {
@@ -80,7 +82,7 @@ public class ManageStoreFrame extends JComponent implements Runnable {
                         String storeItemsString = bufferedReader.readLine();
                         storeItemsString = storeItemsString.substring(1, storeItemsString.length() - 1);
                         String[] storeItemNames = storeItemsString.split(", ");
-                        SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, storeItemNames));
+                        SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, storeItemNames, userEmail));
                         manageStoreFrame.dispose();
                     } catch (IOException ex) {
                         ex.printStackTrace();
