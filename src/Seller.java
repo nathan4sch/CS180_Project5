@@ -122,6 +122,17 @@ public class Seller {
         return userStores;
     }
 
+    //Return the store with the same name as the inputted string
+    public Store getSpecificStore(String storeName) {
+        Store[] userStores = getStore();
+        for (int i = 0; i < userStores.length; i++) {
+            if (userStores[i].getStoreName().equals(storeName)) {
+                return userStores[i];
+            }
+        }
+        return null;
+    }
+
     public String getEmail() {
         return email;
     }
