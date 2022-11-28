@@ -59,6 +59,7 @@ public class ManageStoreFrame extends JComponent implements Runnable {
                         String userStoresString = bufferedReader.readLine();
                         userStoresString = userStoresString.substring(1, userStoresString.length() - 1);
                         userStores = userStoresString.split(", ");
+                        storeSelected = "";
                         manageStoreFrame.dispose();
                         run();
                         JOptionPane.showMessageDialog(null, "Store Deleted",

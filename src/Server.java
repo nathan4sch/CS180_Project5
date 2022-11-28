@@ -1,15 +1,13 @@
+import javax.swing.*;
 import java.io.*;
 import java.lang.reflect.Array;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Server class
- *
+ * <p>
  * Handles all the information sent to client
  *
  * @version 24/11/2022
@@ -83,7 +81,7 @@ public class Server implements Runnable {
                         }
                     }
                     case "View Cart" -> {
-                        ArrayList<String> buyerCartList = ((Buyer)currentUser).getCart();
+                        ArrayList<String> buyerCartList = ((Buyer) currentUser).getCart();
                         String[] buyerCart = new String[buyerCartList.size()];
                         for (int i = 0; i < buyerCartList.size(); i++) {
                             if (i == buyerCartList.size() - 1) {
@@ -97,7 +95,7 @@ public class Server implements Runnable {
                         printWriter.flush();
                     }
                     case "Manage Store" -> {
-                        Store[] userStoreList = ((Seller)currentUser).getStore();
+                        Store[] userStoreList = ((Seller) currentUser).getStore();
                         String[] userStoreNames = new String[userStoreList.length];
                         for (int i = 0; i < userStoreList.length; i++) {
                             userStoreNames[i] = userStoreList[i].getStoreName();
@@ -112,15 +110,15 @@ public class Server implements Runnable {
                             printWriter.println("Failure");
                             printWriter.flush();
                         } else if (successOrFailure.equals("Success")) {
-                            ((Seller)currentUser).createStore(new Store(((Seller)currentUser).getEmail(), storeName));
+                            ((Seller) currentUser).createStore(new Store(((Seller) currentUser).getEmail(), storeName));
                             printWriter.println("Success");
                             printWriter.flush();
                         }
                     }
                     case "Delete Store" -> {
                         String deleteStoreName = bufferedReader.readLine();
-                        ((Seller)currentUser).deleteStore(deleteStoreName);
-                        Store[] userStoreList = ((Seller)currentUser).getStore();
+                        ((Seller) currentUser).deleteStore(deleteStoreName);
+                        Store[] userStoreList = ((Seller) currentUser).getStore();
                         String[] userStoreNames = new String[userStoreList.length];
                         for (int i = 0; i < userStoreList.length; i++) {
                             userStoreNames[i] = userStoreList[i].getStoreName();
@@ -130,7 +128,7 @@ public class Server implements Runnable {
                     }
                     case "Modify Product" -> {
                         String currentStoreString = bufferedReader.readLine();
-                        Store[] userStoreList = ((Seller)currentUser).getStore();
+                        Store[] userStoreList = ((Seller) currentUser).getStore();
                         Store currentStore = null;
                         for (int i = 0; i < userStoreList.length; i++) {
                             if (userStoreList[i].getStoreName().equals(currentStoreString)) {
@@ -149,6 +147,54 @@ public class Server implements Runnable {
                             printWriter.println(Arrays.toString(itemNames));
                             printWriter.flush();
                         }
+                    }
+                    case "Add Product" -> {
+                        String currentStoreString = bufferedReader.readLine();
+                        String name = bufferedReader.readLine();
+                        String description = bufferedReader.readLine();
+                        String quantity = bufferedReader.readLine();
+                        String price = bufferedReader.readLine();
+
+                        //finds current store
+                        Store currentStore = ((Seller) currentUser).getSpecificStore(currentStoreString);
+
+                        //ensure each text field has text
+                        if (name.equals("") || description.equals("") || quantity.equals("") || price.equals("")) {
+                            printWriter.println("Missing Input");
+                            printWriter.flush();
+                        } else if (validItemName(name).equals("Failure")) {                //check valid name
+                            printWriter.println("Product Name Already Exists");
+                            printWriter.flush();
+                        } else if (validItemQuantity(quantity).equals("Failure")) {       //check valid quantity
+                            printWriter.println("Invalid Quantity");
+                            printWriter.flush();
+                        } else if (validItemPrice(price).equals("Failure")) {             //check valid price
+                            printWriter.println("Invalid Price");
+                            printWriter.flush();
+                        } else {
+                            currentStore.addItem(name, description, Integer.parseInt(quantity), Double.parseDouble(price));
+
+                            printWriter.println("Success");
+                            printWriter.flush();
+                        }
+                    }
+                    case "Delete Item" -> {
+                        String currentStoreString = bufferedReader.readLine();
+                        String itemNameString = bufferedReader.readLine();
+
+                        if (itemNameString.equals("")) {
+                            printWriter.println("Failure");
+                            printWriter.flush();
+                        } else {
+                            Store currentStore = ((Seller) currentUser).getSpecificStore(currentStoreString);
+                            //deleteing does not work and itemtodelete is null
+                            Item itemToDelete = currentStore.getSpecificItem(itemNameString);
+
+                            currentStore.deleteItem(itemToDelete);
+                            printWriter.println("Success");
+                            printWriter.flush();
+                        }
+
                     }
                 }
             }
@@ -292,24 +338,84 @@ public class Server implements Runnable {
     /**
      * Checks if the store name is valid
      *
-     * @param storeName    The entered store name
+     * @param storeName The entered store name
      * @return a String denoting "Success" or "Failure", which is handled in run()
      */
-    public syncrhonized static String validStoreName(String storeName) {
-            try {
-                BufferedReader bfr = new BufferedReader(new FileReader("FMStores.csv"));
-                String line = "";
-                while ((line = bfr.readLine()) != null) {
-                    String[] storeInfo = line.split(",");
-                    if (storeName.equals(storeInfo[0])) {
-                        bfr.close();
-                        return "Failure";
-                    }
+    public synchronized static String validStoreName(String storeName) {
+        try {
+            BufferedReader bfr = new BufferedReader(new FileReader("FMStores.csv"));
+            String line = "";
+            while ((line = bfr.readLine()) != null) {
+                String[] storeInfo = line.split(",");
+                if (storeName.equals(storeInfo[0])) {
+                    bfr.close();
+                    return "Failure";
                 }
-                bfr.close();
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+            bfr.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "Success";
+    }
+
+    /**
+     * Checks if the item name is valid
+     *
+     * @param itemName The entered item name
+     * @return a String denoting "Success" or "Failure" to indicate whether the requested itemname is valid
+     */
+    public synchronized static String validItemName(String itemName) {
+        try {
+            BufferedReader bfr = new BufferedReader(new FileReader("FMItems.csv"));
+            String line = "";
+            while ((line = bfr.readLine()) != null) {
+                String[] itemInfo = line.split(",");
+                if (itemName.equals(itemInfo[1])) {
+                    bfr.close();
+                    return "Failure";
+                }
+            }
+            bfr.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "Success";
+    }
+
+    /**
+     * Checks if the item name is valid
+     *
+     * @param itemQuantity The user-inputted quantity for the item
+     * @return a String denoting "Success" or "Failure" to indicate whether the requested itemQuantity is valid
+     */
+    public synchronized static String validItemQuantity(String itemQuantity) {
+        try {
+            if (Integer.parseInt(itemQuantity) <= 0) {
+                throw new NumberFormatException();
+            }
+        } catch (NumberFormatException e) {
+            return "Failure";
+        }
+        return "Success";
+    }
+
+    /**
+     * Checks if the item name is valid
+     *
+     * @param itemPrice The user-inputted price for the item
+     * @return a String denoting "Success" or "Failure" to indicate whether the requested itemPrice is valid
+     */
+    public synchronized static String validItemPrice(String itemPrice) {
+        try {
+            float floatItemPrice = Float.parseFloat(itemPrice);
+            System.out.println(floatItemPrice);
+            if (((floatItemPrice * 100) % 1 != 0) || (floatItemPrice < 0)) {
+                throw new InputMismatchException();
+            }
+        } catch (Exception e) {
+            return "Failure";
+        }
         return "Success";
     }
 }
