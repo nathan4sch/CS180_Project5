@@ -41,6 +41,11 @@ public class Buyer {
         }
     }
 
+    public static void main(String[] args) {
+        Buyer bob = new Buyer("bob@mail.com", "123", null, null);
+        System.out.println(bob.checkout());
+    }
+
     /**
      * Returns an ArrayList to be printed as the purchase history
      *
@@ -221,36 +226,45 @@ public class Buyer {
                  } else credentials.add(line);
              }
              cartReader.close();
+             // String list holding info for each purchase in cart, boolean list to check if each purchase was accomplished
              String[] cartInfoList = cartInfo.split("~");
+             boolean[] purchaseSuccessful = new boolean[cartInfoList.length];
 
              BufferedReader itemReader = new BufferedReader(new FileReader("FMItems.csv"));
              ArrayList<String> fmItems = new ArrayList<>();
              // Add existing items to ArrayList;
              while ((line = itemReader.readLine()) != null) {
                  // Check if this item is in the cart
-                 for (String s : cartInfoList) {
-                     String[] cartStuff = s.split("!");
+                 for (int i = 0; i < cartInfoList.length; i++) {
+                     String[] cartStuff = cartInfoList[i].split("!");
                      String[] itemStuff = line.split(",");
                      if (cartStuff[0].equals(itemStuff[0]) && cartStuff[1].equals(itemStuff[1])) {
                          // If in cart, check if amount being bought is still valid
                          if (Integer.parseInt(itemStuff[3]) >= Integer.parseInt(cartStuff[2])) {
-                             // change quantity if valid
+                             // change quantity and confirm purchase if valid
                              line = line.replaceFirst(itemStuff[3], Integer.toString(Integer.parseInt(itemStuff[3]) - Integer.parseInt(cartStuff[2])));
+                             purchaseSuccessful[i] = true;
                          } else {
                              // if invalid return the invalid purchase attempt
                              itemReader.close();
-                             return s;
+                             return cartInfoList[i] + " Quantity Low";
                          }
                      }
                  }
                  fmItems.add(line);
+             }
+             for (int i = 0; i < purchaseSuccessful.length; i++) {
+                 // Return the first purchase that could not be made if there are any
+                 if (!purchaseSuccessful[i]){
+                     return cartInfoList[i] + " Item not found";
+                 }
              }
              itemReader.close();
 
              // After all purchases shown to be valid, save sales to store histories and stats
              for (int i = 0; i < cartInfoList.length; i++) {
                  String [] info = cartInfoList[i].split("!");
-                 Store.saveSale(email, info[1], info[2], Integer.parseInt(info[3]), Double.parseDouble(info[4]));
+                 Store.saveSale(email, info[0], info[1], Integer.parseInt(info[2]), Double.parseDouble(info[3]));
              }
              // Print items file with new quantities and move cart to history
              if (historyInfo.equals("x")) {
