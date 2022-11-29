@@ -38,6 +38,11 @@ public class Server implements Runnable {
             e.printStackTrace();
         }
     }
+    
+    /**
+     * Synchronized Object to synchronize methods called from other classes
+     * */
+    public static final Object SYNC = new Object();
 
     /**
      * Run method that contains the main interface; is synchronized by threads
@@ -114,6 +119,18 @@ public class Server implements Runnable {
 
                         printWriter.println(Arrays.toString(buyerCart));
                         printWriter.flush();
+                    }
+                    case "Export History" -> {
+                        synchronized (SYNC) {
+                            String exported = ((Buyer) currentUser).exportPurchaseHistory(((Buyer) currentUser).getEmail());
+                            if (exported.equals("Exported")) {
+                                printWriter.println("Success");
+                                printWriter.flush();
+                            } else {
+                                printWriter.println("Failure");
+                                printWriter.flush();
+                            }
+                        }
                     }
                     case "Manage Store" -> {
                         Store[] userStoreList = ((Seller) currentUser).getStore();
