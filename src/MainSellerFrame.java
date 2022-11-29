@@ -1,16 +1,16 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.awt.event.*;
+import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
+import java.util.*;
 
+/**
+ * The interface in which users with Seller accounts can access their information
+ * Sellers can manage their stores, create products, view Buyer carts, and view their store statistics
+ *
+ * @version 24/11/2022
+ */
 public class MainSellerFrame extends JComponent implements Runnable {
     ArrayList<JComponent> currentlyVisible = new ArrayList<>();
     String userEmail;
@@ -311,11 +311,13 @@ public class MainSellerFrame extends JComponent implements Runnable {
         return fontSizeToUse;
     }
 
+    /**
+     * Sets currentlyVisible panel to false
+     * */
     public void resetVisible() {
         for (int i = 0; i < currentlyVisible.size(); i++) {
             currentlyVisible.get(i).setVisible(false);
         }
     }
-
 }
 

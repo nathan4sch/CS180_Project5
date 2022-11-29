@@ -1,13 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.awt.event.*;
+import java.io.*;
 import java.net.Socket;
 
 /**
@@ -27,6 +21,7 @@ public class CartFrame extends JComponent implements Runnable {
     JPanel leftPanel;
     JButton returnToDashButton;
     String storeSelected = "";
+    String userEmail;
 
     //Right Panel
     JLabel selectItem;
@@ -45,16 +40,17 @@ public class CartFrame extends JComponent implements Runnable {
      * @param socket The socket that connect this local machine with the server
      * @param userCarts String Array of all cart items of current user
      */
-    public CartFrame(Socket socket, String[] userCarts) {
+    public CartFrame(Socket socket, String[] userCarts, String userEmail) {
         this.socket = socket;
         this.userCarts = userCarts;
+        this.userEmail = userEmail;
     }
 
     ActionListener actionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
             if (source == returnToDashButton) {
-                SwingUtilities.invokeLater(new MainBuyerFrame(socket));
+                SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
                 cartFrame.dispose();
             } else if (source == deleteStoreButton) {
 //                if (storeSelected.equals("")) {

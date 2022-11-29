@@ -135,6 +135,22 @@ public class Buyer {
     public ArrayList<String> getPurchaseHistory() {
         return purchaseHistory;
     }
+    
+    /**
+     * gets user's email
+     *
+     * @return String email
+     */
+    public String getEmail() {
+        return email;
+    }
+    
+    /**
+     * sets user's password to new String
+     */
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     /**
      * adds item to cart

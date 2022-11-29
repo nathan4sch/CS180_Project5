@@ -1,16 +1,10 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.awt.event.*;
+import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * The interface in which users with Buyer accounts can access their information
@@ -22,6 +16,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
     Socket socket;
     BufferedReader bufferedReader;
     PrintWriter printWriter;
+    String userEmail;
     ArrayList<JComponent> currentlyVisible = new ArrayList<>();
     String[] columnNames = {"Store", "Product Name", "Price"};
     String[][] rowData = new String[1][];
@@ -38,6 +33,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
     JScrollPane jScrollPane;
     JButton viewCartButton;
     JButton searchButton;
+    JButton statisticsButton;
     JTextField searchTextField = new JTextField(10);
     JButton sortButton;
     JButton reviewHistoryButton;
@@ -52,23 +48,14 @@ public class MainBuyerFrame extends JComponent implements Runnable {
     JMenuItem sortByPrice;
     JMenuItem sortByQuantity;
 
-    // Manage Account
-    JLabel manageAccountMainLabel;
-    JButton editAccountButton;
-    JButton deleteAccountButton;
-    JTextField newEmail;
-    JTextField newPassword;
-    JLabel emailLabel;
-    JLabel passwordLabel;
-    JComponent[] manageAccountGUI;
-
     /**
      *  The constructor of MainBuyerFrame
      *
      * @param socket The socket that connect this local machine with the server
      */
-    public MainBuyerFrame (Socket socket) {
+    public MainBuyerFrame (Socket socket, String userEmail) {
         this.socket = socket;
+        this.userEmail = userEmail;
     }
 
     ActionListener popupItemListener = new ActionListener() {
@@ -123,7 +110,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                     String cartLine = bufferedReader.readLine();
                     String[] buyerCarts = cartLine.split("~");
 
-                    SwingUtilities.invokeLater(new CartFrame(socket, buyerCarts));
+                    SwingUtilities.invokeLater(new CartFrame(socket, buyerCarts, userEmail));
                     mainBuyerFrame.dispose();
                 } catch (Exception exc) {
                     exc.printStackTrace();
@@ -143,22 +130,16 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                 }
             } else if (source == manageAccountButton) { // (5) Manage Account
                 resetVisible();
-                for (int i = 0; i < manageAccountGUI.length; i++) {
-                    manageAccountGUI[i].setVisible(true);
-                    currentlyVisible.add(manageAccountGUI[i]);
-                }
-            } else if (source == reviewHistoryButton) { // (6) View Statistics
+
+                SwingUtilities.invokeLater(new ManageAccountFrame(socket, userEmail));
+                mainBuyerFrame.dispose();
+            } else if (source == reviewHistoryButton) {
+
+            } else if (source == statisticsButton) { // (6) View Statistics
 
             } else if (source == logoutButton) { // (7) Sign Out
                 SwingUtilities.invokeLater(new LoginFrame(socket));
                 mainBuyerFrame.dispose();
-            }
-
-            //Manage Account Buttons
-            if (source == editAccountButton) {
-
-            } else if (source == deleteAccountButton) {
-
             }
         }
     };
@@ -183,7 +164,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         splitPane.setRightComponent(rightPanel);
 
         //rightPanel
-        rightPanel.setLayout(new GridLayout(5, 1, 20, 20));
+        rightPanel.setLayout(new GridLayout(6, 1, 20, 20));
 
         //Adds view Cart Button
         viewCartButton = new JButton("View Cart");
@@ -211,6 +192,11 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         manageAccountButton = new JButton("Manage Account");
         manageAccountButton.addActionListener(actionListener);
         rightPanel.add(manageAccountButton);
+
+        //adds statistics button
+        statisticsButton = new JButton("Statistics");
+        statisticsButton.addActionListener(actionListener);
+        rightPanel.add(statisticsButton);
 
         //adds logout button
         logoutButton = new JButton("Logout");
@@ -250,52 +236,6 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         jScrollPane = new JScrollPane(jTable, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         leftPanel.add(jScrollPane);
-
-        //Manage Account
-        manageAccountMainLabel = new JLabel("Manage Account");
-        manageAccountMainLabel.setBounds(200, 10, 400, 100);
-        manageAccountMainLabel.setFont(new Font(manageAccountMainLabel.getFont().getName(),
-                Font.PLAIN, fontSizeToUse(manageAccountMainLabel)));
-        leftPanel.add(manageAccountMainLabel);
-        manageAccountMainLabel.setVisible(false);
-
-        passwordLabel = new JLabel("Input New Password: ");
-        passwordLabel.setBounds(100, 250, 200, 40);
-        int fontSize = fontSizeToUse(passwordLabel);
-        passwordLabel.setFont(new Font(passwordLabel.getFont().getName(), Font.PLAIN, fontSize));
-        leftPanel.add(passwordLabel);
-        passwordLabel.setVisible(false);
-
-        emailLabel = new JLabel("Input New Email: ");
-        emailLabel.setBounds(100, 200, 200, 40);
-        emailLabel.setFont(new Font(emailLabel.getFont().getName(), Font.PLAIN, fontSize));
-        leftPanel.add(emailLabel);
-        emailLabel.setVisible(false);
-
-        newEmail = new JTextField(100);
-        newEmail.setBounds(300, 200, 200, 40);
-        leftPanel.add(newEmail);
-        newEmail.setVisible(false);
-
-        newPassword = new JTextField(100);
-        newPassword.setBounds(300, 250, 200, 40);
-        leftPanel.add(newPassword);
-        newPassword.setVisible(false);
-
-        editAccountButton = new JButton("Edit Credentials");
-        editAccountButton.addActionListener(actionListener);
-        editAccountButton.setBounds(100, 300, 200, 70);
-        leftPanel.add(editAccountButton);
-        editAccountButton.setVisible(false);
-
-        deleteAccountButton = new JButton("Delete Account");
-        deleteAccountButton.addActionListener(actionListener);
-        deleteAccountButton.setBounds(310, 300, 200, 70);
-        leftPanel.add(deleteAccountButton);
-        deleteAccountButton.setVisible(false);
-
-        manageAccountGUI = new JComponent[]{manageAccountMainLabel, editAccountButton, deleteAccountButton, newEmail, newPassword, emailLabel, passwordLabel};
-
 
         //Finalize frame
         mainBuyerFrame.add(splitPane);
@@ -352,6 +292,9 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         return null;
     }
 
+    /**
+     * Sets currentlyVisible panel to false
+     * */
     public void resetVisible() {
         for (int i = 0; i < currentlyVisible.size(); i++) {
             currentlyVisible.get(i).setVisible(false);
@@ -367,8 +310,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         double widthRatio = (double) componentWidth / (double) stringWidth;
         int newFontSize = (int) (currentFont.getSize() * widthRatio);
         int componentHeight = label.getHeight();
-        int fontSizeToUse = Math.min(newFontSize, componentHeight);
 
-        return fontSizeToUse;
+        return Math.min(newFontSize, componentHeight);
     }
 }
