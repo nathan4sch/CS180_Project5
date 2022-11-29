@@ -32,32 +32,6 @@ public class Item {
         this.price = price;
     }
 
-    public void deleteItem() {
-        ArrayList<String> lines = new ArrayList<>();
-        try {
-            // Create array list of all items but deleted one
-            BufferedReader bfrOne = new BufferedReader(new FileReader("FMItems.csv"));
-            String line = "";
-            while ((line = bfrOne.readLine()) != null) {
-                String[] lineSplit = line.split(",");
-                if (!name.equals(lineSplit[1])) {
-                    lines.add(line);
-                }
-            }
-            bfrOne.close();
-            // Rewrite file without deleted item
-            PrintWriter pwOne = new PrintWriter(new FileOutputStream("FMItems.csv", false));
-            for (String s : lines) {
-                pwOne.println(s);
-            }
-            pwOne.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-
     /**
      * Returns store
      **/
@@ -149,4 +123,4 @@ public class Item {
         }
     }
 }
-}
+
