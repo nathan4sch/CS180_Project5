@@ -3,7 +3,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.InputMismatchException;
 
 /**
  * Buyers class - contains all methods the buyers may use
@@ -147,7 +146,7 @@ public class Buyer {
             if (Integer.parseInt(quantityBuying) <= 0 || Integer.parseInt(quantityBuying) > item.getQuantity()) {
                 return false;
             }
-        } catch (InputMismatchException e) { return  false; }
+        } catch (NumberFormatException e) { return  false; }
         String formatted = String.format("%s!%s!%s!%.2f", item.getStore(),
                 item.getName(), quantityBuying, item.getPrice());
         try {
