@@ -95,7 +95,9 @@ Expected result: Store created and
 Test Status: Passed.
 <br><br>
 
-<h3>Test 2: Create new product</h3>
+<h2>Manage Store Frame tests</h2>
+
+<h3>Test 1: Create new product</h3>
 Steps:
 
 1. Seller launches application and logs in.
@@ -106,8 +108,8 @@ Steps:
 4. The Seller selects the store that they
    would like to manage, and then selects the
    "Modify Products" option.
-5. The Seller than will input the desired
-   name, description, quantity and price of
+5. The Seller inputs the desired name,
+   description, quantity and price of
    the desired item into their respective
    fields, and select the "Add Product"
    option.
@@ -117,5 +119,23 @@ is displayed, and item is added to the store
 
 Test Status: Passed.
 <br><br>
+
+<h3>Test 2: Delete item</h3>
+Steps:
+
+1. Seller launches application and logs in.
+2. From the main Seller dashboard, the
+   Seller selects the "Manage Stores" option.
+3. The Seller selects the "Manage
+   Catalogue" option.
+4. The Seller selects the store that they
+   would like to manage, and then selects the
+   "Modify Products" option.
+5. The Seller selects a product, and then 
+selects the "Delete Selected Item" option.
+
+Expected result: "Product Deleted" JOptionPane
+is displayed, and product is deleted from the
+store.
 
 
