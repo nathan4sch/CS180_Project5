@@ -102,7 +102,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
             Object source = e.getSource();
 
             //Main options from Right Panel
-            if (source == viewCartButton) { // (1) Select Product
+            if (source == viewCartButton) { // Select Product
                 printWriter.println("View Cart");
                 printWriter.flush();
 
@@ -115,7 +115,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                 } catch (Exception exc) {
                     exc.printStackTrace();
                 }
-            } else if (source == searchButton) { // (3) Search
+            } else if (source == searchButton) { // Search
                 printWriter.println("Search");
                 //prints the text that the user is searching for to server
                 printWriter.println(searchTextField.getText());
@@ -128,16 +128,19 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
                 }
-            } else if (source == manageAccountButton) { // (5) Manage Account
+            } else if (source == manageAccountButton) { // Manage Account
                 resetVisible();
 
                 SwingUtilities.invokeLater(new ManageAccountFrame(socket, userEmail));
                 mainBuyerFrame.dispose();
-            } else if (source == reviewHistoryButton) {
+            } else if (source == reviewHistoryButton) { // Review Purchase History
+                resetVisible();
 
-            } else if (source == statisticsButton) { // (6) View Statistics
+                SwingUtilities.invokeLater(new PurchaseHistoryFrame(socket, userEmail));
+                mainBuyerFrame.dispose();
+            } else if (source == statisticsButton) { // View Statistics
 
-            } else if (source == logoutButton) { // (7) Sign Out
+            } else if (source == logoutButton) { // Sign Out
                 printWriter.println("Reset Login Status");
                 printWriter.println(userEmail);
                 printWriter.flush();
@@ -192,7 +195,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         rightPanel.add(sortButton);
 
         //adds review History Button
-        reviewHistoryButton = new JButton("Review Purchase History");
+        reviewHistoryButton = new JButton("Purchase History");
         reviewHistoryButton.addActionListener(actionListener);
         rightPanel.add(reviewHistoryButton);
 
@@ -226,7 +229,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         moreDetails.addActionListener(popupItemListener);
         tablePopupMenu.add(addToCart);
         tablePopupMenu.add(moreDetails);
-        
+
         //Initializes table of Items for user to view
         printWriter.println("Initial Table");
         int itemsInInitialTable = -1;

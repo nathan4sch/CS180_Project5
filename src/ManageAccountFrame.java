@@ -16,9 +16,7 @@ public class ManageAccountFrame extends JComponent implements Runnable {
     BufferedReader bufferedReader;
     PrintWriter printWriter;
     JFrame accountFrame;
-    JPanel rightPanel;
-    JPanel leftPanel;
-    JSplitPane splitPane;
+    JPanel mainPanel;
     JButton returnToDashButton;
     ArrayList<JComponent> currentlyVisible = new ArrayList<>();
 
@@ -31,7 +29,7 @@ public class ManageAccountFrame extends JComponent implements Runnable {
     JComponent[] manageAccountGUI;
 
     /**
-     * The constructor of CartFrame
+     * The constructor of Manage Account Frame
      *
      * @param socket    The socket that connect this local machine with the server
      * @param userEmail Email of the current user
@@ -94,17 +92,15 @@ public class ManageAccountFrame extends JComponent implements Runnable {
             e.printStackTrace();
         }
         accountFrame = new JFrame("Manage Account Frame");
-        leftPanel = new JPanel();
-        rightPanel = new JPanel();
-        splitPane = new JSplitPane();
+        mainPanel = new JPanel();
 
-        leftPanel.setLayout(null);
+        mainPanel.setLayout(null);
 
         // Return to dashboard button
         returnToDashButton = new JButton("Return to Dashboard");
         returnToDashButton.addActionListener(actionListener);
         returnToDashButton.setBounds(385, 675, 200, 50);
-        leftPanel.add(returnToDashButton);
+        mainPanel.add(returnToDashButton);
 
         // Edit Account Button
         editAccountButton = new JButton("Change Password");
@@ -119,37 +115,37 @@ public class ManageAccountFrame extends JComponent implements Runnable {
         manageAccountMainLabel.setBounds(300, 10, 400, 100);
         manageAccountMainLabel.setFont(new Font(manageAccountMainLabel.getFont().getName(),
                 Font.PLAIN, fontSizeToUse(manageAccountMainLabel)));
-        leftPanel.add(manageAccountMainLabel);
+        mainPanel.add(manageAccountMainLabel);
         manageAccountMainLabel.setVisible(false);
 
         passwordLabel = new JLabel("Input New Password: ");
         passwordLabel.setBounds(290, 325, 200, 40);
         int fontSize = fontSizeToUse(passwordLabel);
         passwordLabel.setFont(new Font(passwordLabel.getFont().getName(), Font.PLAIN, fontSize));
-        leftPanel.add(passwordLabel);
+        mainPanel.add(passwordLabel);
         passwordLabel.setVisible(false);
 
         newPassword = new JTextField(100);
         newPassword.setBounds(490, 325, 200, 40);
-        leftPanel.add(newPassword);
+        mainPanel.add(newPassword);
         newPassword.setVisible(false);
 
         editAccountButton = new JButton("Change Password");
         editAccountButton.addActionListener(actionListener);
         editAccountButton.setBounds(285, 375, 200, 60);
-        leftPanel.add(editAccountButton);
+        mainPanel.add(editAccountButton);
         editAccountButton.setVisible(false);
 
         deleteAccountButton = new JButton("Delete Account");
         deleteAccountButton.addActionListener(actionListener);
         deleteAccountButton.setBounds(495, 375, 200, 60);
-        leftPanel.add(deleteAccountButton);
+        mainPanel.add(deleteAccountButton);
         deleteAccountButton.setVisible(false);
 
         manageAccountGUI = new JComponent[]{manageAccountMainLabel, editAccountButton, deleteAccountButton, newPassword, passwordLabel, returnToDashButton};
 
         //Finalize frame
-        accountFrame.add(leftPanel);
+        accountFrame.add(mainPanel);
         accountFrame.setSize(1000, 800);
         accountFrame.setLocationRelativeTo(null);
         accountFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
