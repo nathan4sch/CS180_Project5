@@ -95,7 +95,7 @@ Expected result: Store created and
 Test Status: Passed.
 <br><br>
 
-<h2>Manage Store Frame tests</h2>
+<h2>Manage Catalogue tests</h2>
 
 <h3>Test 1: Create new product</h3>
 Steps:
