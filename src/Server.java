@@ -1,8 +1,8 @@
+import org.bouncycastle.jcajce.provider.symmetric.SEED;
 import javax.swing.*;
 import java.io.*;
 import java.lang.reflect.Array;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
 import java.util.*;
 
 /**
@@ -201,7 +201,7 @@ public class Server implements Runnable {
                             printWriter.println("No Changed Fields");
                             printWriter.flush();
                         } else {
-                            if (changePassword(passwordInput, ((Seller)currentUser)).equals("Success")) {
+                            if (changePassword(passwordInput, (currentUser)).equals("Success")) {
                                 printWriter.println("Success");
                                 printWriter.flush();
                             }
@@ -210,7 +210,7 @@ public class Server implements Runnable {
                     case "Delete Account" -> {
                         String userEmail = bufferedReader.readLine();
                         BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
-                        String line = "";
+                        String line;
                         while ((line = bfr.readLine()) != null) {
                             String[] splitLine = line.split(",");
                             if (splitLine[0].equals(userEmail)) {
@@ -263,7 +263,7 @@ public class Server implements Runnable {
     public synchronized static String checkExistingCredentials(String email, String password, String purpose) {
         try {
             BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
-            String line = "";
+            String line;
             while ((line = bfr.readLine()) != null) {
                 String[] currentLine = line.split(",");
 
@@ -295,10 +295,10 @@ public class Server implements Runnable {
         try {
             ArrayList<String> buyerData = new ArrayList<>();
             BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
-            String line = "";
+            String line;
             while ((line = bfr.readLine()) != null) {
                 String[] currentLine = line.split(",");
-                if (currentLine[0].equals(userEmail)) { // first checks for user creds to give correct history
+                if (currentLine[0].equals(userEmail)) { // first checks for user credentials to give correct history
                     if (cartOrHist.equals("hist")) { // if hist, get Purchase history
                         if (currentLine[3].equals("")) {
                             return null;
@@ -369,7 +369,7 @@ public class Server implements Runnable {
     public synchronized static String validStoreName(String storeName) {
         try {
             BufferedReader bfr = new BufferedReader(new FileReader("FMStores.csv"));
-            String line = "";
+            String line;
             while ((line = bfr.readLine()) != null) {
                 String[] storeInfo = line.split(",");
                 if (storeName.equals(storeInfo[0])) {
@@ -388,12 +388,12 @@ public class Server implements Runnable {
      * Checks if the item name is valid
      *
      * @param itemName The entered item name
-     * @return a String denoting "Success" or "Failure" to indicate whether the requested itemname is valid
+     * @return a String denoting "Success" or "Failure" to indicate whether the requested item name is valid
      */
     public synchronized static String validItemName(String itemName) {
         try {
             BufferedReader bfr = new BufferedReader(new FileReader("FMItems.csv"));
-            String line = "";
+            String line;
             while ((line = bfr.readLine()) != null) {
                 String[] itemInfo = line.split(",");
                 if (itemName.equals(itemInfo[1])) {
@@ -447,11 +447,19 @@ public class Server implements Runnable {
      * changes the user's password in both the FMCredentials.csv and the password field in the Seller.java class
      *
      * @param passwordInput The user-inputted password
-     * @param currentUser The seller Object the is currently signed in
+     * @param currentUser The Object the user is currently signed in
      * @return a String denoting "Success" or "Failure" to indicate whether the requested password is valid
      */
-    public synchronized static String changePassword(String passwordInput, Seller currentUser) {
-        currentUser.setPassword(passwordInput);
+    public synchronized static String changePassword(String passwordInput, Object currentUser) {
+        // Checks Object type
+        if (currentUser instanceof Seller) {
+            ((Seller) currentUser).setPassword(passwordInput);
+        } else if (currentUser instanceof Buyer) {
+            ((Buyer) currentUser).setPassword(passwordInput);
+        } else {
+            return "Failure";
+        }
+
         try {
             File file = new File("FMCredentials.csv");
             BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -469,10 +477,17 @@ public class Server implements Runnable {
             for (int i = 0; i < lines.size(); i++) {
                 String userLine = lines.get(i);
                 String email = userLine.split(",")[0];
-
-                if (currentUser.getEmail().equals(email)) {
-                    String oldPassword = userLine.split(",")[1];
-                    lines.set(i, userLine.replaceAll(oldPassword, passwordInput));
+                // Check currentUser type
+                if (currentUser instanceof Seller) {
+                    if (((Seller) currentUser).getEmail().equals(email)) {
+                        String oldPassword = userLine.split(",")[1];
+                        lines.set(i, userLine.replaceAll(oldPassword, passwordInput));
+                    }
+                } else {
+                    if (((Buyer) currentUser).getEmail().equals(email)) {
+                        String oldPassword = userLine.split(",")[1];
+                        lines.set(i, userLine.replaceAll(oldPassword, passwordInput));
+                    }
                 }
             }
 

@@ -1,15 +1,15 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.awt.event.*;
+import java.io.*;
 import java.net.Socket;
+import java.util.Objects;
 
+/**
+ * Interface that users use to log in to their accounts
+ *
+ * @version 28/11/2022
+ */
 public class LoginFrame extends JComponent implements Runnable {
     Socket socket;
     JFrame loginFrame;
@@ -25,7 +25,11 @@ public class LoginFrame extends JComponent implements Runnable {
     String userPassword;
     String userRole;
 
-
+    /**
+     *  The constructor of LoginFrame
+     *
+     * @param socket The socket that connect this local machine with the server
+     */
     public LoginFrame (Socket socket) {
         this.socket = socket;
     }
@@ -48,7 +52,7 @@ public class LoginFrame extends JComponent implements Runnable {
                                 JOptionPane.INFORMATION_MESSAGE);
                         String userRole = bufferedReader.readLine();
                         if (userRole.equals("Buyer")){
-                            SwingUtilities.invokeLater(new MainBuyerFrame(socket));
+                            SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
                             loginFrame.dispose();
                         } else if (userRole.equals("Seller")) {
                             SwingUtilities.invokeLater(new MainSellerFrame(socket, userEmail));
@@ -64,7 +68,7 @@ public class LoginFrame extends JComponent implements Runnable {
             } else if (e.getSource() == createAccountButton) {
                 userEmail = emailText.getText();
                 userPassword = passwordText.getText();
-                userRole = userRoleSelection.getSelectedItem().toString();
+                userRole = Objects.requireNonNull(userRoleSelection.getSelectedItem()).toString();
                 try {
                     printWriter.println("Create Account");
                     printWriter.println(userEmail);
@@ -76,7 +80,7 @@ public class LoginFrame extends JComponent implements Runnable {
                         JOptionPane.showMessageDialog(null, "Account Created", "Success",
                                 JOptionPane.INFORMATION_MESSAGE);
                         if (userRole.equals("Buyer")){
-                            SwingUtilities.invokeLater(new MainBuyerFrame(socket));
+                            SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
                             loginFrame.dispose();
                         } else if (userRole.equals("Seller")) {
                             SwingUtilities.invokeLater(new MainSellerFrame(socket, userEmail));
