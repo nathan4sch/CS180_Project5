@@ -72,8 +72,16 @@ public class MainSellerFrame extends JComponent implements Runnable {
                     currentlyVisible.add(manageAccountGUI[i]);
                 }
             } else if (source == signOutButton) {
-                SwingUtilities.invokeLater(new LoginFrame(socket));
-                mainSellerFrame.dispose();
+                printWriter.println("Reset Login Status");
+                printWriter.println(userEmail);
+                printWriter.flush();
+                try {
+                    String successOrFailure = bufferedReader.readLine();
+                    SwingUtilities.invokeLater(new LoginFrame(socket));
+                    mainSellerFrame.dispose();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
 
             //Manage Account Buttons
@@ -284,6 +292,11 @@ public class MainSellerFrame extends JComponent implements Runnable {
         mainSellerFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 try {
+                    printWriter.println("Reset Login Status");
+                    printWriter.println(userEmail);
+                    printWriter.flush();
+                    String successOrFailure = bufferedReader.readLine();
+
                     bufferedReader.close();
                     printWriter.close();
                     socket.close();
