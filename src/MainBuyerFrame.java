@@ -5,10 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -38,6 +35,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
     JScrollPane jScrollPane;
     JButton viewCartButton;
     JButton searchButton;
+    JButton statisticsButton;
     JTextField searchTextField = new JTextField(10);
     JButton sortButton;
     JButton reviewHistoryButton;
@@ -147,7 +145,9 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                     manageAccountGUI[i].setVisible(true);
                     currentlyVisible.add(manageAccountGUI[i]);
                 }
-            } else if (source == reviewHistoryButton) { // (6) View Statistics
+            } else if (source == reviewHistoryButton) {
+
+            } else if (source == statisticsButton) { // (6) View Statistics
 
             } else if (source == logoutButton) { // (7) Sign Out
                 SwingUtilities.invokeLater(new LoginFrame(socket));
@@ -183,7 +183,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         splitPane.setRightComponent(rightPanel);
 
         //rightPanel
-        rightPanel.setLayout(new GridLayout(5, 1, 20, 20));
+        rightPanel.setLayout(new GridLayout(6, 1, 20, 20));
 
         //Adds view Cart Button
         viewCartButton = new JButton("View Cart");
@@ -211,6 +211,11 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         manageAccountButton = new JButton("Manage Account");
         manageAccountButton.addActionListener(actionListener);
         rightPanel.add(manageAccountButton);
+
+        //adds statistics button
+        statisticsButton = new JButton("Statistics");
+        statisticsButton.addActionListener(actionListener);
+        rightPanel.add(statisticsButton);
 
         //adds logout button
         logoutButton = new JButton("Logout");
