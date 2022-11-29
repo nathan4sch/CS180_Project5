@@ -102,10 +102,10 @@ public class Buyer {
             }
             cartReader.close();
 
-            for (int i = 0; i < FMCredentials.size(); i++) {
+            for (String fmCredential : FMCredentials) {
                 // If arraylist index has email
-                if (FMCredentials.get(i).contains(email)) {
-                    String[] strSplit = FMCredentials.get(i).split(",");
+                if (fmCredential.contains(email)) {
+                    String[] strSplit = fmCredential.split(",");
                     String shoppingCartInfo = strSplit[4];
                     String[] shoppingCartLine = shoppingCartInfo.split("~");
 
@@ -135,4 +135,122 @@ public class Buyer {
     public ArrayList<String> getPurchaseHistory() {
         return purchaseHistory;
     }
+
+    /**
+     * adds item to cart
+     *
+     * @return true if successful
+     */
+    public boolean addToCart(Item item, String quantityBuying) {
+        try {
+            if (Integer.parseInt(quantityBuying) <= 0 || Integer.parseInt(quantityBuying) > item.getQuantity()) {
+                return false;
+            }
+        } catch (NumberFormatException e) { return  false; }
+        String formatted = String.format("%s!%s!%s!%.2f", item.getStore(),
+                item.getName(), quantityBuying, item.getPrice());
+        try {
+            BufferedReader cartReader = new BufferedReader(new FileReader("FMCredentials.csv"));
+            ArrayList<String> fmCredentials = new ArrayList<>();
+            // Add existing items to ArrayList;
+            String line;
+            while ((line = cartReader.readLine()) != null) { fmCredentials.add(line); }
+            cartReader.close();
+
+            PrintWriter pw = new PrintWriter(new FileWriter("FMCredentials.csv"));
+
+            for (String fmCredential : fmCredentials) {
+                if (fmCredential.contains(email)) {
+                    String[] splitLine = fmCredential.split(",");
+                    String shoppingCart = splitLine[5];
+                    if (shoppingCart.equals("x")) {
+                        shoppingCart = formatted;
+                    } else {
+                        shoppingCart = shoppingCart + "~" + formatted;
+                        cart.add(formatted);
+                    }
+                    pw.printf("%s,%s,%s,%s,%s,%s\n", splitLine[0], splitLine[1], splitLine[2],
+                            splitLine[3], splitLine[4], shoppingCart);
+                } else {
+                    pw.println(fmCredential);
+                }
+            }
+            pw.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    /**
+     * checks out items in cart
+     * still needs lots of work
+     *
+     * @return null if successful, first failed checkout if unsuccessful
+     */
+     public String checkout() {
+         try {
+             String cartInfo = "";
+             String historyInfo = "";
+             String username = "";
+             ArrayList<String> credentials = new ArrayList<>();
+             BufferedReader cartReader = new BufferedReader(new FileReader("FMCredentials.csv"));
+             // Add existing items to ArrayList;
+             String line;
+             while ((line = cartReader.readLine()) != null) {
+                 if (line.split(",")[0].equals(email)) {
+                     cartInfo = line.split(",")[5];
+                     historyInfo = line.split(",")[4];
+                     username = line.split(",")[1];
+                 } else credentials.add(line);
+             }
+             cartReader.close();
+             String[] cartInfoList = cartInfo.split("~");
+
+             BufferedReader itemReader = new BufferedReader(new FileReader("FMItems.csv"));
+             ArrayList<String> fmItems = new ArrayList<>();
+             // Add existing items to ArrayList;
+             while ((line = itemReader.readLine()) != null) {
+                 // Check if this item is in the cart
+                 for (String s : cartInfoList) {
+                     String[] cartStuff = s.split("!");
+                     String[] itemStuff = line.split(",");
+                     if (cartStuff[0].equals(itemStuff[0]) && cartStuff[1].equals(itemStuff[1])) {
+                         // If in cart, check if amount being bought is still valid
+                         if (Integer.parseInt(itemStuff[3]) >= Integer.parseInt(cartStuff[2])) {
+                             // change quantity if valid
+                             line = line.replaceFirst(itemStuff[3], Integer.toString(Integer.parseInt(itemStuff[3]) - Integer.parseInt(cartStuff[2])));
+                         } else {
+                             // if invalid return the invalid purchase attempt
+                             itemReader.close();
+                             return s;
+                         }
+                     }
+                 }
+                 fmItems.add(line);
+             }
+             itemReader.close();
+
+             // After all purchases are shown to be valid, print items file with new quantities and move cart to history
+             if (historyInfo.equals("x")) {
+                 historyInfo = cartInfo;
+             } else historyInfo = historyInfo + "~" + cartInfo;
+             cartInfo = "x";
+             PrintWriter pwOne = new PrintWriter(new FileWriter("FMCredentials.csv", false));
+             for (String credential : credentials) {
+                 pwOne.println(credential);
+             }
+             pwOne.printf("%s,%s,%s,buyer,%s,%s", email, username, password, historyInfo, cartInfo);
+             pwOne.close();
+
+             PrintWriter pwTwo = new PrintWriter(new FileWriter("FMItems.csv", false));
+             for (String fmItem : fmItems) {
+                 pwTwo.println(fmItem);
+             }
+             pwTwo.close();
+         } catch (Exception e) {
+             e.printStackTrace();
+         }
+         return null;
+     }
 }
