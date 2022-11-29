@@ -247,7 +247,12 @@ public class Buyer {
              }
              itemReader.close();
 
-             // After all purchases are shown to be valid, print items file with new quantities and move cart to history
+             // After all purchases shown to be valid, save sales to store histories and stats
+             for (int i = 0; i < cartInfoList.length; i++) {
+                 String [] info = cartInfoList[i].split("!");
+                 Store.saveSale(email, info[1], info[2], Integer.parseInt(info[3]), Double.parseDouble(info[4]));
+             }
+             // Print items file with new quantities and move cart to history
              if (historyInfo.equals("x")) {
                  historyInfo = cartInfo;
              } else historyInfo = historyInfo + "~" + cartInfo;

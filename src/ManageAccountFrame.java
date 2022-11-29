@@ -157,6 +157,11 @@ public class ManageAccountFrame extends JComponent implements Runnable {
         accountFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 try {
+                    printWriter.println("Reset Login Status");
+                    printWriter.println(userEmail);
+                    printWriter.flush();
+                    String successOrFailure = bufferedReader.readLine();
+
                     bufferedReader.close();
                     printWriter.close();
                     socket.close();

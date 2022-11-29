@@ -138,8 +138,16 @@ public class MainBuyerFrame extends JComponent implements Runnable {
             } else if (source == statisticsButton) { // (6) View Statistics
 
             } else if (source == logoutButton) { // (7) Sign Out
-                SwingUtilities.invokeLater(new LoginFrame(socket));
-                mainBuyerFrame.dispose();
+                printWriter.println("Reset Login Status");
+                printWriter.println(userEmail);
+                printWriter.flush();
+                try {
+                    String successOrFailure = bufferedReader.readLine();
+                    SwingUtilities.invokeLater(new LoginFrame(socket));
+                    mainBuyerFrame.dispose();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     };
@@ -246,6 +254,11 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         mainBuyerFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 try {
+                    printWriter.println("Reset Login Status");
+                    printWriter.println(userEmail);
+                    printWriter.flush();
+                    String successOrFailure = bufferedReader.readLine();
+
                     bufferedReader.close();
                     printWriter.close();
                     socket.close();
