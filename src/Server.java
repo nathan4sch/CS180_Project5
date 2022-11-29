@@ -1,4 +1,5 @@
-import org.bouncycastle.jcajce.provider.symmetric.SEED;
+//import org.bouncycastle.jcajce.provider.symmetric.SEED;
+
 import javax.swing.*;
 import java.io.*;
 import java.lang.reflect.Array;
@@ -53,10 +54,30 @@ public class Server implements Runnable {
                         String passwordInput = bufferedReader.readLine();
 
                         currentUser = signInAccount(emailInput, passwordInput);
+
                         if (currentUser == null) {
                             printWriter.println("Failure");
                             printWriter.flush();
                         } else {
+                            //set the csv to say the user in logged in
+                            BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
+                            ArrayList<String> lines = new ArrayList<>();
+                            String line;
+                            while ((line = bfr.readLine()) != null) {
+                                String[] splitLine = line.split(",");
+                                if (splitLine[0].equals(emailInput)) {
+                                    splitLine[5] = "LoggedIn";
+                                }
+                                line = String.format("%s,%s,%s,%s,%s,%s", splitLine[0], splitLine[1],
+                                        splitLine[2], splitLine[3], splitLine[4], splitLine[5]);
+                                lines.add(line);
+                            }
+                            bfr.close();
+                            PrintWriter credentialsPrint = new PrintWriter(new FileOutputStream("FMCredentials.csv", false));
+                            for (int i = 0; i < lines.size(); i++) {
+                                credentialsPrint.println(lines.get(i));
+                            }
+                            credentialsPrint.close();
                             printWriter.println("Success");
                             if (currentUser instanceof Buyer) {
                                 printWriter.println("Buyer");
@@ -221,6 +242,12 @@ public class Server implements Runnable {
                             }
                         }
                     }
+                    case "Reset Login Status" -> {
+                        String userEmail = bufferedReader.readLine();
+                        resetLoggedInStatus(userEmail);
+                        printWriter.println("Success");
+                        printWriter.flush();
+                    }
                 }
             }
         } catch (IOException e) {
@@ -236,7 +263,8 @@ public class Server implements Runnable {
      * @return Either a Buyer or Seller object
      */
     public synchronized static Object signInAccount(String signInEmail, String signInPassword) {
-        if (checkExistingCredentials(signInEmail, signInPassword, "signIn").equals("No Account Found")) {
+        String validLogin = checkExistingCredentials(signInEmail, signInPassword, "signIn");
+        if (validLogin.equals("No Account Found") || validLogin.equals("Error: Account Already Logged In")) {
             return null;
         }
         String accountSearch = checkExistingCredentials(signInEmail, signInPassword, "signIn");
@@ -269,7 +297,11 @@ public class Server implements Runnable {
 
                 if (purpose.equals("signIn")) {
                     if (currentLine[0].equals(email) && currentLine[1].equals(password)) {
-                        return Arrays.toString(currentLine);
+                        if (!currentLine[5].equals("LoggedIn")) {
+                            return Arrays.toString(currentLine);
+                        } else {
+                            return "Error: Account Already Logged In";
+                        }
                     }
                 } else if (purpose.equals("newAccount")) {
                     if (currentLine[0].equals(email)) {
@@ -345,7 +377,7 @@ public class Server implements Runnable {
         }
         try {                                   //writes the new user's account to the csv file
             PrintWriter CredentialPrintWriter = new PrintWriter(new BufferedWriter(new FileWriter("FMCredentials.csv", true)));
-            CredentialPrintWriter.println(email + "," + password + "," + role.toLowerCase() + ",x,x");
+            CredentialPrintWriter.println(email + "," + password + "," + role.toLowerCase() + ",x,x,LoggedIn");
             CredentialPrintWriter.flush();
             CredentialPrintWriter.close();
         } catch (Exception e) {
@@ -447,7 +479,7 @@ public class Server implements Runnable {
      * changes the user's password in both the FMCredentials.csv and the password field in the Seller.java class
      *
      * @param passwordInput The user-inputted password
-     * @param currentUser The Object the user is currently signed in
+     * @param currentUser   The Object the user is currently signed in
      * @return a String denoting "Success" or "Failure" to indicate whether the requested password is valid
      */
     public synchronized static String changePassword(String passwordInput, Object currentUser) {
@@ -501,5 +533,31 @@ public class Server implements Runnable {
             e.printStackTrace();
         }
         return "Failure";
+    }
+
+    public synchronized static void resetLoggedInStatus(String userEmail) {
+        //set the fmcredential csv where it says logged in to x
+        try {
+            BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
+            ArrayList<String> lines = new ArrayList<>();
+            String line;
+            while ((line = bfr.readLine()) != null) {
+                String[] splitLine = line.split(",");
+                if (splitLine[0].equals(userEmail)) {
+                    splitLine[5] = "x";
+                    line = String.format("%s,%s,%s,%s,%s,%s", splitLine[0], splitLine[1],
+                            splitLine[2], splitLine[3], splitLine[4], splitLine[5]);
+                }
+                lines.add(line);
+            }
+            bfr.close();
+            PrintWriter credentialsPrint = new PrintWriter(new FileOutputStream("FMCredentials.csv", false));
+            for (int i = 0; i < lines.size(); i++) {
+                credentialsPrint.println(lines.get(i));
+            }
+            credentialsPrint.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
