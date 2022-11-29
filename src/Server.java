@@ -205,10 +205,6 @@ public class Server implements Runnable {
                                 printWriter.println("Success");
                                 printWriter.flush();
                             }
-                            if (changePassword(passwordInput, (currentUser)).equals("Success")) {
-                                printWriter.println("Success");
-                                printWriter.flush();
-                            }
                         }
                     }
                     case "Delete Account" -> {
