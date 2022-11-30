@@ -3,6 +3,7 @@
 import javax.swing.*;
 import java.io.*;
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.net.*;
 import java.util.*;
 
@@ -39,6 +40,11 @@ public class Server implements Runnable {
         }
     }
     
+    /**
+     * Synchronized Object to synchronize methods called from other classes
+     * */
+    public static final Object SYNC = new Object();
+
     /**
      * Synchronized Object to synchronize methods called from other classes
      * */
@@ -264,6 +270,104 @@ public class Server implements Runnable {
                         resetLoggedInStatus(userEmail);
                         printWriter.println("Success");
                         printWriter.flush();
+                    }
+                    case "Edit Product" -> {
+                        String currentStoreString = bufferedReader.readLine();
+                        String itemNameString = bufferedReader.readLine();
+
+                        String nameInput = bufferedReader.readLine();
+                        String descriptionInput = bufferedReader.readLine();
+                        String quantityInput = bufferedReader.readLine();
+                        String priceInput = bufferedReader.readLine();
+
+                        Store currentStore = ((Seller) currentUser).getSpecificStore(currentStoreString);
+                        Item itemToChange = currentStore.getSpecificItem(itemNameString);
+
+                        if (itemNameString.equals("")) {
+                            printWriter.println("No Item Selected");
+                            printWriter.flush();
+                        } else {
+                            //Find field changed and what the new input is
+                            int numberOfChangedFields = 0;
+                            String newText = "";
+                            String nameOfFieldChanged = "";
+                            if (!nameInput.equals(itemToChange.getName())) {
+                                numberOfChangedFields++;
+                                newText = nameInput;
+                                nameOfFieldChanged = "name";
+                            }
+                            if (!descriptionInput.equals(itemToChange.getDescription())) {
+                                numberOfChangedFields++;
+                                newText = descriptionInput;
+                                nameOfFieldChanged = "description";
+                            }
+                            if (!quantityInput.equals(Integer.toString(itemToChange.getQuantity()))) {
+                                numberOfChangedFields++;
+                                newText = quantityInput;
+                                nameOfFieldChanged = "quantity";
+                            }
+
+                            String actualPrice = String.format("%.2f", itemToChange.getPrice());
+                            if (!priceInput.equals(actualPrice) &&
+                                    !priceInput.equals(actualPrice.substring(0, actualPrice.indexOf("."))) &&
+                                    !priceInput.equals(actualPrice.substring(0, actualPrice.indexOf(".") + 2))) {
+                                numberOfChangedFields++;
+                                newText = priceInput;
+                                nameOfFieldChanged = "price";
+                            }
+
+                            //Prints all the possible errors
+                            if (numberOfChangedFields == 0) {
+                                printWriter.println("Missing Input");
+                                printWriter.flush();
+                            } else if (numberOfChangedFields != 1) {
+                                printWriter.println("Changed More Than One Field");
+                                printWriter.flush();
+                            } else if (nameOfFieldChanged.equals("name")) {
+                                if (validItemName(newText).equals("Failure")) {
+                                    printWriter.println("This Product Name Already Exists");
+                                    printWriter.flush();
+                                } else if (itemToChange.changeField(nameOfFieldChanged, newText)) {
+                                    printWriter.println("Name Change Success");
+                                    printWriter.flush();
+                                }
+                            } else if (nameOfFieldChanged.equals("quantity")) {
+                                if (validItemQuantity(newText).equals("Failure")) {
+                                    printWriter.println("Quantity Must be a Positive Integer");
+                                    printWriter.flush();
+                                } else if (itemToChange.changeField(nameOfFieldChanged, newText)) {
+                                    printWriter.println("Success");
+                                    printWriter.flush();
+                                }
+                            } else if (nameOfFieldChanged.equals("price")) {
+                                if (validItemPrice(newText).equals("Failure")) {
+                                    printWriter.println("Price Must be a Two Decimal Number");
+                                    printWriter.flush();
+                                } else if (itemToChange.changeField(nameOfFieldChanged, newText)) {
+                                    printWriter.println("Success");
+                                    printWriter.flush();
+                                }
+                            } else {
+                                if (itemToChange.changeField(nameOfFieldChanged, newText)) {
+                                    printWriter.println("Success");
+                                    printWriter.flush();
+                                }
+                            }
+                        }
+                    }
+                    case "Item Selected" -> {
+                        String storeSelectedString = bufferedReader.readLine();
+                        String itemSelectedString = bufferedReader.readLine();
+
+                        Store currentStore = ((Seller) currentUser).getSpecificStore(storeSelectedString);
+                        Item itemToChange = currentStore.getSpecificItem(itemSelectedString);
+
+                        printWriter.println(itemToChange.getName());
+                        printWriter.println(itemToChange.getDescription());
+                        printWriter.println(itemToChange.getQuantity());
+                        printWriter.println(itemToChange.getPrice());
+                        printWriter.flush();
+
                     }
                 }
             }
