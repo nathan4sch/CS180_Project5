@@ -41,11 +41,6 @@ public class Buyer {
         }
     }
 
-    public static void main(String[] args) {
-        Buyer bob = new Buyer("bob@mail.com", "123", null, null);
-        System.out.println(bob.checkout());
-    }
-
     /**
      * Returns an ArrayList to be printed as the purchase history
      *
