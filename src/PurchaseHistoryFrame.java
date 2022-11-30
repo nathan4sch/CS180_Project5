@@ -43,9 +43,59 @@ public class PurchaseHistoryFrame extends JComponent implements Runnable {
             if (source == returnToDashButton) {
                 SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
                 purchaseHistoryFrame.dispose();
-            } else if (source == viewHistoryButton) {
+            } else if (source == viewHistoryButton) { // View Purchase History
+                printWriter.println("View History");
+                printWriter.println(userEmail);
+                printWriter.flush();
 
-            } else if (source == exportHistoryButton) {
+                try {
+                    String line = bufferedReader.readLine();
+
+                    if (!line.equals("Error")) {
+                        ArrayList<String> historyList = new ArrayList<>();
+                        String[] itemSplit = line.split("~");
+
+                        for (int i = 0; i < itemSplit.length; i++) { // Loop through lines to add to historyList
+                            String[] fields = itemSplit[i].split("!");
+                            int num = i + 1;
+
+                            // Fields
+                            String storeName = fields[0];
+                            String itemName = fields[1];
+                            String quantity = fields[2];
+                            double totalPrice = Double.parseDouble(fields[3]) * Double.parseDouble(quantity);
+
+                            String historyLine = String.format("%d. %s purchased from %s. Quantity: %s Total: $%.2f",
+                                    num, itemName, storeName, quantity, totalPrice);
+
+                            historyList.add(historyLine);
+                        }
+
+                        // Formatted JOptionPane to show Purchase History
+                        JScrollPane scrollPane;
+                        String[] paneOptions = historyList.toArray(new String[0]);
+                        JList<String> list = new JList<>(paneOptions);
+                        scrollPane = new JScrollPane(list);
+
+                        JPanel panel = new JPanel();
+                        panel.add(scrollPane);
+
+                        scrollPane.getViewport().add(list);
+                        scrollPane.setSize(500, 400);
+
+                        JOptionPane.showMessageDialog(null, scrollPane, "Purchase History",
+                                JOptionPane.PLAIN_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(null,
+                                "Purchase History does not exist!", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Error", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            } else if (source == exportHistoryButton) { // Export Purchase History
                 printWriter.println("Export History");
                 printWriter.println(userEmail);
                 printWriter.flush();
@@ -59,12 +109,12 @@ public class PurchaseHistoryFrame extends JComponent implements Runnable {
                         purchaseHistoryFrame.dispose();
                     } else {
                         JOptionPane.showMessageDialog(null, "Export Failed!", "Error",
-                                JOptionPane.INFORMATION_MESSAGE);
+                                JOptionPane.ERROR_MESSAGE);
                     }
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                    JOptionPane.showMessageDialog(null, "Export Failed!", "Error",
-                            JOptionPane.INFORMATION_MESSAGE);
+                } catch (Exception ex) {
+                    String errorMess = String.valueOf(ex);
+                    JOptionPane.showMessageDialog(null, errorMess, "Error",
+                            JOptionPane.ERROR_MESSAGE);
                 }
             }
         }
@@ -79,7 +129,7 @@ public class PurchaseHistoryFrame extends JComponent implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        purchaseHistoryFrame = new JFrame("Manage Account Frame");
+        purchaseHistoryFrame = new JFrame("Purchase History Frame");
         mainPanel = new JPanel();
 
         mainPanel.setLayout(null);
@@ -104,7 +154,7 @@ public class PurchaseHistoryFrame extends JComponent implements Runnable {
         mainPanel.add(exportHistoryButton);
         exportHistoryButton.setVisible(false);
 
-        // Manage Account
+        // Purchase History
         purchaseHistoryLabel = new JLabel("Purchase History");
         purchaseHistoryLabel.setBounds(300, 10, 400, 100);
         purchaseHistoryLabel.setFont(new Font(purchaseHistoryLabel.getFont().getName(),

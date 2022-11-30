@@ -121,6 +121,18 @@ public class Server implements Runnable {
                         printWriter.println(Arrays.toString(buyerCart));
                         printWriter.flush();
                     }
+                    case "View History" -> {
+                        ArrayList<String> historyList = ((Buyer) currentUser).
+                                returnPurchaseHistory(((Buyer) currentUser).getEmail());
+                        String line = parseList(historyList);
+                        if (line != null) {
+                            printWriter.println(line);
+                            printWriter.flush();
+                        } else {
+                            printWriter.println("Error");
+                            printWriter.flush();
+                        }
+                    }
                     case "Export History" -> {
                         synchronized (SYNC) {
                             String exported = ((Buyer) currentUser).exportPurchaseHistory(((Buyer) currentUser).getEmail());
@@ -132,6 +144,9 @@ public class Server implements Runnable {
                                 printWriter.flush();
                             }
                         }
+                    }
+                    case "Buyer Statistics" -> {
+
                     }
                     case "Manage Store" -> {
                         Store[] userStoreList = ((Seller) currentUser).getStore();
@@ -650,9 +665,32 @@ public class Server implements Runnable {
         }
         return "Failure";
     }
+    
+    /**
+     * Loops through list and concatenates everything to a string
+     *
+     * @param listToParse String ArrayList to parse
+     */
+    public synchronized static String parseList(ArrayList<String> listToParse) {
+        try {
+            String returnString = "";
+            for (int i = 0; i < listToParse.size(); i++) {
+                returnString += listToParse.get(i) + "~";
+            }
 
+            return returnString.substring(0, returnString.length() - 1);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    /**
+     * Resets the user's login status after closing the application
+     *
+     * @param userEmail user's email to search for
+     */
     public synchronized static void resetLoggedInStatus(String userEmail) {
-        //set the fmcredential csv where it says logged in to x
+        // set FMCredentials.csv where it says logged in to x
         try {
             BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
             ArrayList<String> lines = new ArrayList<>();
