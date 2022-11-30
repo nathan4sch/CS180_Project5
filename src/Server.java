@@ -44,12 +44,7 @@ public class Server implements Runnable {
      * Synchronized Object to synchronize methods called from other classes
      * */
     public static final Object SYNC = new Object();
-
-    /**
-     * Synchronized Object to synchronize methods called from other classes
-     * */
-    public static final Object SYNC = new Object();
-
+    
     /**
      * Run method that contains the main interface; is synchronized by threads
      */
