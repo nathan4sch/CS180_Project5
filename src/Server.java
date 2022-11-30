@@ -281,8 +281,51 @@ public class Server implements Runnable {
                             }
                         }
                     }
-                    case "Buyer Statistics" -> {
-
+                    case "BSF - Show Buyer Statistics" -> {
+                        ArrayList<String> buyerStatList = ((Buyer) currentUser).
+                                storesFromBuyerProducts(((Buyer) currentUser).getEmail());
+                        String line = parseList(buyerStatList);
+                        if (line != null) {
+                            printWriter.println(line);
+                            printWriter.flush();
+                        } else {
+                            printWriter.println("Error");
+                            printWriter.flush();
+                        }
+                    }
+                    case "BSF - Sort Buyer Statistics" -> {
+                        ArrayList<String> sortedBuyerStatList = ((Buyer) currentUser).
+                                sortStoresFromBuyerProducts(((Buyer) currentUser).getEmail());
+                        String line = parseList(sortedBuyerStatList);
+                        if (line != null) {
+                            printWriter.println(line);
+                            printWriter.flush();
+                        } else {
+                            printWriter.println("Error");
+                            printWriter.flush();
+                        }
+                    }
+                    case "BSF - Show Store Statistics" -> {
+                        ArrayList<String> storeStatList = ((Buyer) currentUser).storesFromProductsSold();
+                        String line = parseList(storeStatList);
+                        if (line != null) {
+                            printWriter.println(line);
+                            printWriter.flush();
+                        } else {
+                            printWriter.println("Error");
+                            printWriter.flush();
+                        }
+                    }
+                    case "BSF - Sort Store Statistics" -> {
+                        ArrayList<String> sortedStoreStatList = ((Buyer) currentUser).sortStoresProductsSold();
+                        String line = parseList(sortedStoreStatList);
+                        if (line != null) {
+                            printWriter.println(line);
+                            printWriter.flush();
+                        } else {
+                            printWriter.println("Error");
+                            printWriter.flush();
+                        }
                     }
                     case "Manage Store" -> {
                         Store[] userStoreList = ((Seller) currentUser).getStore();

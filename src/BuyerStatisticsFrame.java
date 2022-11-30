@@ -22,7 +22,6 @@ public class BuyerStatisticsFrame extends JComponent implements Runnable {
     JFrame buyerStatisticsFrame;
     JPanel mainPanel;
     JButton returnToDashButton;
-    ArrayList<JComponent> currentlyVisible = new ArrayList<>();
 
     // Statistics
     JLabel mainStatLabel;
@@ -53,18 +52,202 @@ public class BuyerStatisticsFrame extends JComponent implements Runnable {
             if (source == returnToDashButton) {
                 SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
                 buyerStatisticsFrame.dispose();
-            } else if (source == buyerShowStatButton) { // Show Statistics
-                printWriter.println("Show Buyer Statistics");
+            } else if (source == buyerShowStatButton) { // Buyer Show Statistics
+                printWriter.println("BSF - Show Buyer Statistics");
                 printWriter.println(userEmail);
                 printWriter.flush();
 
+                try {
+                    String line = bufferedReader.readLine();
 
-            } else if (source == buyerSortStatButton) { // Sort Statistics
-                printWriter.println("Sort Buyer Statistics");
+                    if (!line.equals("Error")) {
+                        ArrayList<String> historyList = new ArrayList<>();
+                        String[] storeLines = line.split("~");
+
+                        // Fields
+                        for (String storeLine : storeLines) {
+                            String[] fields = storeLine.split(",");
+
+                            String storeName = fields[0];
+                            String quantity = fields[1];
+
+                            String historyLine = String.format("%s items purchased from %s ",
+                                    quantity, storeName);
+
+                            historyList.add(historyLine);
+                        }
+
+                        // Formatted JOptionPane to show Purchase History
+                        JScrollPane scrollPane;
+                        String[] paneOptions = historyList.toArray(new String[0]);
+                        JList<String> list = new JList<>(paneOptions);
+                        scrollPane = new JScrollPane(list);
+
+                        JPanel panel = new JPanel();
+                        panel.add(scrollPane);
+
+                        scrollPane.getViewport().add(list);
+                        scrollPane.setSize(600, 500);
+
+                        JOptionPane.showMessageDialog(null, scrollPane, "Buyer Statistics",
+                                JOptionPane.PLAIN_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(null,
+                                "You have not purchased any items yet!", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Error", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            } else if (source == buyerSortStatButton) { // Buyer Sort Statistics
+                printWriter.println("BSF - Sort Buyer Statistics");
                 printWriter.println(userEmail);
                 printWriter.flush();
 
-                //TODO
+                try {
+                    String line = bufferedReader.readLine();
+
+                    if (!line.equals("Error")) {
+                        ArrayList<String> historyList = new ArrayList<>();
+                        String[] storeLines = line.split("~");
+
+                        // Fields
+                        for (String storeLine : storeLines) {
+                            String[] fields = storeLine.split(",");
+
+                            String storeName = fields[0];
+                            String quantity = fields[1];
+
+                            String historyLine = String.format("%s items purchased from %s ",
+                                    quantity, storeName);
+
+                            historyList.add(historyLine);
+                        }
+
+                        // Formatted JOptionPane to show Purchase History
+                        JScrollPane scrollPane;
+                        String[] paneOptions = historyList.toArray(new String[0]);
+                        JList<String> list = new JList<>(paneOptions);
+                        scrollPane = new JScrollPane(list);
+
+                        JPanel panel = new JPanel();
+                        panel.add(scrollPane);
+
+                        scrollPane.getViewport().add(list);
+                        scrollPane.setSize(600, 500);
+
+                        JOptionPane.showMessageDialog(null, scrollPane, "Sorted Buyer Statistics",
+                                JOptionPane.PLAIN_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(null,
+                                "You have not purchased any items yet!", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Error", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            } else if (source == storeShowStatButton) { // Store Sort Statistics
+                printWriter.println("BSF - Show Store Statistics");
+                printWriter.println(userEmail);
+                printWriter.flush();
+
+                try {
+                    String line = bufferedReader.readLine();
+
+                    if (!line.equals("Error")) {
+                        ArrayList<String> historyList = new ArrayList<>();
+                        String[] storeLines = line.split("~");
+
+                        // Fields
+                        for (String storeLine : storeLines) {
+                            String[] fields = storeLine.split(",");
+
+                            String storeName = fields[0];
+                            String quantity = fields[1];
+
+                            String historyLine = String.format("Total sales from %s: %s items ",
+                                    storeName, quantity);
+
+                            historyList.add(historyLine);
+                        }
+
+                        // Formatted JOptionPane to show Purchase History
+                        JScrollPane scrollPane;
+                        String[] paneOptions = historyList.toArray(new String[0]);
+                        JList<String> list = new JList<>(paneOptions);
+                        scrollPane = new JScrollPane(list);
+
+                        JPanel panel = new JPanel();
+                        panel.add(scrollPane);
+
+                        scrollPane.getViewport().add(list);
+                        scrollPane.setSize(600, 500);
+
+                        JOptionPane.showMessageDialog(null, scrollPane, "Store Statistics",
+                                JOptionPane.PLAIN_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(null,
+                                "You have not purchased any items yet!", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Error", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            } else if (source == storeSortStatButton) { // Store Sort Statistics
+                printWriter.println("BSF - Sort Store Statistics");
+                printWriter.println(userEmail);
+                printWriter.flush();
+
+                try {
+                    String line = bufferedReader.readLine();
+
+                    if (!line.equals("Error")) {
+                        ArrayList<String> historyList = new ArrayList<>();
+                        String[] storeLines = line.split("~");
+
+                        // Fields
+                        for (String storeLine : storeLines) {
+                            String[] fields = storeLine.split(",");
+
+                            String storeName = fields[0];
+                            String quantity = fields[1];
+
+                            String historyLine = String.format("Total sales from %s: %s items ",
+                                    storeName, quantity);
+
+                            historyList.add(historyLine);
+                        }
+
+                        // Formatted JOptionPane to show Purchase History
+                        JScrollPane scrollPane;
+                        String[] paneOptions = historyList.toArray(new String[0]);
+                        JList<String> list = new JList<>(paneOptions);
+                        scrollPane = new JScrollPane(list);
+
+                        JPanel panel = new JPanel();
+                        panel.add(scrollPane);
+
+                        scrollPane.getViewport().add(list);
+                        scrollPane.setSize(600, 500);
+
+                        JOptionPane.showMessageDialog(null, scrollPane, "Sorted Store Statistics",
+                                JOptionPane.PLAIN_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(null,
+                                "You have not purchased any items yet!", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Error", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
             }
         }
     };
@@ -176,24 +359,7 @@ public class BuyerStatisticsFrame extends JComponent implements Runnable {
         });
 
         buyerStatisticsFrame.setVisible(true);
-
-        resetVisible();
-
-        for (JComponent jComponent : buyerStatisticsGUI) {
-            jComponent.setVisible(true);
-            currentlyVisible.add(jComponent);
-        }
     }
-
-//    public static void main(String[] args) { // For testing
-//        try {
-//            Socket socket1 = new Socket("localhost", 4444);
-//            BuyerStatisticsFrame buy = new BuyerStatisticsFrame(socket1, "aa");
-//            buy.run();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     public int fontSizeToUse(JLabel label) {
         Font currentFont = label.getFont();
@@ -205,14 +371,5 @@ public class BuyerStatisticsFrame extends JComponent implements Runnable {
         int componentHeight = label.getHeight();
 
         return Math.min(newFontSize, componentHeight);
-    }
-
-    /**
-     * Sets currentlyVisible panel to false
-     */
-    public void resetVisible() {
-        for (int i = 0; i < currentlyVisible.size(); i++) {
-            currentlyVisible.get(i).setVisible(false);
-        }
     }
 }
