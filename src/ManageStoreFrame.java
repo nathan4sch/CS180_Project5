@@ -32,6 +32,7 @@ public class ManageStoreFrame extends JComponent implements Runnable {
     //Objective Manage Catalogue
     JButton deleteStoreButton;
     JButton modifyProductsButton;
+    JButton importProductFile;
 
 
     //Left Panel
@@ -88,6 +89,36 @@ public class ManageStoreFrame extends JComponent implements Runnable {
                         ex.printStackTrace();
                     }
                 }
+            } else if (source == importProductFile) {
+
+                JOptionPane.showMessageDialog(null, "Ensure each line in the imported file is " +
+                                "formatted correctly\nExample: storeName,itemName,description,quantity,price" +
+                                "\nWalmart,Table,strong wooden table in great condition,10,99.99",
+                        "How to Format Line in Text File", JOptionPane.INFORMATION_MESSAGE);
+                String fileName = JOptionPane.showInputDialog(null, "What is the name of the " +
+                        "file to Import?", "File Name", JOptionPane.QUESTION_MESSAGE);
+                if (fileName != null) {
+                    printWriter.println("Import Product File");
+                    printWriter.println(fileName);
+                    printWriter.flush();
+                    try {
+                        String successOrFailure = bufferedReader.readLine();
+
+                        if (successOrFailure.equals("Success")) {
+                            String numberOfProductsAdded = bufferedReader.readLine();
+
+                            JOptionPane.showMessageDialog(null, "Added " +
+                                            numberOfProductsAdded + " Items", "Success",
+                                    JOptionPane.INFORMATION_MESSAGE);
+                        } else if (successOrFailure.equals("Failure")) {
+                            JOptionPane.showMessageDialog(null, "No Products were Added",
+                                    "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
             } else {
                 storeSelected = e.getActionCommand();
                 currentStore.setText("Store Selected: " + storeSelected);
@@ -141,13 +172,18 @@ public class ManageStoreFrame extends JComponent implements Runnable {
 
         deleteStoreButton = new JButton("Delete Store");
         deleteStoreButton.addActionListener(actionListener);
-        deleteStoreButton.setBounds(300, 300, 200, 80);
+        deleteStoreButton.setBounds(300, 400, 200, 80);
         leftPanel.add(deleteStoreButton);
 
         returnToDashButton = new JButton("Return to Dashboard");
         returnToDashButton.addActionListener(actionListener);
-        returnToDashButton.setBounds(300, 400, 200, 80);
+        returnToDashButton.setBounds(300, 500, 200, 80);
         leftPanel.add(returnToDashButton);
+
+        importProductFile = new JButton("Import Product File");
+        importProductFile.addActionListener(actionListener);
+        importProductFile.setBounds(300, 300, 200, 80);
+        leftPanel.add(importProductFile);
 
         modifyProductsButton = new JButton("Modify Products");
         modifyProductsButton.addActionListener(actionListener);

@@ -34,7 +34,6 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
     JButton deleteProductButton;
     JButton editProductButton;
     JButton exportFileButton;
-    JButton importFileButton;
     //adding product
     JLabel productName;
     JLabel productDescription;
@@ -66,9 +65,22 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
                 SwingUtilities.invokeLater(new MainSellerFrame(socket, userEmail));
                 manageCatalogueFrame.dispose();
             } else if (source == exportFileButton) {
+                printWriter.println("Export Product File");
+                printWriter.println(storeSelected);
+                printWriter.flush();
 
-            } else if (source == importFileButton) {
-
+                try {
+                    String successOrFailure = bufferedReader.readLine();
+                    if (successOrFailure.equals("Success")) {
+                        JOptionPane.showMessageDialog(null, "File Exported",
+                                "Success", JOptionPane.INFORMATION_MESSAGE);
+                    } else if (successOrFailure.equals("Failure")) {
+                        JOptionPane.showMessageDialog(null, "You have no products in this store",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             } else if (source == addProductButton) {
                 String name = nameInput.getText();
                 String description = descriptionInput.getText();
@@ -341,10 +353,6 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
 
 
         //Buttons on bottom of left panel
-        importFileButton = new JButton("Import Product File");
-        importFileButton.addActionListener(actionListener);
-        importFileButton.setBounds(100, 650, 180, 80);
-        leftPanel.add(importFileButton);
 
         exportFileButton = new JButton("Export Product File");
         exportFileButton.addActionListener(actionListener);

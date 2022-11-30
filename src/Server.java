@@ -39,12 +39,12 @@ public class Server implements Runnable {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * Synchronized Object to synchronize methods called from other classes
      * */
     public static final Object SYNC = new Object();
-    
+
     /**
      * Run method that contains the main interface; is synchronized by threads
      */
@@ -121,6 +121,18 @@ public class Server implements Runnable {
                         printWriter.println(Arrays.toString(buyerCart));
                         printWriter.flush();
                     }
+                    case "View History" -> {
+                        ArrayList<String> historyList = ((Buyer) currentUser).
+                                returnPurchaseHistory(((Buyer) currentUser).getEmail());
+                        String line = parseList(historyList);
+                        if (line != null) {
+                            printWriter.println(line);
+                            printWriter.flush();
+                        } else {
+                            printWriter.println("Error");
+                            printWriter.flush();
+                        }
+                    }
                     case "Export History" -> {
                         synchronized (SYNC) {
                             String exported = ((Buyer) currentUser).exportPurchaseHistory(((Buyer) currentUser).getEmail());
@@ -132,6 +144,9 @@ public class Server implements Runnable {
                                 printWriter.flush();
                             }
                         }
+                    }
+                    case "Buyer Statistics" -> {
+
                     }
                     case "Manage Store" -> {
                         Store[] userStoreList = ((Seller) currentUser).getStore();
@@ -363,6 +378,26 @@ public class Server implements Runnable {
                         printWriter.println(itemToChange.getPrice());
                         printWriter.flush();
 
+                    }
+                    case "Export Product File" -> {
+                        String storeName = bufferedReader.readLine();
+                        printWriter.println(exportPublishedItems(storeName));
+                        printWriter.flush();
+                    }
+                    case "Import Product File" -> {
+                        String filename = bufferedReader.readLine();
+
+                        Store[] currentUserStores = ((Seller)currentUser).getStore();
+
+                        int numberOfProductAdded = ((Seller)currentUser).importItems(filename, currentUserStores);
+                        if (numberOfProductAdded == -1 || numberOfProductAdded == 0) {
+                            printWriter.println("Failure");
+                            printWriter.flush();
+                        } else {
+                            printWriter.println("Success");
+                            printWriter.println(numberOfProductAdded);
+                            printWriter.flush();
+                        }
                     }
                 }
             }
@@ -651,8 +686,31 @@ public class Server implements Runnable {
         return "Failure";
     }
 
+    /**
+     * Loops through list and concatenates everything to a string
+     *
+     * @param listToParse String ArrayList to parse
+     */
+    public synchronized static String parseList(ArrayList<String> listToParse) {
+        try {
+            String returnString = "";
+            for (int i = 0; i < listToParse.size(); i++) {
+                returnString += listToParse.get(i) + "~";
+            }
+
+            return returnString.substring(0, returnString.length() - 1);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Resets the user's login status after closing the application
+     *
+     * @param userEmail user's email to search for
+     */
     public synchronized static void resetLoggedInStatus(String userEmail) {
-        //set the fmcredential csv where it says logged in to x
+        // set FMCredentials.csv where it says logged in to x
         try {
             BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
             ArrayList<String> lines = new ArrayList<>();
@@ -675,5 +733,49 @@ public class Server implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Purpose: exports a file containing the stores items
+     *
+     * @param storeName The name of the store that should have its items exported to a file
+     */
+    public synchronized String exportPublishedItems(String storeName) {
+        try {
+            BufferedReader itemReader = new BufferedReader(new FileReader("FMItems.csv"));
+            ArrayList<String> itemsInStore = new ArrayList<>();
+
+            // creates array of all items
+            ArrayList<String> itemStrings = new ArrayList<>();
+            String line;
+            while ((line = itemReader.readLine()) != null) {
+                itemStrings.add(line);
+            }
+
+            for (String item : itemStrings) {
+                String storeToCheck = item.split(",")[0];
+                if (storeToCheck.equals(storeName)) {
+                    itemsInStore.add(item);
+                }
+            }
+
+            if (itemsInStore.size() == 0) {
+                return "Failure";
+            }
+
+            String filename = storeName + "—Items.csv";
+
+            PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(filename)));
+            for (String lineToWrite : itemsInStore) {
+                writer.println(lineToWrite);
+            }
+
+            writer.close();
+            itemReader.close();
+            return "Success";
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "Failure";
     }
 }
