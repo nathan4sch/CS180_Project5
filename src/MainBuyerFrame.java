@@ -52,8 +52,6 @@ public class MainBuyerFrame extends JComponent implements Runnable {
     JMenuItem searchByName;
     JMenuItem searchByStore;
     JMenuItem searchByDescription;
-    boolean priceSorted = false;
-    boolean quantitySorted = false;
 
     /**
      *  The constructor of MainBuyerFrame
@@ -74,8 +72,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                 //more details code
             } else if (choice == sortByPrice) {
                 //tells Server which operation to perform
-                printWriter.println("Sort Price");
-                printWriter.println(String.valueOf(priceSorted));
+                printWriter.println("Sort By Price");
                 printWriter.flush();
                 try {
                     //gets number of items
@@ -89,8 +86,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                 }
             } else if (choice == sortByQuantity) {
                 //Tells server the operation to perform
-                printWriter.println("Sort Quantity");
-                printWriter.println((String.valueOf(quantitySorted)));
+                printWriter.println("Sort By Quantity");
                 printWriter.flush();
                 try {
                     //Gets number of items
@@ -290,6 +286,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
 
         //Initializes table of Items for user to view
         printWriter.println("Initial Table");
+        printWriter.flush();
         int itemsInInitialTable = -1;
         try {
             itemsInInitialTable = Integer.parseInt(bufferedReader.readLine());
