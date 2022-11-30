@@ -291,6 +291,11 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
         manageCatalogueFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 try {
+                    printWriter.println("Reset Login Status");
+                    printWriter.println(userEmail);
+                    printWriter.flush();
+                    String successOrFailure = bufferedReader.readLine();
+
                     bufferedReader.close();
                     printWriter.close();
                     socket.close();
@@ -319,8 +324,13 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
 }
 
 
-//needs to be able to add a product with name, description, quantity, price
 //needs to be able to edit the selected product
 //both of these need to check if the product name already exists.
 
 //Export and import the product file
+
+//will need to send the currently logged in users to a csv. Probably a new csv and then when calling the socket we also
+//initiate the array of logged in users.
+//have it rename the sell/buyer part in csv?
+
+//update to main!!

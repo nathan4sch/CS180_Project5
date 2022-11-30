@@ -59,8 +59,8 @@ public class LoginFrame extends JComponent implements Runnable {
                             loginFrame.dispose();
                         }
                     } else if (successOrFailure.equals("Failure")) {
-                        JOptionPane.showMessageDialog(null, "No Account Found",
-                                "Sign In Failure", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "No Account Found or Account " +
+                                        "Already Logged In", "Sign In Failure", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
