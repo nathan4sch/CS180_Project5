@@ -39,12 +39,12 @@ public class Server implements Runnable {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * Synchronized Object to synchronize methods called from other classes
      * */
     public static final Object SYNC = new Object();
-    
+
     /**
      * Run method that contains the main interface; is synchronized by threads
      */
@@ -379,6 +379,26 @@ public class Server implements Runnable {
                         printWriter.flush();
 
                     }
+                    case "Export Product File" -> {
+                        String storeName = bufferedReader.readLine();
+                        printWriter.println(exportPublishedItems(storeName));
+                        printWriter.flush();
+                    }
+                    case "Import Product File" -> {
+                        String filename = bufferedReader.readLine();
+
+                        Store[] currentUserStores = ((Seller)currentUser).getStore();
+
+                        int numberOfProductAdded = ((Seller)currentUser).importItems(filename, currentUserStores);
+                        if (numberOfProductAdded == -1 || numberOfProductAdded == 0) {
+                            printWriter.println("Failure");
+                            printWriter.flush();
+                        } else {
+                            printWriter.println("Success");
+                            printWriter.println(numberOfProductAdded);
+                            printWriter.flush();
+                        }
+                    }
                 }
             }
         } catch (IOException e) {
@@ -677,13 +697,13 @@ public class Server implements Runnable {
             for (int i = 0; i < listToParse.size(); i++) {
                 returnString += listToParse.get(i) + "~";
             }
-
+            
             return returnString.substring(0, returnString.length() - 1);
         } catch (Exception e) {
             return null;
         }
     }
-    
+
     /**
      * Resets the user's login status after closing the application
      *
@@ -713,5 +733,49 @@ public class Server implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Purpose: exports a file containing the stores items
+     *
+     * @param storeName The name of the store that should have its items exported to a file
+     */
+    public synchronized String exportPublishedItems(String storeName) {
+        try {
+            BufferedReader itemReader = new BufferedReader(new FileReader("FMItems.csv"));
+            ArrayList<String> itemsInStore = new ArrayList<>();
+
+            // creates array of all items
+            ArrayList<String> itemStrings = new ArrayList<>();
+            String line;
+            while ((line = itemReader.readLine()) != null) {
+                itemStrings.add(line);
+            }
+
+            for (String item : itemStrings) {
+                String storeToCheck = item.split(",")[0];
+                if (storeToCheck.equals(storeName)) {
+                    itemsInStore.add(item);
+                }
+            }
+
+            if (itemsInStore.size() == 0) {
+                return "Failure";
+            }
+
+            String filename = storeName + "—Items.csv";
+
+            PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(filename)));
+            for (String lineToWrite : itemsInStore) {
+                writer.println(lineToWrite);
+            }
+
+            writer.close();
+            itemReader.close();
+            return "Success";
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "Failure";
     }
 }

@@ -69,7 +69,7 @@ public class Store {
      * Deletes Item from FMItems.csv and the stores item list
      * @param itemToDelete    Item object that was selected by the user
      **/
-    public void deleteItem(Item itemToDelete) {
+    public synchronized void deleteItem(Item itemToDelete) {
         //Remove the item from the store's item list
         items.remove(itemToDelete);
         ArrayList<String> lines = new ArrayList<>();
