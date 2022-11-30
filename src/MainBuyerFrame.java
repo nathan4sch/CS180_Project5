@@ -48,6 +48,11 @@ public class MainBuyerFrame extends JComponent implements Runnable {
     JMenuItem sortByPrice;
     JMenuItem sortByQuantity;
 
+    JPopupMenu searchPopupMenu;
+    JMenuItem searchByName;
+    JMenuItem searchByStore;
+    JMenuItem searchByDescription;
+
     /**
      *  The constructor of MainBuyerFrame
      *
@@ -67,7 +72,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                 //more details code
             } else if (choice == sortByPrice) {
                 //tells Server which operation to perform
-                printWriter.println("Sort Price");
+                printWriter.println("Sort By Price");
                 printWriter.flush();
                 try {
                     //gets number of items
@@ -81,7 +86,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                 }
             } else if (choice == sortByQuantity) {
                 //Tells server the operation to perform
-                printWriter.println("Sort Quantity");
+                printWriter.println("Sort By Quantity");
                 printWriter.flush();
                 try {
                     //Gets number of items
@@ -89,6 +94,42 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                     tableModel = updateTable(numItems);
                     //resets table for user
                     jTable.setModel(tableModel);
+                    mainBuyerFrame.repaint();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            } else if (choice == searchByName) {
+                printWriter.println("Search By Name");
+                printWriter.println(searchTextField.getText());
+                printWriter.flush();
+                try {
+                    int numItems = Integer.parseInt(bufferedReader.readLine());
+                    tableModel = updateTable(numItems);
+                    jTable.setModel((tableModel));
+                    mainBuyerFrame.repaint();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            } else if (choice == searchByStore) {
+                printWriter.println("Search By Store");
+                printWriter.println(searchTextField.getText());
+                printWriter.flush();
+                try {
+                    int numItems = Integer.parseInt(bufferedReader.readLine());
+                    tableModel = updateTable(numItems);
+                    jTable.setModel((tableModel));
+                    mainBuyerFrame.repaint();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            } else if (choice == searchByDescription) {
+                printWriter.println("Search By Description");
+                printWriter.println(searchTextField.getText());
+                printWriter.flush();
+                try {
+                    int numItems = Integer.parseInt(bufferedReader.readLine());
+                    tableModel = updateTable(numItems);
+                    jTable.setModel((tableModel));
                     mainBuyerFrame.repaint();
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
@@ -219,13 +260,23 @@ public class MainBuyerFrame extends JComponent implements Runnable {
 
         leftPanel.add(searchTextField);
 
+        searchPopupMenu = new JPopupMenu();
+        searchByName = new JMenuItem("Search By Name");
+        searchByStore = new JMenuItem("Search By Store");
+        searchByDescription = new JMenuItem("Search By Description");
+        searchByName.addActionListener(popupItemListener);
+        searchByStore.addActionListener(popupItemListener);
+        searchByDescription.addActionListener(popupItemListener);
+        searchPopupMenu.add(searchByName);
+        searchPopupMenu.add(searchByDescription);
+        searchPopupMenu.add(searchByStore);
         searchButton = new JButton("Search");
-        searchButton.addActionListener(actionListener);
+        searchButton.setComponentPopupMenu(searchPopupMenu);
         leftPanel.add(searchButton);
 
         tablePopupMenu = new JPopupMenu();
         addToCart = new JMenuItem("Add to Cart");
-        moreDetails = new JMenuItem("Delete Friend");
+        moreDetails = new JMenuItem("See More Details");
 
         //Adds Popup Functionality to table
         addToCart.addActionListener(popupItemListener);
@@ -235,12 +286,13 @@ public class MainBuyerFrame extends JComponent implements Runnable {
 
         //Initializes table of Items for user to view
         printWriter.println("Initial Table");
+        printWriter.flush();
         int itemsInInitialTable = -1;
-//        try {
-//            itemsInInitialTable = Integer.parseInt(bufferedReader.readLine());
-//        } catch (IOException ioe) {
-//            ioe.printStackTrace();
-//        }
+        try {
+            itemsInInitialTable = Integer.parseInt(bufferedReader.readLine());
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
         tableModel = updateTable(itemsInInitialTable);
         jTable = new JTable(tableModel);
         //adds popups to table
