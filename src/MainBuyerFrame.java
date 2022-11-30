@@ -139,7 +139,10 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                 SwingUtilities.invokeLater(new PurchaseHistoryFrame(socket, userEmail));
                 mainBuyerFrame.dispose();
             } else if (source == statisticsButton) { // View Statistics
+                resetVisible();
 
+                SwingUtilities.invokeLater(new BuyerStatisticsFrame(socket, userEmail));
+                mainBuyerFrame.dispose();
             } else if (source == logoutButton) { // Sign Out
                 printWriter.println("Reset Login Status");
                 printWriter.println(userEmail);

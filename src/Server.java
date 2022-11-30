@@ -685,7 +685,7 @@ public class Server implements Runnable {
         }
         return "Failure";
     }
-
+    
     /**
      * Loops through list and concatenates everything to a string
      *
@@ -697,7 +697,7 @@ public class Server implements Runnable {
             for (int i = 0; i < listToParse.size(); i++) {
                 returnString += listToParse.get(i) + "~";
             }
-
+            
             return returnString.substring(0, returnString.length() - 1);
         } catch (Exception e) {
             return null;
