@@ -75,9 +75,6 @@ public class Item {
      * @param newValue : New value to change it to
      **/
     public boolean changeField(String field, String newValue) {
-        // return false if quantity or price would be set to invalid value
-        if (field.equals("quantity") && Integer.parseInt(newValue) < 0) { return false; }
-        if (field.equals("price") && Double.parseDouble(newValue) <= 0) { return false; }
         // Write quantity change to csv file
         File f = new File("FMItems.csv");
         ArrayList<String> lines = new ArrayList<>();

@@ -127,7 +127,7 @@ public class PurchaseHistoryFrame extends JComponent implements Runnable {
                     printWriter.println(userEmail);
                     printWriter.flush();
                     String successOrFailure = bufferedReader.readLine();
-                    
+
                     bufferedReader.close();
                     printWriter.close();
                     socket.close();
