@@ -6,8 +6,10 @@ import java.net.Socket;
 import java.util.*;
 
 /**
- * Interface that allows Buyers see Store statistics.
- * They are able to see all stores with the amount of products sold by each store.
+ * Interface that allows Buyers see Store and Buyer statistics.
+ * Buyers can see a list of all stores from where their products were bought from.
+ * Buyers can also see a list of all stores with the amount of products sold by each store.
+ * <p>
  * These statistics can be sorted by most amount of products sold to least
  *
  * @version 27/11/2022
@@ -23,9 +25,15 @@ public class BuyerStatisticsFrame extends JComponent implements Runnable {
     ArrayList<JComponent> currentlyVisible = new ArrayList<>();
 
     // Statistics
-    JLabel buyerStatisticsLabel;
-    JButton showStatButton;
-    JButton sortStatButton;
+    JLabel mainStatLabel;
+    JLabel buyerStatLabel;
+    JLabel storeStatLabel;
+    JLabel buyerStatSubLabel;
+    JLabel storeStatSubLabel;
+    JButton buyerShowStatButton;
+    JButton buyerSortStatButton;
+    JButton storeShowStatButton;
+    JButton storeSortStatButton;
     JComponent[] buyerStatisticsGUI;
 
     /**
@@ -45,12 +53,13 @@ public class BuyerStatisticsFrame extends JComponent implements Runnable {
             if (source == returnToDashButton) {
                 SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
                 buyerStatisticsFrame.dispose();
-            } else if (source == showStatButton) { // Show Statistics
+            } else if (source == buyerShowStatButton) { // Show Statistics
                 printWriter.println("Show Buyer Statistics");
                 printWriter.println(userEmail);
                 printWriter.flush();
 
-            } else if (source == sortStatButton) { // Sort Statistics
+
+            } else if (source == buyerSortStatButton) { // Sort Statistics
                 printWriter.println("Sort Buyer Statistics");
                 printWriter.println(userEmail);
                 printWriter.flush();
@@ -80,29 +89,67 @@ public class BuyerStatisticsFrame extends JComponent implements Runnable {
         returnToDashButton.setBounds(385, 675, 200, 50);
         mainPanel.add(returnToDashButton);
 
-        // Show Statistics Button
-        showStatButton = new JButton("Show Statistics");
-        showStatButton.addActionListener(actionListener);
-        showStatButton.setBounds(285, 375, 200, 60);
-        mainPanel.add(showStatButton);
-        showStatButton.setVisible(false);
+        // Buyer Statistics
+        buyerShowStatButton = new JButton("Show Statistics");
+        buyerShowStatButton.addActionListener(actionListener);
+        buyerShowStatButton.setBounds(185, 380, 200, 50);
+        mainPanel.add(buyerShowStatButton);
 
-        // Sort Statistics Button
-        sortStatButton = new JButton("Show Sorted Statistics");
-        sortStatButton.addActionListener(actionListener);
-        sortStatButton.setBounds(495, 375, 200, 60);
-        mainPanel.add(sortStatButton);
-        sortStatButton.setVisible(false);
+        buyerSortStatButton = new JButton("Show Sorted Statistics");
+        buyerSortStatButton.addActionListener(actionListener);
+        buyerSortStatButton.setBounds(185, 440, 200, 50);
+        mainPanel.add(buyerSortStatButton);
 
-        // Statistics
-        buyerStatisticsLabel = new JLabel("Statistics");
-        buyerStatisticsLabel.setBounds(300, 10, 400, 100);
-        buyerStatisticsLabel.setFont(new Font(buyerStatisticsLabel.getFont().getName(),
-                Font.PLAIN, fontSizeToUse(buyerStatisticsLabel)));
-        mainPanel.add(buyerStatisticsLabel);
-        buyerStatisticsLabel.setVisible(false);
+        // Store Statistics
+        storeShowStatButton = new JButton("Show Statistics");
+        storeShowStatButton.addActionListener(actionListener);
+        storeShowStatButton.setBounds(580, 377, 200, 50);
+        mainPanel.add(storeShowStatButton);
 
-        buyerStatisticsGUI = new JComponent[]{buyerStatisticsLabel, showStatButton, sortStatButton, returnToDashButton};
+        storeSortStatButton = new JButton("Show Sorted Statistics");
+        storeSortStatButton.addActionListener(actionListener);
+        storeSortStatButton.setBounds(580, 437, 200, 50);
+        mainPanel.add(storeSortStatButton);
+
+        // Buyer Labels
+        buyerStatLabel = new JLabel("Buyer Statistics");
+        buyerStatLabel.setBounds(175, 235, 250, 90);
+        buyerStatLabel.setFont(new Font(buyerStatLabel.getFont().getName(),
+                Font.PLAIN, fontSizeToUse(buyerStatLabel)));
+        mainPanel.add(buyerStatLabel);
+
+        buyerStatSubLabel = new JLabel("List of all stores you've bought from");
+        buyerStatSubLabel.setBounds(125, 310, 350, 50);
+        buyerStatSubLabel.setFont(new Font(buyerStatSubLabel.getFont().getName(),
+                Font.PLAIN, fontSizeToUse(buyerStatSubLabel)));
+        mainPanel.add(buyerStatSubLabel);
+
+        // Store Labels
+        storeStatLabel = new JLabel("Store Statistics");
+        storeStatLabel.setBounds(565, 232, 250, 90);
+        storeStatLabel.setFont(new Font(storeStatLabel.getFont().getName(),
+                Font.PLAIN, fontSizeToUse(storeStatLabel)));
+        mainPanel.add(storeStatLabel);
+
+        storeStatSubLabel = new JLabel("List of all stores by products sold");
+        storeStatSubLabel.setBounds(530, 307, 350, 50);
+        storeStatSubLabel.setFont(new Font(storeStatSubLabel.getFont().getName(),
+                Font.PLAIN, fontSizeToUse(storeStatSubLabel)));
+        mainPanel.add(storeStatSubLabel);
+
+        // Main Label
+        mainStatLabel = new JLabel("Statistics");
+        mainStatLabel.setBounds(360, 10, 300, 100);
+        mainStatLabel.setFont(new Font(mainStatLabel.getFont().getName(),
+                Font.PLAIN, fontSizeToUse(mainStatLabel)));
+        mainPanel.add(mainStatLabel);
+
+        buyerStatisticsGUI = new JComponent[]{mainStatLabel,
+                buyerStatLabel, buyerStatSubLabel,
+                storeStatLabel, storeStatSubLabel,
+                buyerShowStatButton, buyerSortStatButton,
+                storeShowStatButton, storeSortStatButton,
+                returnToDashButton};
 
         //Finalize frame
         buyerStatisticsFrame.add(mainPanel);
@@ -137,6 +184,16 @@ public class BuyerStatisticsFrame extends JComponent implements Runnable {
             currentlyVisible.add(jComponent);
         }
     }
+
+//    public static void main(String[] args) { // For testing
+//        try {
+//            Socket socket1 = new Socket("localhost", 4444);
+//            BuyerStatisticsFrame buy = new BuyerStatisticsFrame(socket1, "aa");
+//            buy.run();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     public int fontSizeToUse(JLabel label) {
         Font currentFont = label.getFont();
