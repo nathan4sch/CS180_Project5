@@ -291,11 +291,11 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         //Initializes table of Items for user to view
         printWriter.println("Initial Table");
         int itemsInInitialTable = -1;
-//        try {
-//            itemsInInitialTable = Integer.parseInt(bufferedReader.readLine());
-//        } catch (IOException ioe) {
-//            ioe.printStackTrace();
-//        }
+        try {
+            itemsInInitialTable = Integer.parseInt(bufferedReader.readLine());
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
         tableModel = updateTable(itemsInInitialTable);
         jTable = new JTable(tableModel);
         //adds popups to table
