@@ -155,11 +155,86 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
+            } else if (source == editProductButton) {
+                String name = nameInput.getText();
+                String description = descriptionInput.getText();
+                String quantity = quantityInput.getText();
+                String price = priceInput.getText();
+
+                printWriter.println("Edit Product");
+                printWriter.println(storeSelected);
+                printWriter.println(itemSelected);
+
+                printWriter.println(name);
+                printWriter.println(description);
+                printWriter.println(quantity);
+                printWriter.println(price);
+                printWriter.flush();
+
+                try {
+                    String successOrFailure = bufferedReader.readLine();
+
+                    if (successOrFailure.equals("Name Change Success")) {
+                        ArrayList<String> newStoreItemNames = new ArrayList<>();
+                        for (int i = 0; i < storeItemNames.length; i++) {
+                            if (storeItemNames[i].equals(itemSelected)) {
+                                storeItemNames[i] = name;
+                            }
+                            newStoreItemNames.add(storeItemNames[i]);
+                        }
+
+                        String[] storeItemNames = new String[newStoreItemNames.size()];
+                        for (int i = 0; i < storeItemNames.length; i++) {
+                            storeItemNames[i] = newStoreItemNames.get(i);
+                        }
+
+                        JOptionPane.showMessageDialog(null, "Product Name Successfully Changed",
+                                "Success", JOptionPane.INFORMATION_MESSAGE);
+                        manageCatalogueFrame.dispose();
+                        SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, storeItemNames, userEmail));
+                    } else if (successOrFailure.equals("Success")) {
+                        JOptionPane.showMessageDialog(null, "Product Successfully Changed",
+                                "Success", JOptionPane.INFORMATION_MESSAGE);
+                    } else if (successOrFailure.equals("No Item Selected")) {
+                        JOptionPane.showMessageDialog(null, "Select an Item",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    } else if (successOrFailure.equals("Missing Input")) {
+                        JOptionPane.showMessageDialog(null, "Change One of the Input Fields",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    } else if (successOrFailure.equals("Changed More Than One Field")) {
+                        JOptionPane.showMessageDialog(null, "Only Change One of the Input Fields",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    } else if (successOrFailure.equals("This Product Name Already Exists")) {
+                        JOptionPane.showMessageDialog(null, "Product Name Already Exists",
+                                "Invalid Name", JOptionPane.ERROR_MESSAGE);
+                    } else if (successOrFailure.equals("Quantity Must be a Positive Integer")) {
+                        JOptionPane.showMessageDialog(null, "Quantity must be a Positive Integer",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    } else if (successOrFailure.equals("Price Must be a Two Decimal Number")) {
+                        JOptionPane.showMessageDialog(null, "Price must be a Positive Number " +
+                                "with Two Decimal Places", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             } else {
                 itemSelected = e.getActionCommand();
                 currentItem.setText("Product Selected: " + itemSelected);
                 currentItem.setFont(new Font(currentItem.getFont().getName(),
                         Font.BOLD, fontSizeToUse(currentItem)));
+                printWriter.println("Item Selected");
+                printWriter.println(storeSelected);
+                printWriter.println(itemSelected);
+                printWriter.flush();
+
+                try {
+                    nameInput.setText(bufferedReader.readLine());
+                    descriptionInput.setText(bufferedReader.readLine());
+                    quantityInput.setText(bufferedReader.readLine());
+                    priceInput.setText(bufferedReader.readLine());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     };
@@ -328,9 +403,3 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
 //both of these need to check if the product name already exists.
 
 //Export and import the product file
-
-//will need to send the currently logged in users to a csv. Probably a new csv and then when calling the socket we also
-//initiate the array of logged in users.
-//have it rename the sell/buyer part in csv?
-
-//update to main!!
