@@ -30,7 +30,7 @@ public class Buyer {
         if (purchaseHistory == null) { //creating account
             this.purchaseHistory = new ArrayList<>();
         } else {                        //signing in
-            this.purchaseHistory = showPurchaseHistory(email);
+            this.purchaseHistory = returnPurchaseHistory(email);
         }
         if (cart == null) {
             ArrayList<String> temp = new ArrayList<>();
@@ -46,7 +46,7 @@ public class Buyer {
      *
      * @param email Email to search for when adding to array list
      */
-    public static ArrayList<String> showPurchaseHistory(String email) {
+    public ArrayList<String> returnPurchaseHistory(String email) {
         try {
             // Read through CSV file
             BufferedReader purchasesReader = new BufferedReader(new FileReader("FMCredentials.csv"));
