@@ -354,13 +354,12 @@ public class MainBuyerFrame extends JComponent implements Runnable {
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
-            return new DefaultTableModel(rowData, columnNames) {
-                public boolean isCellEditable(int row, int column) {
-                    return false;
-                }
-            };
         }
-        return null;
+        return new DefaultTableModel(rowData, columnNames) {
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
     }
 
     /**
