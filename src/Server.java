@@ -185,7 +185,6 @@ public class Server implements Runnable {
                         }
                     }
                     case "Sort By Price" -> {
-                        boolean sorted = Boolean.parseBoolean(bufferedReader.readLine());
                         ArrayList<Item> itemList = getItems();
                         ArrayList<Item> sortedItemList = new ArrayList<>();
                         ArrayList<Double> prices = new ArrayList<>();
@@ -205,24 +204,24 @@ public class Server implements Runnable {
                             }
                         }
                         printWriter.println(sortedItemList.size());
-                        if (sorted) { // if the list has already been previously sorted by quantity, it will be reversed
-                            for (int i = 0; i < sortedItemList.size(); i++) {
-                                printWriter.println(sortedItemList.get(i).getStore());
-                                printWriter.println(sortedItemList.get(i).getName());
-                                printWriter.println(sortedItemList.get(i).getPrice());
-                                printWriter.flush();
-                            }
-                        } else {
-                            for (int i = sortedItemList.size(); i > 0; i--) {
-                                printWriter.println(sortedItemList.get(i - 1).getStore());
-                                printWriter.println(sortedItemList.get(i - 1).getName());
-                                printWriter.println(sortedItemList.get(i - 1).getPrice());
-                                printWriter.flush();
-                            }
+
+                        for (int i = 0; i < sortedItemList.size(); i++) {
+                            printWriter.println(sortedItemList.get(i).getStore());
+                            printWriter.println(sortedItemList.get(i).getName());
+                            printWriter.println(sortedItemList.get(i).getPrice());
+                            printWriter.flush();
                         }
+                        //code below sorts in reverse order
+                        /*
+                        for (int i = sortedItemList.size(); i > 0; i--) {
+                            printWriter.println(sortedItemList.get(i - 1).getStore());
+                            printWriter.println(sortedItemList.get(i - 1).getName());
+                            printWriter.println(sortedItemList.get(i - 1).getPrice());
+                            printWriter.flush();
+                        } */
+
                     }
                     case "Sort By Quantity" -> {
-                        boolean sorted = Boolean.parseBoolean(bufferedReader.readLine());
                         ArrayList<Item> itemList = getItems();
                         ArrayList<Item> sortedItemList = new ArrayList<>();
                         ArrayList<Integer> quantities = new ArrayList<>();
@@ -242,21 +241,21 @@ public class Server implements Runnable {
                             }
                         }
                         printWriter.println(sortedItemList.size());
-                        if (sorted) { // if the list has already been previously sorted by quantity, it will be reversed
-                            for (int i = 0; i < sortedItemList.size(); i++) {
-                                printWriter.println(sortedItemList.get(i).getStore());
-                                printWriter.println(sortedItemList.get(i).getName());
-                                printWriter.println(sortedItemList.get(i).getPrice());
-                                printWriter.flush();
-                            }
-                        } else {
-                            for (int i = sortedItemList.size(); i > 0; i--) {
-                                printWriter.println(sortedItemList.get(i - 1).getStore());
-                                printWriter.println(sortedItemList.get(i - 1).getName());
-                                printWriter.println(sortedItemList.get(i - 1).getPrice());
-                                printWriter.flush();
-                            }
+
+                        for (int i = 0; i < sortedItemList.size(); i++) {
+                            printWriter.println(sortedItemList.get(i).getStore());
+                            printWriter.println(sortedItemList.get(i).getName());
+                            printWriter.println(sortedItemList.get(i).getPrice());
+                            printWriter.flush();
                         }
+                        //code below sorts in the reverse order
+                        /*
+                        for (int i = sortedItemList.size(); i > 0; i--) {
+                            printWriter.println(sortedItemList.get(i - 1).getStore());
+                            printWriter.println(sortedItemList.get(i - 1).getName());
+                            printWriter.println(sortedItemList.get(i - 1).getPrice());
+                            printWriter.flush();
+                        }*/
                     }
                     case "View History" -> {
                         ArrayList<String> historyList = ((Buyer) currentUser).
