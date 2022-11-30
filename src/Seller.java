@@ -223,6 +223,41 @@ public class Seller {
         }
     }
 
+    /**
+     * Purpose: Prints customer shopping cart info for Sellers
+     *
+     * @param fileName Contains the file name that the imported files should be read from.
+     * @param stores   Array containing all the stores of the current seller
+     */
+    public synchronized int importItems(String fileName, Store[] stores) { // Adds imported items to stores
+        try {
+            BufferedReader bfr = new BufferedReader(new FileReader(fileName));
+            String line = "";
+            int numberSuccess = 0;
+            while ((line = bfr.readLine()) != null) {
+                String[] splitLine = line.split(",");
+                for (int i = 0; i < stores.length; i++) {
+                    // Tests against all store names until one works
+                    if (splitLine[0].equals(stores[i].getStoreName())) {
+                        try {
+                            stores[i].addItem(splitLine[1], splitLine[2],
+                                    Integer.parseInt(splitLine[3]), Double.parseDouble(splitLine[4]));
+                            numberSuccess++;
+                            break;
+                        } catch (Exception e) {
+
+                        }
+                    }
+                }
+            }
+            bfr.close();
+            return numberSuccess;
+        } catch (Exception e) {
+
+        }
+        return -1;
+    }
+
     public Store[] getStore() {
         Store[] userStores = new Store[this.stores.size()];
         for (int i = 0; i < this.stores.size(); i++) {

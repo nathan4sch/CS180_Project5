@@ -30,7 +30,7 @@ public class Buyer {
         if (purchaseHistory == null) { //creating account
             this.purchaseHistory = new ArrayList<>();
         } else {                        //signing in
-            this.purchaseHistory = showPurchaseHistory(email);
+            this.purchaseHistory = returnPurchaseHistory(email);
         }
         if (cart == null) {
             ArrayList<String> temp = new ArrayList<>();
@@ -46,7 +46,7 @@ public class Buyer {
      *
      * @param email Email to search for when adding to array list
      */
-    public static ArrayList<String> showPurchaseHistory(String email) {
+    public ArrayList<String> returnPurchaseHistory(String email) {
         try {
             // Read through CSV file
             BufferedReader purchasesReader = new BufferedReader(new FileReader("FMCredentials.csv"));
@@ -67,7 +67,7 @@ public class Buyer {
                 // If arraylist index has email
                 if (FMCredentials.get(i).contains(email)) {
                     String[] strSplit = FMCredentials.get(i).split(",");
-                    String purchaseHistoryStr = strSplit[4];
+                    String purchaseHistoryStr = strSplit[3];
                     if (purchaseHistoryStr.equals("x")) {
                         return new ArrayList<>();
                     }
@@ -82,7 +82,67 @@ public class Buyer {
         }
         return null;
     }
+    
+    /**
+     * Creates a new file of the user's purchase history
+     *
+     * @param email Email to search for when exporting
+     * @return a string denoting if the file is successfully exported
+     */
+    public String exportPurchaseHistory(String email) {
+        try {
 
+            BufferedReader purchasesReader = new BufferedReader(new FileReader("FMCredentials.csv"));
+
+            ArrayList<String> fmCredentials = new ArrayList<>();
+
+            // Read through FMCredentials and append to arraylist
+            String line = purchasesReader.readLine();
+            while (line != null) {
+                fmCredentials.add(line);
+                line = purchasesReader.readLine();
+            }
+
+            purchasesReader.close();
+
+            // loop through arraylist and find the correct account
+            for (int i = 0; i < fmCredentials.size(); i++) {
+                // If arraylist index has email
+                if (fmCredentials.get(i).contains(email)) {
+                    String[] strSplit = fmCredentials.get(i).split(",");
+                    String purchaseHistoryStr = strSplit[3];
+                    String[] purchaseHistoryLine = purchaseHistoryStr.split("~");
+
+                    if (purchaseHistoryStr.contains("!")) {
+                        // Create export file
+                        try {
+                            String[] emailSplit = email.split("~");
+                            String fileName = emailSplit[0] + "PurchaseHistory.csv";
+                            File export = new File(fileName);
+
+                            FileOutputStream fos = new FileOutputStream(export, false);
+                            PrintWriter purchaseWriter = new PrintWriter(fos);
+
+                            // Write to file
+                            for (int j = 0; j < purchaseHistoryLine.length; j++) {
+                                purchaseWriter.println(purchaseHistoryLine[j]);
+                            }
+
+                            purchaseWriter.close();
+                            return "Exported";
+                        } catch (Exception e) {
+                            return "Not Exported";
+                        }
+                    } else {
+                        return "Not Exported";
+                    }
+                }
+            }
+        } catch (Exception e) {
+            return "Not Exported";
+        }
+        return "Not Exported";
+    }
 
     /**
      * Returns an ArrayList of all the items in a buyer's cart
