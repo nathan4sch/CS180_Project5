@@ -17,9 +17,10 @@ import java.util.*;
 public class Server implements Runnable {
     Socket socket;
     Object currentUser = null;
+    static ArrayList<Item> itemList;
 
     /**
-     * Constructs Server object
+     * Constructs Server objects
      *
      * @param socket The socket that connect this computer connect with the server
      */
@@ -29,6 +30,7 @@ public class Server implements Runnable {
 
     public static void main(String[] args) {
         try {
+            itemList = new ArrayList<Item>();
             ServerSocket serverSocket = new ServerSocket(4444);
             while (true) {
                 Socket socket = serverSocket.accept();
@@ -107,6 +109,16 @@ public class Server implements Runnable {
                             printWriter.flush();
                         }
                     }
+                    case "Initial Table" -> {
+                        ArrayList<Item> itemList = getItems();
+                        printWriter.println(itemList.size());
+                        for (int i = 0; i < itemList.size(); i++) {
+                            printWriter.println(itemList.get(i).getStore());
+                            printWriter.println(itemList.get(i).getName());
+                            printWriter.println(itemList.get(i).getPrice());
+                            printWriter.flush();
+                        }
+                    }
                     case "View Cart" -> {
                         ArrayList<String> buyerCartList = ((Buyer) currentUser).getCart();
                         String[] buyerCart = new String[buyerCartList.size()];
@@ -120,6 +132,130 @@ public class Server implements Runnable {
 
                         printWriter.println(Arrays.toString(buyerCart));
                         printWriter.flush();
+                    }
+                    case "Search By Name" -> {
+                        String searchedText = bufferedReader.readLine();
+                        ArrayList<Item> itemList = getItems();
+                        ArrayList<Item> matches = new ArrayList<>();
+                        for (int i = 0; i < itemList.size(); i++) {
+                            if (itemList.get(i).getName().contains(searchedText)) {
+                                matches.add(itemList.get(i));
+                            }
+                        }
+                        printWriter.println(matches.size());
+                        for (int i = 0; i < matches.size(); i++) {
+                            printWriter.println(matches.get(i).getStore());
+                            printWriter.println(matches.get(i).getName());
+                            printWriter.println(matches.get(i).getPrice());
+                            printWriter.flush();
+                        }
+                    }
+                    case "Search By Store" -> {
+                        String searchedText = bufferedReader.readLine();
+                        ArrayList<Item> itemList = getItems();
+                        ArrayList<Item> matches = new ArrayList<>();
+                        for (int i = 0; i < itemList.size(); i++) {
+                            if (itemList.get(i).getStore().contains(searchedText)) {
+                                matches.add(itemList.get(i));
+                            }
+                        }
+                        printWriter.println(matches.size());
+                        for (int i = 0; i < matches.size(); i++) {
+                            printWriter.println(matches.get(i).getStore());
+                            printWriter.println(matches.get(i).getName());
+                            printWriter.println(matches.get(i).getPrice());
+                            printWriter.flush();
+                        }
+                    }
+                    case "Search By Description" -> {
+                        String searchedText = bufferedReader.readLine();
+                        ArrayList<Item> itemList = getItems();
+                        ArrayList<Item> matches = new ArrayList<>();
+                        for (int i = 0; i < itemList.size(); i++) {
+                            if (itemList.get(i).getDescription().contains(searchedText)) {
+                                matches.add(itemList.get(i));
+                            }
+                        }
+                        printWriter.println(matches.size());
+                        for (int i = 0; i < matches.size(); i++) {
+                            printWriter.println(matches.get(i).getStore());
+                            printWriter.println(matches.get(i).getName());
+                            printWriter.println(matches.get(i).getPrice());
+                            printWriter.flush();
+                        }
+                    }
+                    case "Sort By Price" -> {
+                        ArrayList<Item> itemList = getItems();
+                        ArrayList<Item> sortedItemList = new ArrayList<>();
+                        ArrayList<Double> prices = new ArrayList<>();
+                        for (int i = 0; i < itemList.size(); i++) {
+                            if (!(prices.contains(itemList.get(i).getPrice()))) {
+                                prices.add(itemList.get(i).getPrice());
+                            }
+                        }
+                        Collections.sort(prices);
+                        for (int i = 0; i < prices.size(); i++) {
+                            for (int j = 0; j < itemList.size(); j++) {
+                                if (prices.get(i) == itemList.get(j).getPrice()) {
+                                    sortedItemList.add(itemList.get(j));
+                                    itemList.remove(j);
+                                    j--;
+                                }
+                            }
+                        }
+                        printWriter.println(sortedItemList.size());
+
+                        for (int i = 0; i < sortedItemList.size(); i++) {
+                            printWriter.println(sortedItemList.get(i).getStore());
+                            printWriter.println(sortedItemList.get(i).getName());
+                            printWriter.println(sortedItemList.get(i).getPrice());
+                            printWriter.flush();
+                        }
+                        //code below sorts in reverse order
+                        /*
+                        for (int i = sortedItemList.size(); i > 0; i--) {
+                            printWriter.println(sortedItemList.get(i - 1).getStore());
+                            printWriter.println(sortedItemList.get(i - 1).getName());
+                            printWriter.println(sortedItemList.get(i - 1).getPrice());
+                            printWriter.flush();
+                        } */
+
+                    }
+                    case "Sort By Quantity" -> {
+                        ArrayList<Item> itemList = getItems();
+                        ArrayList<Item> sortedItemList = new ArrayList<>();
+                        ArrayList<Integer> quantities = new ArrayList<>();
+                        for (int i = 0; i < itemList.size(); i++) {
+                            if (!(quantities.contains(itemList.get(i).getQuantity()))) {
+                                quantities.add(itemList.get(i).getQuantity());
+                            }
+                        }
+                        Collections.sort(quantities);
+                        for (int i = 0; i < quantities.size(); i++) {
+                            for (int j = 0; j < itemList.size(); j++) {
+                                if (quantities.get(i) == itemList.get(j).getQuantity()) {
+                                    sortedItemList.add(itemList.get(j));
+                                    itemList.remove(j);
+                                    j--;
+                                }
+                            }
+                        }
+                        printWriter.println(sortedItemList.size());
+
+                        for (int i = 0; i < sortedItemList.size(); i++) {
+                            printWriter.println(sortedItemList.get(i).getStore());
+                            printWriter.println(sortedItemList.get(i).getName());
+                            printWriter.println(sortedItemList.get(i).getPrice());
+                            printWriter.flush();
+                        }
+                        //code below sorts in the reverse order
+                        /*
+                        for (int i = sortedItemList.size(); i > 0; i--) {
+                            printWriter.println(sortedItemList.get(i - 1).getStore());
+                            printWriter.println(sortedItemList.get(i - 1).getName());
+                            printWriter.println(sortedItemList.get(i - 1).getPrice());
+                            printWriter.flush();
+                        }*/
                     }
                     case "View History" -> {
                         ArrayList<String> historyList = ((Buyer) currentUser).
@@ -777,5 +913,21 @@ public class Server implements Runnable {
             e.printStackTrace();
         }
         return "Failure";
+    }
+    public synchronized ArrayList<Item> getItems() {
+        ArrayList<Item> items = new ArrayList<>();
+        try {
+            BufferedReader bfr = new BufferedReader(new FileReader("FMItems.csv"));
+
+            String line = bfr.readLine();
+            while (line != null) {
+                String[] splitLine = line.split(",");
+                items.add(new Item(splitLine[0],splitLine[1],splitLine[2],Integer.parseInt(splitLine[3]),Double.parseDouble(splitLine[4])));
+                line = bfr.readLine();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return items;
     }
 }
