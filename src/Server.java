@@ -287,6 +287,27 @@ public class Server implements Runnable {
                             printWriter.flush();
                         }
                     }
+                    case "More Details" -> {
+                        String selectedItem = bufferedReader.readLine();
+                        itemList = getItems();
+                        boolean found = false;
+                        for (int i = 0; i < itemList.size(); i++) {
+                            if (selectedItem.equals(itemList.get(i).getName())) {
+                                printWriter.println("Success");
+                                printWriter.println(itemList.get(i).getStore());
+                                printWriter.println(itemList.get(i).getDescription());
+                                printWriter.println(itemList.get(i).getPrice());
+                                printWriter.println(itemList.get(i).getQuantity());
+                                printWriter.flush();
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            printWriter.println("Failure");
+                            printWriter.flush();
+                        }
+                    }
                     case "View History" -> {
                         ArrayList<String> historyList = ((Buyer) currentUser).
                                 returnPurchaseHistory(((Buyer) currentUser).getEmail());
