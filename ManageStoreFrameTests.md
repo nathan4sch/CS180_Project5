@@ -1,89 +1,82 @@
 <h2> Manage Store Frame Tests </h2>
 
-<h3>Test 1: Create new product</h3>
+<h3>Test 1: Modify Products</h3>
 Steps:
-<h6>If the Seller owns a store:</h6>
-1. Seller launches application and logs in.
-2. From the main Seller dashboard, the
-   Seller selects the "Manage Stores" option.
-3. The Seller selects the "Manage
-   Catalogue" option.
-4. The Seller selects the store that they
-   would like to manage, and then selects the
-   "Modify Products" option.
-5. The Seller inputs the desired
-   name, description, quantity and price of
-   the desired item into their respective
-   fields, and selects the "Add Product"
-   option.
+<h6>If the Seller owns at least one store:</h6>
 
-Expected result: "Item Added" JOptionPane
-is displayed, and item is added to the store.
+<ol>
+<li> Seller launches application and logs in.
+<li> From the main Seller dashboard, the
+   Seller selects the "Manage Stores" option.
+<li> The Seller selects the "Manage
+   Catalogue" option.
+<li> The Seller selects the store that they
+would like to manage, and then selects the
+"Modify Products" option.
+</ol>
+
+Expected result: The Manage Catalogue frame is displayed.
+
+Test Status: passed
+<br><br>
+
+<h3>Test 2: Import Product File</h3>
+Steps:
+<h6>If the Seller owns at least one store:</h6>
+
+<ol>
+<li> User creates a csv file with items formatted the following:
+storeName,itemName,description,quantity,price
+<li> Seller launches application and logs in.
+<li> From the main Seller dashboard, the
+   Seller selects the "Manage Stores" option.
+<li> The Seller selects the "Manage
+   Catalogue" option.
+<li> The Seller selects a store, and then selects the "Import Product File" 
+option.
+<li> The Seller types the filename in the text box displayed.
+</ol>
+
+Expected result: JOptionPane with the number of items added displayed, and 
+items added to the store. If the Seller selects the store, they will be able 
+to see the newly imported items.
 
 Test Status: Passed.
 <br><br>
 
-<h3>Test 2: Edit product</h3>
+<h3>Test 3: Delete Store</h3>
 Steps:
-<h6>If the Seller owns a store and there is at least one 
-item in the store:</h6>
-1. Seller launches application and logs in.
-2. From the main Seller dashboard, the
-   Seller selects the "Manage Stores" option.
-3. The Seller selects the "Manage
-   Catalogue" option.
-4. The Seller selects the store that they
-   would like to manage, and then selects the
-   "Modify Products" option.
-5. The Seller selects the desired product from the list of
-products in the store.
-6. The Seller modifies one of the fields.
-7. The Seller selects the "Edit Selected Item" option.
+<h6>If the Seller owns at least one store:</h6>
 
-Expected result: "Product Successfully Changed" JOptionPane
-is displayed, and the field/s edited are modified.
+<ol>
+<li> User creates a csv file with items formatted the following:
+storeName,itemName,description,quantity,price
+<li> Seller launches application and logs in.
+<li> From the main Seller dashboard, the
+   Seller selects the "Manage Stores" option.
+<li> The Seller selects the "Manage
+   Catalogue" option.
+<li> The Seller selects a store, and then selects the "Delete Store" option.
+</ol>
+
+Expected result: "Store Deleted" JOptionPane is displayed and store selected
+is deleted.
 
 Test Status: Passed.
 <br><br>
 
-<h3>Test 3: Delete product</h3>
+<h3>Test 4: Return to Dashboard</h3>
 Steps:
-<h6>If the Seller owns a store and there is at least one
-item in the store:</h6>
-1. Seller launches application and logs in.
-2. From the main Seller dashboard, the
+
+<ol>
+<li> Seller launches application and logs in.
+<li> From the main Seller dashboard, the
    Seller selects the "Manage Stores" option.
-3. The Seller selects the "Manage
+<li> The Seller selects the "Manage
    Catalogue" option.
-4. The Seller selects the store that they
-   would like to manage, and then selects the
-   "Modify Products" option.
-5. The Seller selects the desired product from the list of
-   products in the store.
-6. The Seller selects the "Delete Selected Item" option.
+<li> The Seller selects the "Return to Dashboard" option.
+</ol>
 
-Expected result: "Product Deleted" JOptionPane is displayed,
-and the product is deleted from the store.
-
-Test Status: Passed.
-
-<h3>Test 4: Export Product File</h3>
-Steps:
-<h6>If the Seller owns a store and there is at least one
-item in the store:</h6>
-1. Seller launches application and logs in.
-2. From the main Seller dashboard, the
-   Seller selects the "Manage Stores" option.
-3. The Seller selects the "Manage
-   Catalogue" option.
-4. The Seller selects the store that they
-   would like to manage, and then selects the
-   "Modify Products" option.
-5. The Seller selects the "Export Product File" option.
-
-Expected Result: "File Exported" JOptionPane is displayed,
-and new file is created in the main folder of the project
-titled "storeName—Items.csv" that contains the String 
-representation of all the items in the store.
+Expected result: The program returns to the Main Seller Dashboard.
 
 Test Status: Passed.
