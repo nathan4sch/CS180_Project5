@@ -112,32 +112,34 @@ public class LoginFrame extends JComponent implements Runnable {
 
         //Email
         JLabel email = new JLabel("Email:");
-        email.setFont(new Font(email.getFont().getName(), Font.BOLD, 28));
+        email.setFont(new Font(email.getFont().getName(), Font.BOLD, 20));
         email.setHorizontalAlignment(SwingConstants.CENTER);
-        email.setBounds(10, 30, 150, 50);
+        email.setBounds(10, 40, 150, 50);
         panel.add(email);
-        emailText = new JTextField(20);
+        emailText = new JTextField(25);
         emailText.setFont(new Font(emailText.getFont().getName(), Font.PLAIN, 20));
-        emailText.setBounds(160, 30, 250, 50);
+        emailText.setBounds(185, 40, 250, 50);
         panel.add(emailText);
 
         //Password
         JLabel password = new JLabel("Password:");
-        password.setFont(new Font(email.getFont().getName(), Font.BOLD, 28));
-        password.setBounds(10, 120, 150, 50);
+        password.setFont(new Font(email.getFont().getName(), Font.BOLD, 20));
+        password.setBounds(55, 120, 150, 50);
         panel.add(password);
-        passwordText = new JTextField(20);
+        passwordText = new JTextField(25);
         passwordText.setFont(new Font(passwordText.getFont().getName(), Font.PLAIN, 20));
-        passwordText.setBounds(160, 120, 250, 50);
+        passwordText.setBounds(185, 120, 250, 50);
         panel.add(passwordText);
 
         //Buyer or Seller
         JLabel userRole = new JLabel("Role:");
+        userRole.setFont(new Font(userRole.getFont().getName(), Font.BOLD,15));
         userRole.setHorizontalAlignment(JLabel.CENTER);
-        userRole.setBounds(250, 205, 50, 30);
+        userRole.setBounds(250, 203, 50, 30);
         panel.add(userRole);
         userRoleSelection = new JComboBox<>();
         userRoleSelection.setBounds(310, 205, 100, 30);
+        userRoleSelection.setFont(new Font(userRoleSelection.getFont().getName(), Font.BOLD, 13));
         userRoleSelection.addItem("Buyer");
         userRoleSelection.addItem("Seller");
         panel.add(userRoleSelection);
@@ -145,13 +147,15 @@ public class LoginFrame extends JComponent implements Runnable {
         //SignIn Button
         signInButton = new JButton("SignIn");
         signInButton.addActionListener(actionListener);
-        signInButton.setBounds(20, 250, 210, 80);
+        signInButton.setFont(new Font(signInButton.getFont().getName(), Font.BOLD, 17));
+        signInButton.setBounds(55, 275, 180, 50);
         panel.add(signInButton);
 
         //CreateAccount Button
         createAccountButton = new JButton("Create Account");
         createAccountButton.addActionListener(actionListener);
-        createAccountButton.setBounds(250, 250, 210, 80);
+        createAccountButton.setFont(new Font(createAccountButton.getFont().getName(), Font.BOLD, 17));
+        createAccountButton.setBounds(255, 275, 180, 50);
         panel.add(createAccountButton);
 
         //Finalize frame
