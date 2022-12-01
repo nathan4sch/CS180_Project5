@@ -4,19 +4,21 @@
 <h3>Test 1: Create new product</h3>
 Steps:
 <h6>If the Seller owns a store:</h6>
-1. Seller launches application and logs in.
-2. From the main Seller dashboard, the
+<ol>
+<li> Seller launches application and logs in.
+<li> From the main Seller dashboard, the
    Seller selects the "Manage Stores" option.
-3. The Seller selects the "Manage
+<li> The Seller selects the "Manage
    Catalogue" option.
-4. The Seller selects the store that they
+<li> The Seller selects the store that they
    would like to manage, and then selects the
    "Modify Products" option.
-5. The Seller inputs the desired
+<li> The Seller inputs the desired
    name, description, quantity and price of
    the desired item into their respective
    fields, and selects the "Add Product"
    option.
+</ol>
 
 Expected result: "Item Added" JOptionPane
 is displayed, and item is added to the store.
