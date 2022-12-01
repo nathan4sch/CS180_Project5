@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 
 /**
  * Interface that allows users to see all their current items in cart, remove items from cart,
@@ -27,9 +28,9 @@ public class CartFrame extends JComponent implements Runnable {
     JLabel selectItem;
     JRadioButton radioButton;
 
-    //Objective Manage Catalogue
-    JButton deleteStoreButton;
-    JButton modifyProductsButton;
+    // Cart Options
+    JButton removeItemButton;
+    JButton checkoutButton;
 
     //Left Panel
     JLabel currentStore;
@@ -52,44 +53,10 @@ public class CartFrame extends JComponent implements Runnable {
             if (source == returnToDashButton) {
                 SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
                 cartFrame.dispose();
-            } else if (source == deleteStoreButton) {
-//                if (storeSelected.equals("")) {
-//                    JOptionPane.showMessageDialog(null, "No Store Selected",
-//                            "Error", JOptionPane.ERROR_MESSAGE);
-//                } else {
-//                    printWriter.println("Delete Store");
-//                    printWriter.println(storeSelected);
-//                    printWriter.flush();
-//                    try {
-//                        String userCartsString = bufferedReader.readLine();
-//                        userCartsString = userCartsString.substring(1, userCartsString.length() - 1);
-//                        userCarts = userCartsString.split(", ");
-//                        cartFrame.dispose();
-//                        run();
-//                        JOptionPane.showMessageDialog(null, "Store Deleted",
-//                                "Success", JOptionPane.INFORMATION_MESSAGE);
-//                    } catch (IOException ex) {
-//                        ex.printStackTrace();
-//                    }
-//                }
-            } else if (source == modifyProductsButton) {
-//                if (storeSelected.equals("")) {
-//                    JOptionPane.showMessageDialog(null, "No Store Selected",
-//                            "Error", JOptionPane.ERROR_MESSAGE);
-//                } else {
-//                    printWriter.println("Modify Product");
-//                    printWriter.println(storeSelected);
-//                    printWriter.flush();
-//                    try {
-//                        String storeItemsString = bufferedReader.readLine();
-//                        storeItemsString = storeItemsString.substring(1, storeItemsString.length() - 1);
-//                        String[] storeItemNames = storeItemsString.split(", ");
-//                        SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, storeItemNames));
-//                        cartFrame.dispose();
-//                    } catch (IOException ex) {
-//                        ex.printStackTrace();
-//                    }
-//                }
+            } else if (source == removeItemButton) {
+
+            } else if (source == checkoutButton) {
+
             } else {
                 try {
                     storeSelected = e.getActionCommand();
@@ -118,7 +85,7 @@ public class CartFrame extends JComponent implements Runnable {
 
         //configure splitPane
         splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setDividerLocation(600);
+        splitPane.setDividerLocation(750);
         splitPane.setLeftComponent(rightPanel);
         splitPane.setRightComponent(leftPanel);
 
@@ -126,17 +93,30 @@ public class CartFrame extends JComponent implements Runnable {
         leftPanel.setLayout(new GridLayout(userCarts.length + 1, 1, 20, 20));
 
         selectItem = new JLabel("Your Cart");
-        selectItem.setBounds(500, 50, 200, 40);
+        selectItem.setBounds(500, 50, 200, 30);
         selectItem.setFont(new Font(selectItem.getFont().getName(),
                 Font.BOLD, fontSizeToUse(selectItem)));
         leftPanel.add(selectItem);
 
-        ButtonGroup buttonGroup = new ButtonGroup();
-        for (int i = 0; i < userCarts.length; i++) {
-            radioButton = new JRadioButton(userCarts[i]);
-            buttonGroup.add(radioButton);
-            leftPanel.add(radioButton);
-            radioButton.addActionListener(actionListener);
+        // Cart Items
+        try {
+            ButtonGroup buttonGroup = new ButtonGroup();
+
+            ArrayList<String> itemNameList = new ArrayList<>();
+
+            for (int i = 0; i < userCarts.length; i++) { // Get item name
+                String[] fields = userCarts[i].split("!");
+                itemNameList.add(fields[1]);
+            }
+
+            for (int i = 0; i < itemNameList.size(); i++) { // Add to radioButton group
+                radioButton = new JRadioButton(itemNameList.get(i));
+                buttonGroup.add(radioButton);
+                leftPanel.add(radioButton);
+                radioButton.addActionListener(actionListener);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
 
         //right panel
@@ -147,21 +127,22 @@ public class CartFrame extends JComponent implements Runnable {
                 Font.BOLD, fontSizeToUse(currentStore)));
         rightPanel.add(currentStore);
 
-        //Objective Manage Catalogue
-        deleteStoreButton = new JButton("Remove Item From Cart");
-        deleteStoreButton.addActionListener(actionListener);
-        deleteStoreButton.setBounds(100, 300, 200, 50);
-        rightPanel.add(deleteStoreButton);
+        // Remove Item from Cart
+        removeItemButton = new JButton("Remove Item From Cart");
+        removeItemButton.addActionListener(actionListener);
+        removeItemButton.setBounds(250, 300, 200, 50);
+        rightPanel.add(removeItemButton);
+
+        // Checkout all Items from Cart
+        checkoutButton = new JButton("Checkout");
+        checkoutButton.addActionListener(actionListener);
+        checkoutButton.setBounds(250, 200, 200, 50);
+        rightPanel.add(checkoutButton);
 
         returnToDashButton = new JButton("Return to Dashboard");
         returnToDashButton.addActionListener(actionListener);
-        returnToDashButton.setBounds(100, 400, 200, 50);
+        returnToDashButton.setBounds(250, 400, 200, 50);
         rightPanel.add(returnToDashButton);
-
-        modifyProductsButton = new JButton("Checkout");
-        modifyProductsButton.addActionListener(actionListener);
-        modifyProductsButton.setBounds(100, 200, 200, 50);
-        rightPanel.add(modifyProductsButton);
 
         //Finalize frame
         cartFrame.add(splitPane);

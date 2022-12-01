@@ -122,6 +122,12 @@ public class Server implements Runnable {
                     }
                     case "View Cart" -> {
                         ArrayList<String> buyerCartList = ((Buyer) currentUser).getCart();
+                        for (int i = 0; i < buyerCartList.size(); i++) { // Remove "x"
+                            if (buyerCartList.get(i).equals("x")) {
+                                buyerCartList.remove(i);
+                            }
+                        }
+
                         String[] buyerCart = new String[buyerCartList.size()];
                         for (int i = 0; i < buyerCartList.size(); i++) {
                             if (i == buyerCartList.size() - 1) {
@@ -130,8 +136,8 @@ public class Server implements Runnable {
                                 buyerCart[i] = buyerCartList.get(i) + "~";
                             }
                         }
-
-                        printWriter.println(Arrays.toString(buyerCart));
+                        String line = Arrays.toString(buyerCart);
+                        printWriter.println(line.substring(1,line.length() - 1)); // remove "[]"
                         printWriter.flush();
                     }
                     case "Search By Name" -> {
