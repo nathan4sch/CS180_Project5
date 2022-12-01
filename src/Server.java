@@ -112,6 +112,7 @@ public class Server implements Runnable {
                     case "Initial Table" -> {
                         ArrayList<Item> itemList = getItems();
                         printWriter.println(itemList.size());
+                        printWriter.flush();
                         for (int i = 0; i < itemList.size(); i++) {
                             printWriter.println(itemList.get(i).getStore());
                             printWriter.println(itemList.get(i).getName());
@@ -143,6 +144,7 @@ public class Server implements Runnable {
                             }
                         }
                         printWriter.println(matches.size());
+                        printWriter.flush();
                         for (int i = 0; i < matches.size(); i++) {
                             printWriter.println(matches.get(i).getStore());
                             printWriter.println(matches.get(i).getName());
@@ -160,6 +162,7 @@ public class Server implements Runnable {
                             }
                         }
                         printWriter.println(matches.size());
+                        printWriter.flush();
                         for (int i = 0; i < matches.size(); i++) {
                             printWriter.println(matches.get(i).getStore());
                             printWriter.println(matches.get(i).getName());
@@ -177,6 +180,7 @@ public class Server implements Runnable {
                             }
                         }
                         printWriter.println(matches.size());
+                        printWriter.flush();
                         for (int i = 0; i < matches.size(); i++) {
                             printWriter.println(matches.get(i).getStore());
                             printWriter.println(matches.get(i).getName());
@@ -204,7 +208,8 @@ public class Server implements Runnable {
                             }
                         }
                         printWriter.println(sortedItemList.size());
-
+                        printWriter.flush();
+                        
                         for (int i = 0; i < sortedItemList.size(); i++) {
                             printWriter.println(sortedItemList.get(i).getStore());
                             printWriter.println(sortedItemList.get(i).getName());
@@ -241,7 +246,8 @@ public class Server implements Runnable {
                             }
                         }
                         printWriter.println(sortedItemList.size());
-
+                        printWriter.flush();
+                        
                         for (int i = 0; i < sortedItemList.size(); i++) {
                             printWriter.println(sortedItemList.get(i).getStore());
                             printWriter.println(sortedItemList.get(i).getName());
