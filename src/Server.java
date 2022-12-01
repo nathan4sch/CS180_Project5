@@ -390,6 +390,9 @@ public class Server implements Runnable {
                     case "Create Store" -> {
                         String storeName = bufferedReader.readLine();
                         String successOrFailure = validStoreName(storeName);
+                        if (storeName.equals("")) {
+                            successOrFailure = "Failure";
+                        }
                         if (successOrFailure.equals("Failure")) {
                             printWriter.println("Failure");
                             printWriter.flush();
