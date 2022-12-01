@@ -184,4 +184,90 @@ public class Store {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Returns an ArrayList to be printed as the store's sale history
+     **/
+    public synchronized String showSales() {
+        try {
+            // Read through CSV file
+            BufferedReader storeReader = new BufferedReader(new FileReader("FMStores.csv"));
+            ArrayList<String> FMStores = new ArrayList<>();
+
+            // Add existing stores to ArrayList;
+            String line = storeReader.readLine();
+            while (line != null) {
+                FMStores.add(line);
+                line = storeReader.readLine();
+            }
+            storeReader.close();
+
+            // loop through arraylist and find the correct store
+            for (int i = 0; i < FMStores.size(); i++) {
+                // If arraylist index has correct store name
+                if (FMStores.get(i).contains(storeName)) {
+                    String[] strSplit = FMStores.get(i).split(",");
+                    String saleHistoryStr = strSplit[2];
+                    return saleHistoryStr;
+                }
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+    /**
+     * Returns arraylist to be printed as store's statistics
+     *
+     * @param storeName Name of store to search for
+     * @param type      Type of statistic to show
+     **/
+    public static ArrayList<String> showStats(String storeName, String type) {
+        // type should be either buyer or item
+        ArrayList<String> stats = new ArrayList<>();
+        try {
+            // Read csv file, if line has correct store name, add to array list
+            BufferedReader statsReader = new BufferedReader(new FileReader("FMStats.csv"));
+            String line = statsReader.readLine();
+            while (line != null) {
+                String[] splitLine = line.split(",");
+                if (splitLine[0].equals(storeName) && splitLine[3].equals(type)) {
+                    stats.add(splitLine[1] + "~" + splitLine[2]);
+                }
+                line = statsReader.readLine();
+            }
+            return stats;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    /**
+     * Returns arraylist to be printed as store's statistics sorted by amount from most to least
+     *
+     * @param storeName Name of store to search for
+     * @param type      Type of statistic to show
+     **/
+    public static ArrayList<String> showSortedStats(String storeName, String type) {
+        ArrayList<String> unsorted = showStats(storeName, type);
+        ArrayList<Integer> amounts = new ArrayList<>();
+        ArrayList<String> sorted = new ArrayList<>();
+        for (int i = 0; i < unsorted.size(); i++) {
+            amounts.add(Integer.parseInt(unsorted.get(i).substring(unsorted.get(i).indexOf("~") + 1)));
+        }
+        amounts.sort(Collections.reverseOrder());
+        for (int i = 0; i < amounts.size(); i++) {
+            for (int j = 0; j < unsorted.size(); j++) {
+                if (amounts.get(i) == Integer.parseInt(unsorted.get(j).split("~")[1])) {
+                    sorted.add(unsorted.get(j));
+                    unsorted.remove(j);
+                    break;
+                }
+            }
+        }
+        return sorted;
+    }
 }
