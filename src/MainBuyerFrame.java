@@ -66,10 +66,84 @@ public class MainBuyerFrame extends JComponent implements Runnable {
     ActionListener popupItemListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             JMenuItem choice = (JMenuItem) e.getSource();
+
             if (choice == addToCart) {
-                //add to cart code
+                boolean invalidChoice = true;
+                int selectedRow = jTable.getSelectedRow();
+                if (selectedRow == -1) {
+                    JOptionPane.showMessageDialog(null,
+                            "First select a row using the left click", "No Item Selected", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                String quantityAdded = null;
+                while (invalidChoice) {
+                    quantityAdded = (JOptionPane.showInputDialog(null,
+                            "Please input the quantity of " + jTable.getValueAt(selectedRow, 1) + " that you would like to add to your cart",
+                            "Add Item To Cart", JOptionPane.QUESTION_MESSAGE));
+                    if (quantityAdded == null) {
+                        return;
+                    }
+
+                    try { // makes sure that user inputted an integer
+                        int integerTest = Integer.parseInt(quantityAdded);
+                    } catch (NumberFormatException nfe) {
+                        JOptionPane.showMessageDialog(null, "Input An Integer!", "Input Error", JOptionPane.ERROR_MESSAGE);
+                        continue;
+                    }
+                    invalidChoice = false;
+                }
+                printWriter.println("Add Item To Cart");
+                printWriter.println(jTable.getValueAt(selectedRow, 1));
+                printWriter.println(quantityAdded);
+                printWriter.flush();
+
+                String serverResponse = null;
+                try {
+                    serverResponse = bufferedReader.readLine();
+                } catch (Exception exc) {
+                    exc.printStackTrace();
+                }
+                assert serverResponse != null; // Panes below inform user of outcome
+                if (serverResponse.equals("Success")) {
+                    JOptionPane.showMessageDialog(null, "Item Successfully Added To Cart",
+                            "Cart Success", JOptionPane.INFORMATION_MESSAGE);
+                } else if (serverResponse.equals("Quantity error")) {
+                    JOptionPane.showMessageDialog(null,
+                            "Not enough in stock to match quantity requested", "Cart Error", JOptionPane.ERROR_MESSAGE);
+                } else if (serverResponse.equals("Item Not Found")) {
+                    JOptionPane.showMessageDialog(null,
+                            "Item Not Found, Please Refresh Dashboard", "Cart Error", JOptionPane.ERROR_MESSAGE);
+                }
+
             } else if (choice == moreDetails) {
-                //more details code
+                if (jTable.getSelectedRow() == -1) {
+                    JOptionPane.showMessageDialog(null,
+                            "First select a row using the left click", "No Item Selected", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                printWriter.println("More Details");
+                printWriter.println(jTable.getValueAt(jTable.getSelectedRow(), 1)); // send server item name
+                printWriter.flush();
+
+                String serverResponse;
+                try {
+                    serverResponse = bufferedReader.readLine();
+                    if (serverResponse.equals("Success")) {
+                        String storeName = bufferedReader.readLine(); // receives all descriptive info
+                        String description = bufferedReader.readLine();
+                        String price = bufferedReader.readLine();
+                        String quantity = bufferedReader.readLine();
+                        JOptionPane.showMessageDialog(null, // Pane that displays info
+                                jTable.getValueAt(jTable.getSelectedRow(), 1) + " from " + storeName
+                        + "; " + description + "\n" + quantity + " remain in stock, selling at $" + price + " each"
+                                , "Item Details", JOptionPane.INFORMATION_MESSAGE);
+                    } else if (serverResponse.equals("Failure")) { // Informs User that item could not be found
+                        JOptionPane.showMessageDialog(null, "Could not find item on server, " +
+                                "please refresh", "Detail Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (Exception exc) {
+                    exc.printStackTrace();
+                }
             } else if (choice == sortByPrice) {
                 //tells Server which operation to perform
                 printWriter.println("Sort By Price");

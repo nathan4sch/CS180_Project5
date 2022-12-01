@@ -209,7 +209,6 @@ public class Server implements Runnable {
                         }
                         printWriter.println(sortedItemList.size());
                         printWriter.flush();
-                        
                         for (int i = 0; i < sortedItemList.size(); i++) {
                             printWriter.println(sortedItemList.get(i).getStore());
                             printWriter.println(sortedItemList.get(i).getName());
@@ -247,7 +246,6 @@ public class Server implements Runnable {
                         }
                         printWriter.println(sortedItemList.size());
                         printWriter.flush();
-                        
                         for (int i = 0; i < sortedItemList.size(); i++) {
                             printWriter.println(sortedItemList.get(i).getStore());
                             printWriter.println(sortedItemList.get(i).getName());
@@ -262,6 +260,53 @@ public class Server implements Runnable {
                             printWriter.println(sortedItemList.get(i - 1).getPrice());
                             printWriter.flush();
                         }*/
+                    }
+                    case "Add Item To Cart" -> {
+                        String nameOfItem = bufferedReader.readLine();
+                        int userQuantity = Integer.parseInt(bufferedReader.readLine());
+                        itemList = getItems();
+                        boolean found = false;
+                        for (int i = 0; i < itemList.size(); i++) {
+                            if (nameOfItem.equals(itemList.get(i).getName())) {
+                                if (itemList.get(i).getQuantity() >= userQuantity) {
+                                    ((Buyer) currentUser).addToCart(itemList.get(i), String.valueOf(userQuantity));
+                                    printWriter.println("Success");
+                                    printWriter.flush();
+                                    found = true;
+                                    break;
+                                } else {
+                                    printWriter.println("Quantity error");
+                                    printWriter.flush();
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!found) {
+                            printWriter.println("Item Not Found");
+                            printWriter.flush();
+                        }
+                    }
+                    case "More Details" -> {
+                        String selectedItem = bufferedReader.readLine();
+                        itemList = getItems();
+                        boolean found = false;
+                        for (int i = 0; i < itemList.size(); i++) {
+                            if (selectedItem.equals(itemList.get(i).getName())) {
+                                printWriter.println("Success");
+                                printWriter.println(itemList.get(i).getStore());
+                                printWriter.println(itemList.get(i).getDescription());
+                                printWriter.println(itemList.get(i).getPrice());
+                                printWriter.println(itemList.get(i).getQuantity());
+                                printWriter.flush();
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            printWriter.println("Failure");
+                            printWriter.flush();
+                        }
                     }
                     case "View History" -> {
                         ArrayList<String> historyList = ((Buyer) currentUser).
