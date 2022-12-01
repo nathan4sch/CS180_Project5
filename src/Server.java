@@ -209,7 +209,6 @@ public class Server implements Runnable {
                         }
                         printWriter.println(sortedItemList.size());
                         printWriter.flush();
-                        
                         for (int i = 0; i < sortedItemList.size(); i++) {
                             printWriter.println(sortedItemList.get(i).getStore());
                             printWriter.println(sortedItemList.get(i).getName());
@@ -247,7 +246,6 @@ public class Server implements Runnable {
                         }
                         printWriter.println(sortedItemList.size());
                         printWriter.flush();
-                        
                         for (int i = 0; i < sortedItemList.size(); i++) {
                             printWriter.println(sortedItemList.get(i).getStore());
                             printWriter.println(sortedItemList.get(i).getName());
@@ -262,6 +260,32 @@ public class Server implements Runnable {
                             printWriter.println(sortedItemList.get(i - 1).getPrice());
                             printWriter.flush();
                         }*/
+                    }
+                    case "Add Item To Cart" -> {
+                        String nameOfItem = bufferedReader.readLine();
+                        int userQuantity = Integer.parseInt(bufferedReader.readLine());
+                        itemList = getItems();
+                        boolean found = false;
+                        for (int i = 0; i < itemList.size(); i++) {
+                            if (nameOfItem.equals(itemList.get(i).getName())) {
+                                if (itemList.get(i).getQuantity() >= userQuantity) {
+                                    ((Buyer) currentUser).addToCart(itemList.get(i), String.valueOf(userQuantity));
+                                    printWriter.println("Success");
+                                    printWriter.flush();
+                                    found = true;
+                                    break;
+                                } else {
+                                    printWriter.println("Quantity error");
+                                    printWriter.flush();
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!found) {
+                            printWriter.println("Item Not Found");
+                            printWriter.flush();
+                        }
                     }
                     case "View History" -> {
                         ArrayList<String> historyList = ((Buyer) currentUser).
@@ -345,9 +369,6 @@ public class Server implements Runnable {
                     case "Create Store" -> {
                         String storeName = bufferedReader.readLine();
                         String successOrFailure = validStoreName(storeName);
-                        if (storeName.equals("")) {
-                            successOrFailure = "Failure";
-                        }
                         if (successOrFailure.equals("Failure")) {
                             printWriter.println("Failure");
                             printWriter.flush();
@@ -584,47 +605,6 @@ public class Server implements Runnable {
                         } else {
                             printWriter.println("Success");
                             printWriter.println(numberOfProductAdded);
-                            printWriter.flush();
-                        }
-                    }
-                    case "Seller Sales List" -> {
-                        String storeSelectedString = bufferedReader.readLine();
-                        Store currentStore = ((Seller) currentUser).getSpecificStore(storeSelectedString);
-
-                        String salesData = currentStore.showSales();
-                        if (salesData == null) {
-                            printWriter.println("Failure");
-                            printWriter.flush();
-                        } else {
-                            printWriter.println(salesData);
-                            printWriter.flush();
-                        }
-                    }
-                    case "Seller Statistics" -> {
-                        String statisticToView = bufferedReader.readLine();
-                        String storeSelectedString = bufferedReader.readLine();
-
-                        String buyerOrItem = "";
-                        Store currentStore = ((Seller) currentUser).getSpecificStore(storeSelectedString);
-                        ArrayList<String> stats = new ArrayList<>();
-                        if (statisticToView.equals("Sorted Buyer Statistics") || statisticToView.equals("Buyer Statistics")) {
-                            buyerOrItem = "buyer";
-                        } else {
-                            buyerOrItem = "item";
-                        }
-                        if (statisticToView.equals("Sorted Buyer Statistics") || statisticToView.equals("Sorted Item Statistics")) {
-                            stats = Store.showSortedStats(currentStore.getStoreName(), buyerOrItem);
-                        } else {
-                            stats = Store.showStats(currentStore.getStoreName(), buyerOrItem);
-                        }
-
-                        if (stats.toString().equals("[]")) {
-                            printWriter.println("Failure");
-                            printWriter.flush();
-                        } else {
-                            String output = stats.toString();
-                            printWriter.println(output);
-                            printWriter.println(buyerOrItem);
                             printWriter.flush();
                         }
                     }
