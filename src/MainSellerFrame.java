@@ -22,8 +22,6 @@ public class MainSellerFrame extends JComponent implements Runnable {
     JPanel leftPanel;
     JPanel rightPanel;
     JButton manageStoresButton;
-    JButton salesListButton;
-    JButton statisticsButton;
     JButton viewCartButton;
     JButton manageAccountButton;
     JButton signOutButton;
@@ -58,10 +56,6 @@ public class MainSellerFrame extends JComponent implements Runnable {
                     manageStoreGUI[i].setVisible(true);
                     currentlyVisible.add(manageStoreGUI[i]);
                 }
-
-            } else if (source == salesListButton) {
-
-            } else if (source == statisticsButton) {
 
             } else if (source == viewCartButton) {
 
@@ -181,19 +175,9 @@ public class MainSellerFrame extends JComponent implements Runnable {
         rightPanel.setLayout(new GridLayout(6, 1, 20, 20));
 
         //Manage Stores Button
-        manageStoresButton = new JButton("Manage Stores");
+        manageStoresButton = new JButton("Stores");
         manageStoresButton.addActionListener(actionListener);
         rightPanel.add(manageStoresButton);
-
-        //Sales List Button
-        salesListButton = new JButton("Sales List");
-        salesListButton.addActionListener(actionListener);
-        rightPanel.add(salesListButton);
-
-        //Statistics Dashboard Button
-        statisticsButton = new JButton("Statistics Dashboard");
-        statisticsButton.addActionListener(actionListener);
-        rightPanel.add(statisticsButton);
 
         //View Current Carts Button
         viewCartButton = new JButton("View Current Carts");
@@ -214,8 +198,8 @@ public class MainSellerFrame extends JComponent implements Runnable {
         leftPanel.setLayout(null);
 
         //Manage Stores
-        manageStoreMainLabel = new JLabel("Manage Stores");
-        manageStoreMainLabel.setBounds(200, 10, 400, 100);
+        manageStoreMainLabel = new JLabel("Create and Manage Stores");
+        manageStoreMainLabel.setBounds(150, 10, 550, 100);
         manageStoreMainLabel.setFont(new Font(manageStoreMainLabel.getFont().getName(),
                 Font.PLAIN, fontSizeToUse(manageStoreMainLabel)));
         leftPanel.add(manageStoreMainLabel);
@@ -239,7 +223,7 @@ public class MainSellerFrame extends JComponent implements Runnable {
         leftPanel.add(createStoreButton);
         createStoreButton.setVisible(false);
 
-        manageCatalogueButton = new JButton("Manage Catalogue");
+        manageCatalogueButton = new JButton("Manage Stores");
         manageCatalogueButton.addActionListener(actionListener);
         manageCatalogueButton.setBounds(100, 350, 200, 80);
         leftPanel.add(manageCatalogueButton);

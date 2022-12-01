@@ -345,6 +345,9 @@ public class Server implements Runnable {
                     case "Create Store" -> {
                         String storeName = bufferedReader.readLine();
                         String successOrFailure = validStoreName(storeName);
+                        if (storeName.equals("")) {
+                            successOrFailure = "Failure";
+                        }
                         if (successOrFailure.equals("Failure")) {
                             printWriter.println("Failure");
                             printWriter.flush();
@@ -581,6 +584,47 @@ public class Server implements Runnable {
                         } else {
                             printWriter.println("Success");
                             printWriter.println(numberOfProductAdded);
+                            printWriter.flush();
+                        }
+                    }
+                    case "Seller Sales List" -> {
+                        String storeSelectedString = bufferedReader.readLine();
+                        Store currentStore = ((Seller) currentUser).getSpecificStore(storeSelectedString);
+
+                        String salesData = currentStore.showSales();
+                        if (salesData == null) {
+                            printWriter.println("Failure");
+                            printWriter.flush();
+                        } else {
+                            printWriter.println(salesData);
+                            printWriter.flush();
+                        }
+                    }
+                    case "Seller Statistics" -> {
+                        String statisticToView = bufferedReader.readLine();
+                        String storeSelectedString = bufferedReader.readLine();
+
+                        String buyerOrItem = "";
+                        Store currentStore = ((Seller) currentUser).getSpecificStore(storeSelectedString);
+                        ArrayList<String> stats = new ArrayList<>();
+                        if (statisticToView.equals("Sorted Buyer Statistics") || statisticToView.equals("Buyer Statistics")) {
+                            buyerOrItem = "buyer";
+                        } else {
+                            buyerOrItem = "item";
+                        }
+                        if (statisticToView.equals("Sorted Buyer Statistics") || statisticToView.equals("Sorted Item Statistics")) {
+                            stats = Store.showSortedStats(currentStore.getStoreName(), buyerOrItem);
+                        } else {
+                            stats = Store.showStats(currentStore.getStoreName(), buyerOrItem);
+                        }
+
+                        if (stats.toString().equals("[]")) {
+                            printWriter.println("Failure");
+                            printWriter.flush();
+                        } else {
+                            String output = stats.toString();
+                            printWriter.println(output);
+                            printWriter.println(buyerOrItem);
                             printWriter.flush();
                         }
                     }
