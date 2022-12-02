@@ -21,11 +21,12 @@ public class CartFrame extends JComponent implements Runnable {
     JPanel rightPanel;
     JPanel leftPanel;
     JButton returnToDashButton;
-    String storeSelected = "";
+    String itemSelected = "";
     String userEmail;
 
     //Right Panel
     JLabel selectItem;
+    JLabel itemsInCartLabel;
     JRadioButton radioButton;
 
     // Cart Options
@@ -33,7 +34,7 @@ public class CartFrame extends JComponent implements Runnable {
     JButton checkoutButton;
 
     //Left Panel
-    JLabel currentStore;
+    JLabel currentItem;
 
     /**
      *  The constructor of CartFrame
@@ -59,10 +60,10 @@ public class CartFrame extends JComponent implements Runnable {
 
             } else {
                 try {
-                    storeSelected = e.getActionCommand();
-                    currentStore.setText("Item Selected: " + storeSelected);
-                    currentStore.setFont(new Font(currentStore.getFont().getName(),
-                            Font.BOLD, fontSizeToUse(currentStore)));
+                    itemSelected = e.getActionCommand();
+                    currentItem.setText("Item Selected: " + itemSelected.substring(0, itemSelected.indexOf(":") - 1));
+                    currentItem.setFont(new Font(currentItem.getFont().getName(),
+                            Font.BOLD, fontSizeToUse(currentItem)));
                 } catch (Exception exc) {
                     exc.printStackTrace();
                 }
@@ -85,15 +86,21 @@ public class CartFrame extends JComponent implements Runnable {
 
         //configure splitPane
         splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setDividerLocation(750);
+        splitPane.setDividerLocation(500);
         splitPane.setLeftComponent(rightPanel);
         splitPane.setRightComponent(leftPanel);
 
         //left panel
-        leftPanel.setLayout(new GridLayout(userCarts.length + 1, 1, 20, 20));
+        leftPanel.setLayout(null);
 
-        selectItem = new JLabel("Your Cart");
-        selectItem.setBounds(500, 50, 200, 30);
+        itemsInCartLabel = new JLabel("Items in Cart");
+        itemsInCartLabel.setBounds(50, 50, 350, 80);
+        itemsInCartLabel.setFont(new Font(itemsInCartLabel.getFont().getName(),
+                Font.BOLD, fontSizeToUse(itemsInCartLabel)));
+        leftPanel.add(itemsInCartLabel);
+
+        selectItem = new JLabel("Format: Item Name, Quantity, Total Cost");
+        selectItem.setBounds(40, 140, 370, 80);
         selectItem.setFont(new Font(selectItem.getFont().getName(),
                 Font.BOLD, fontSizeToUse(selectItem)));
         leftPanel.add(selectItem);
@@ -103,15 +110,25 @@ public class CartFrame extends JComponent implements Runnable {
             ButtonGroup buttonGroup = new ButtonGroup();
 
             ArrayList<String> itemNameList = new ArrayList<>();
+            ArrayList<String> quantityList = new ArrayList<>();
+            ArrayList<String> priceList = new ArrayList<>();
 
             for (int i = 0; i < userCarts.length; i++) { // Get item name
                 String[] fields = userCarts[i].split("!");
                 itemNameList.add(fields[1]);
+                quantityList.add(fields[2]);
+                priceList.add(fields[3]);
             }
 
             for (int i = 0; i < itemNameList.size(); i++) { // Add to radioButton group
-                radioButton = new JRadioButton(itemNameList.get(i));
+                Double totalCost = Integer.parseInt(quantityList.get(i)) * Double.parseDouble(priceList.get(i));
+                //radioButton = new JRadioButton(itemNameList.get(i) + " : " + quantityList.get(i) + " : $" +);
+                radioButton = new JRadioButton(String.format("%s : %s : $%.2f", itemNameList.get(i), quantityList.get(i), totalCost));
                 buttonGroup.add(radioButton);
+                radioButton.setBounds(50, 200 + (50 * i), 350, 30);
+                radioButton.setFont(new Font (radioButton.getFont().getName(), Font.PLAIN, 18));
+                //currentItem.getFont().getName(),
+                //                Font.BOLD, fontSizeToUse(currentItem))
                 leftPanel.add(radioButton);
                 radioButton.addActionListener(actionListener);
             }
@@ -121,27 +138,27 @@ public class CartFrame extends JComponent implements Runnable {
 
         //right panel
         rightPanel.setLayout(null);
-        currentStore = new JLabel("Cart Options");
-        currentStore.setBounds(200, 50, 400, 50);
-        currentStore.setFont(new Font(currentStore.getFont().getName(),
-                Font.BOLD, fontSizeToUse(currentStore)));
-        rightPanel.add(currentStore);
+        currentItem = new JLabel("Cart Options");
+        currentItem.setBounds(50, 50, 400, 50);
+        currentItem.setFont(new Font(currentItem.getFont().getName(),
+                Font.BOLD, fontSizeToUse(currentItem)));
+        rightPanel.add(currentItem);
 
         // Remove Item from Cart
         removeItemButton = new JButton("Remove Item From Cart");
         removeItemButton.addActionListener(actionListener);
-        removeItemButton.setBounds(250, 300, 200, 50);
+        removeItemButton.setBounds(150, 300, 200, 50);
         rightPanel.add(removeItemButton);
 
         // Checkout all Items from Cart
         checkoutButton = new JButton("Checkout");
         checkoutButton.addActionListener(actionListener);
-        checkoutButton.setBounds(250, 200, 200, 50);
+        checkoutButton.setBounds(150, 200, 200, 50);
         rightPanel.add(checkoutButton);
 
         returnToDashButton = new JButton("Return to Dashboard");
         returnToDashButton.addActionListener(actionListener);
-        returnToDashButton.setBounds(250, 400, 200, 50);
+        returnToDashButton.setBounds(150, 400, 200, 50);
         rightPanel.add(returnToDashButton);
 
         //Finalize frame
