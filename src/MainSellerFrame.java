@@ -58,6 +58,35 @@ public class MainSellerFrame extends JComponent implements Runnable {
                 }
 
             } else if (source == viewCartButton) {
+                printWriter.println("View Current Carts");
+                printWriter.flush();
+
+                try {
+                    String successOrFailure = bufferedReader.readLine();
+
+                    if (successOrFailure.equals("Failure")) {
+                        JOptionPane.showMessageDialog(null, "No Customers",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        String[] output = successOrFailure.split("~");
+
+                        JScrollPane scrollPane;
+                        String[] paneOptions = output;
+                        JList<String> list = new JList<>(paneOptions);
+                        scrollPane = new JScrollPane(list);
+
+                        JPanel panel = new JPanel();
+                        panel.add(scrollPane);
+
+                        scrollPane.getViewport().add(list);
+                        scrollPane.setSize(1000, 1000);
+
+                        JOptionPane.showMessageDialog(null, scrollPane, "Customer Carts",
+                                JOptionPane.PLAIN_MESSAGE);
+                    }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
 
             } else if (source == manageAccountButton) {
                 resetVisible();
@@ -203,7 +232,6 @@ public class MainSellerFrame extends JComponent implements Runnable {
         manageStoreMainLabel.setFont(new Font(manageStoreMainLabel.getFont().getName(),
                 Font.PLAIN, fontSizeToUse(manageStoreMainLabel)));
         leftPanel.add(manageStoreMainLabel);
-        manageStoreMainLabel.setVisible(false);
 
         newStoreName = new JLabel("Input Store Name: ");
         newStoreName.setBounds(500, 300, 200, 40);
@@ -231,6 +259,10 @@ public class MainSellerFrame extends JComponent implements Runnable {
 
         manageStoreGUI = new JComponent[]{manageStoreMainLabel, manageCatalogueButton, createStoreButton
                 , newStoreName, inputStoreName};
+        for (int i = 0; i < manageStoreGUI.length; i++) {
+            manageStoreGUI[i].setVisible(true);
+            currentlyVisible.add(manageStoreGUI[i]);
+        }
 
 
         //Manage Account

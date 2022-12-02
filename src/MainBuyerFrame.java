@@ -34,7 +34,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
     JButton viewCartButton;
     JButton searchButton;
     JButton statisticsButton;
-    JTextField searchTextField = new JTextField(10);
+    JTextField searchTextField;
     JButton sortButton;
     JButton reviewHistoryButton;
     JButton manageAccountButton;
@@ -52,6 +52,14 @@ public class MainBuyerFrame extends JComponent implements Runnable {
     JMenuItem searchByName;
     JMenuItem searchByStore;
     JMenuItem searchByDescription;
+    JLabel mainLabel;
+
+    JLabel informationMainLabel;
+    JLabel storeLabel;
+    JLabel nameLabel;
+    JLabel descriptionLabel;
+    JLabel quantityLabel;
+    JLabel priceLabel;
 
     /**
      *  The constructor of MainBuyerFrame
@@ -133,10 +141,20 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                         String description = bufferedReader.readLine();
                         String price = bufferedReader.readLine();
                         String quantity = bufferedReader.readLine();
-                        JOptionPane.showMessageDialog(null, // Pane that displays info
-                                jTable.getValueAt(jTable.getSelectedRow(), 1) + " from " + storeName
-                        + "; " + description + "\n" + quantity + " remain in stock, selling at $" + price + " each"
-                                , "Item Details", JOptionPane.INFORMATION_MESSAGE);
+
+                        storeLabel.setText("Store Name: " + storeName);
+                        nameLabel.setText("Item Name: " + jTable.getValueAt(jTable.getSelectedRow(), 1));
+                        descriptionLabel.setText("Description: " + description);
+                        quantityLabel.setText("Quantity: " + quantity);
+                        priceLabel.setText(String.format("Price: $%.2f", Double.parseDouble(price)));
+
+                        informationMainLabel.setVisible(true);
+                        storeLabel.setVisible(true);
+                        nameLabel.setVisible(true);
+                        descriptionLabel.setVisible(true);
+                        quantityLabel.setVisible(true);
+                        priceLabel.setVisible(true);
+
                     } else if (serverResponse.equals("Failure")) { // Informs User that item could not be found
                         JOptionPane.showMessageDialog(null, "Could not find item on server, " +
                                 "please refresh", "Detail Error", JOptionPane.ERROR_MESSAGE);
@@ -223,10 +241,15 @@ public class MainBuyerFrame extends JComponent implements Runnable {
 
                 try {
                     String cartLine = bufferedReader.readLine();
-                    String[] buyerCarts = cartLine.split("~");
+                    if (cartLine.equals("Failure")) {
+                        JOptionPane.showMessageDialog(null, "You have no items in your cart",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        String[] buyerCarts = cartLine.split("~");
 
-                    SwingUtilities.invokeLater(new CartFrame(socket, buyerCarts, userEmail));
-                    mainBuyerFrame.dispose();
+                        SwingUtilities.invokeLater(new CartFrame(socket, buyerCarts, userEmail));
+                        mainBuyerFrame.dispose();
+                    }
                 } catch (Exception exc) {
                     exc.printStackTrace();
                 }
@@ -294,6 +317,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
 
         //rightPanel
         rightPanel.setLayout(new GridLayout(6, 1, 20, 20));
+        leftPanel.setLayout(null);
 
         //Adds view Cart Button
         viewCartButton = new JButton("View Cart");
@@ -309,6 +333,11 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         sortPopupMenu.add(sortByPrice);
         sortPopupMenu.add(sortByQuantity);
         sortButton = new JButton("Sort Dashboard");
+        sortButton.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                sortPopupMenu.show(e.getComponent(), e.getX(), e.getY());
+            }
+        });
         sortButton.setComponentPopupMenu(sortPopupMenu);
         rightPanel.add(sortButton);
 
@@ -332,6 +361,9 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         logoutButton.addActionListener(actionListener);
         rightPanel.add(logoutButton);
 
+        searchTextField = new JTextField(20);
+        searchTextField.setBounds(550, 575, 200, 40);
+        searchTextField.setFont(new Font(searchTextField.getFont().getName(), Font.PLAIN, 16));
         leftPanel.add(searchTextField);
 
         searchPopupMenu = new JPopupMenu();
@@ -344,9 +376,58 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         searchPopupMenu.add(searchByName);
         searchPopupMenu.add(searchByDescription);
         searchPopupMenu.add(searchByStore);
-        searchButton = new JButton("Search");
+
+        searchButton = new JButton("Search for Product");
+        searchButton.setBounds(550, 510, 200, 60);
+        searchButton.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                searchPopupMenu.show(e.getComponent(), e.getX(), e.getY());
+            }
+        });
         searchButton.setComponentPopupMenu(searchPopupMenu);
         leftPanel.add(searchButton);
+
+        mainLabel = new JLabel("Products on Furniture Marketplace");
+        mainLabel.setBounds(125, 15, 550, 80);
+        mainLabel.setFont(new Font(mainLabel.getFont().getName(), Font.BOLD, fontSizeToUse(mainLabel)));
+        leftPanel.add(mainLabel);
+
+        Font itemInfoFont = new Font(mainLabel.getFont().getName(), Font.PLAIN, 16);
+        informationMainLabel = new JLabel("Item Selected Information");
+        informationMainLabel.setBounds(50, 500, 350, 35);
+        informationMainLabel.setFont(new Font(mainLabel.getFont().getName(), Font.BOLD, 18));
+        leftPanel.add(informationMainLabel);
+        informationMainLabel.setVisible(false);
+
+        storeLabel = new JLabel("Store Name: ");
+        storeLabel.setBounds(30, 535, 350, 35);
+        storeLabel.setFont(itemInfoFont);
+        leftPanel.add(storeLabel);
+        storeLabel.setVisible(false);
+
+        nameLabel = new JLabel("Item Name: ");
+        nameLabel.setBounds(30, 570, 350, 35);
+        nameLabel.setFont(itemInfoFont);
+        leftPanel.add(nameLabel);
+        nameLabel.setVisible(false);
+
+        descriptionLabel = new JLabel("Description: ");
+        descriptionLabel.setBounds(30, 605, 450, 35);
+        descriptionLabel.setFont(itemInfoFont);
+        leftPanel.add(descriptionLabel);
+        descriptionLabel.setVisible(false);
+
+        quantityLabel = new JLabel("Quantity: ");
+        quantityLabel.setBounds(30, 640, 350, 35);
+        quantityLabel.setFont(itemInfoFont);
+        leftPanel.add(quantityLabel);
+        quantityLabel.setVisible(false);
+
+        priceLabel = new JLabel("Price: $");
+        priceLabel.setBounds(30, 675, 350, 35);
+        priceLabel.setFont(itemInfoFont);
+        leftPanel.add(priceLabel);
+        priceLabel.setVisible(false);
 
         tablePopupMenu = new JPopupMenu();
         addToCart = new JMenuItem("Add to Cart");
@@ -375,6 +456,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         //Makes the table scrollable
         jScrollPane = new JScrollPane(jTable, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        jScrollPane.setBounds(25, 100, 750, 350);
         leftPanel.add(jScrollPane);
 
         //Finalize frame
