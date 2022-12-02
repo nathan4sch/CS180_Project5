@@ -680,6 +680,24 @@ public class Server implements Runnable {
                             printWriter.flush();
                         }
                     }
+                    case "View Current Carts" -> {
+                        ArrayList<String> cartInformation = Seller.viewCustomerShoppingCart();
+                        if (cartInformation == null) {
+                            printWriter.println("Failure");
+                            printWriter.flush();
+                        } else {
+                            String output = "";
+                            for (int i = 0; i < cartInformation.size(); i++) {
+                                if (i != 0) {
+                                    output = output + "~" + cartInformation.get(i);
+                                } else {
+                                    output = output + cartInformation.get(i);
+                                }
+                            }
+                            printWriter.println(output);
+                            printWriter.flush();
+                        }
+                    }
                 }
             }
         } catch (IOException e) {
