@@ -267,20 +267,32 @@ public class ManageStoreFrame extends JComponent implements Runnable {
 
         //configure splitPane
         splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setDividerLocation(800);
+        splitPane.setDividerLocation(750);
         splitPane.setLeftComponent(leftPanel);
         splitPane.setRightComponent(rightPanel);
 
         //rightPanel
-        rightPanel.setLayout(new GridLayout(userStores.length + 1, 1, 20, 20));
+        rightPanel.setLayout(null);
 
         selectStore = new JLabel("Your Stores");
+        selectStore.setBounds(10, 50, 200, 80);
+        selectStore.setFont(new Font(selectStore.getFont().getName(),
+                Font.BOLD, fontSizeToUse(selectStore)));
         rightPanel.add(selectStore);
 
         ButtonGroup buttonGroup = new ButtonGroup();
-        for (int i = 0; i < userStores.length; i++) {
+//        for (int i = 0; i < userStores.length; i++) {
+//            radioButton = new JRadioButton(userStores[i]);
+//            buttonGroup.add(radioButton);
+//            rightPanel.add(radioButton);
+//            radioButton.addActionListener(actionListener);
+//        }
+
+        for (int i = 0; i < userStores.length; i++) { // Add to radioButton group
             radioButton = new JRadioButton(userStores[i]);
             buttonGroup.add(radioButton);
+            radioButton.setBounds(10, 150 + (50 * i), 200, 30);
+            radioButton.setFont(new Font (radioButton.getFont().getName(), Font.PLAIN, 18));
             rightPanel.add(radioButton);
             radioButton.addActionListener(actionListener);
         }
