@@ -44,7 +44,7 @@ public class Server implements Runnable {
 
     /**
      * Synchronized Object to synchronize methods called from other classes
-     * */
+     */
     public static final Object SYNC = new Object();
 
     /**
@@ -122,23 +122,24 @@ public class Server implements Runnable {
                     }
                     case "View Cart" -> {
                         ArrayList<String> buyerCartList = ((Buyer) currentUser).getCart();
-                        for (int i = 0; i < buyerCartList.size(); i++) { // Remove "x"
-                            if (buyerCartList.get(i).equals("x")) {
-                                buyerCartList.remove(i);
+                        System.out.println(buyerCartList.get(0));
+                        if (buyerCartList.get(0).equals("x")) {
+                            printWriter.println("Failure");
+                            printWriter.flush();
+                        } else {
+                            String[] buyerCart = new String[buyerCartList.size()];
+                            for (int i = 0; i < buyerCartList.size(); i++) {
+                                if (i == buyerCartList.size() - 1) {
+                                    buyerCart[i] = buyerCartList.get(i);
+                                } else {
+                                    buyerCart[i] = buyerCartList.get(i) + "~";
+                                }
                             }
+                            String line = Arrays.toString(buyerCart);
+                            System.out.println(line);
+                            printWriter.println(line.substring(1, line.length() - 1)); // remove "[]"
+                            printWriter.flush();
                         }
-
-                        String[] buyerCart = new String[buyerCartList.size()];
-                        for (int i = 0; i < buyerCartList.size(); i++) {
-                            if (i == buyerCartList.size() - 1) {
-                                buyerCart[i] = buyerCartList.get(i);
-                            } else {
-                                buyerCart[i] = buyerCartList.get(i) + "~";
-                            }
-                        }
-                        String line = Arrays.toString(buyerCart);
-                        printWriter.println(line.substring(1,line.length() - 1)); // remove "[]"
-                        printWriter.flush();
                     }
                     case "Search By Name" -> {
                         String searchedText = bufferedReader.readLine();
@@ -626,9 +627,9 @@ public class Server implements Runnable {
                     case "Import Product File" -> {
                         String filename = bufferedReader.readLine();
 
-                        Store[] currentUserStores = ((Seller)currentUser).getStore();
+                        Store[] currentUserStores = ((Seller) currentUser).getStore();
 
-                        int numberOfProductAdded = ((Seller)currentUser).importItems(filename, currentUserStores);
+                        int numberOfProductAdded = ((Seller) currentUser).importItems(filename, currentUserStores);
                         if (numberOfProductAdded == -1 || numberOfProductAdded == 0) {
                             printWriter.println("Failure");
                             printWriter.flush();
@@ -965,7 +966,7 @@ public class Server implements Runnable {
         }
         return "Failure";
     }
-    
+
     /**
      * Loops through list and concatenates everything to a string
      *
@@ -977,7 +978,7 @@ public class Server implements Runnable {
             for (int i = 0; i < listToParse.size(); i++) {
                 returnString += listToParse.get(i) + "~";
             }
-            
+
             return returnString.substring(0, returnString.length() - 1);
         } catch (Exception e) {
             return null;
@@ -1058,6 +1059,7 @@ public class Server implements Runnable {
         }
         return "Failure";
     }
+
     public synchronized ArrayList<Item> getItems() {
         ArrayList<Item> items = new ArrayList<>();
         try {
@@ -1066,7 +1068,7 @@ public class Server implements Runnable {
             String line = bfr.readLine();
             while (line != null) {
                 String[] splitLine = line.split(",");
-                items.add(new Item(splitLine[0],splitLine[1],splitLine[2],Integer.parseInt(splitLine[3]),Double.parseDouble(splitLine[4])));
+                items.add(new Item(splitLine[0], splitLine[1], splitLine[2], Integer.parseInt(splitLine[3]), Double.parseDouble(splitLine[4])));
                 line = bfr.readLine();
             }
         } catch (Exception e) {

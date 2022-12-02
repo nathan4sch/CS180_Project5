@@ -456,6 +456,7 @@ public class Buyer {
                     String shoppingCart = splitLine[4];
                     if (shoppingCart.equals("x")) {
                         shoppingCart = formatted;
+                        cart.set(0,formatted);
                     } else {
                         shoppingCart = shoppingCart + "~" + formatted;
                         cart.add(formatted);
