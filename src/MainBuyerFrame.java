@@ -244,6 +244,9 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                     if (cartLine.equals("Failure")) {
                         JOptionPane.showMessageDialog(null, "You have no items in your cart",
                                 "Error", JOptionPane.ERROR_MESSAGE);
+                    } else if (cartLine.equals("Cart Empty")) {
+                        JOptionPane.showMessageDialog(null, "Cart is Empty - Main Buyer", "Error",
+                                JOptionPane.ERROR_MESSAGE);
                     } else {
                         String[] buyerCarts = cartLine.split("~");
 
