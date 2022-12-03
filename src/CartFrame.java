@@ -69,8 +69,9 @@ public class CartFrame extends JComponent implements Runnable {
                                 JOptionPane.INFORMATION_MESSAGE);
                         SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
                         cartFrame.dispose();
+
                     } else if (success.equals("Cart Empty")) {
-                        JOptionPane.showMessageDialog(null, "Cart is Empty", "Error",
+                        JOptionPane.showMessageDialog(null, "Cart is Empty - Cart Action", "Error",
                                 JOptionPane.ERROR_MESSAGE);
                     } else {
                         JOptionPane.showMessageDialog(null, "Item NOT Removed", "Error",
@@ -153,14 +154,16 @@ public class CartFrame extends JComponent implements Runnable {
                 radioButton = new JRadioButton(String.format("%s : %s : $%.2f", itemNameList.get(i), quantityList.get(i), totalCost));
                 buttonGroup.add(radioButton);
                 radioButton.setBounds(50, 250 + (50 * i), 350, 30);
-                radioButton.setFont(new Font (radioButton.getFont().getName(), Font.PLAIN, 18));
+                radioButton.setFont(new Font(radioButton.getFont().getName(), Font.PLAIN, 18));
                 leftPanel.add(radioButton);
                 radioButton.addActionListener(actionListener);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Cart is Empty", "Error",
+            JOptionPane.showMessageDialog(null, "Cart is Empty - Cart Run exc", "Error",
                     JOptionPane.ERROR_MESSAGE);
+            cartFrame.dispose();
+            SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
         }
 
         //right panel
