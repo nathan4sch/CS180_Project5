@@ -152,6 +152,7 @@ public class Server implements Runnable {
                                 printWriter.println("Error");
                             }
                             printWriter.flush();
+
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
