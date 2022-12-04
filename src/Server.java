@@ -152,6 +152,68 @@ public class Server implements Runnable {
                             }
                         }
                     }
+                    case "Checkout" -> {
+                        ArrayList<String> successfulItems = new ArrayList<>();
+                        ArrayList<String> unsuccessfulItems = new ArrayList<>();
+                        ArrayList<String> cart = ((Buyer) currentUser).getCart(((Buyer) currentUser).getEmail());
+                        itemList = getItems();
+
+                        boolean itemFound; // boolean used to check if item still exists in items
+                        for (int i = 0; i < cart.size(); i++) {
+                            itemFound = false;
+                            String[] splitCart = cart.get(i).split("!");
+                            for (int j = 0; j < itemList.size(); j++) {
+                                if (splitCart[1].equals(itemList.get(j).getName())) { // every item in cart against item list
+                                    itemFound = true;
+                                    if (itemList.get(j).getQuantity() < Integer.parseInt(splitCart[2])) { // if not enough in stock, add to unsuccessful items list
+                                        unsuccessfulItems.add(itemList.get(j).getName() + "," + splitCart[2] + ",Not enough in stock to fulfill order");
+                                    } else {
+                                        successfulItems.add(itemList.get(j).getName() + "," + splitCart[2]);
+                                    }
+                                }
+                            }
+                            if (!itemFound) {
+                                unsuccessfulItems.add(splitCart[1] + "," + splitCart[2] + ",Item No longer exists");
+                            }
+                        }
+
+                        //Writes Successful checkouts to purchase history and removes all items from cart
+                        try {
+                            BufferedReader reader = new BufferedReader(new FileReader("FMCredentials.csv"));
+                            ArrayList<String> fmCredentials = new ArrayList<>();
+                            String line = reader.readLine();
+                            String[] userSplit = null; // saves current user data for ease of access
+                            while (line != null) {
+                                String[] splitLine = line.split(",");
+                                if (!((Buyer) currentUser).getEmail().equals(splitLine[0])) {
+                                    fmCredentials.add(line);
+                                } else {
+                                    userSplit = line.split(",");
+                                }
+                                line = reader.readLine();
+                            }
+                            reader.close();
+
+                            PrintWriter pw = new PrintWriter(new FileWriter("FMCredentials.csv"));
+
+                            assert userSplit != null;
+                            String fomattedSuccess = userSplit[4]; // take existing history
+                            for (int i = 0; i < successfulItems.size(); i++) {
+                                
+                            }
+
+                            pw.println(userSplit[0] + "," + userSplit[1] + "," + userSplit[2] + ",x," + userSplit[4]);
+                        } catch (Exception exc) {
+                            exc.printStackTrace();
+                        }
+
+                        printWriter.println(successfulItems.size());
+                        printWriter.println(unsuccessfulItems.size());
+                        printWriter.flush();
+                        for (int i = 0; i < successfulItems.size(); i++) {
+                            printWriter.println(successfulItems.get(i));
+                        }
+                    }
                     case "Remove Cart Item" -> {
                         synchronized (SYNC) {
                             try {
