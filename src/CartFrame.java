@@ -3,7 +3,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * Interface that allows users to see all their current items in cart, remove items from cart,
@@ -13,7 +13,7 @@ import java.util.ArrayList;
  */
 public class CartFrame extends JComponent implements Runnable {
     Socket socket;
-    String[] userCarts;
+    ArrayList<String> userCarts;
     BufferedReader bufferedReader;
     PrintWriter printWriter;
     JFrame cartFrame;
@@ -43,7 +43,7 @@ public class CartFrame extends JComponent implements Runnable {
      * @param socket The socket that connect this local machine with the server
      * @param userCarts String Array of all cart items of current user
      */
-    public CartFrame(Socket socket, String[] userCarts, String userEmail) {
+    public CartFrame(Socket socket, ArrayList<String> userCarts, String userEmail) {
         this.socket = socket;
         this.userCarts = userCarts;
         this.userEmail = userEmail;
@@ -67,10 +67,11 @@ public class CartFrame extends JComponent implements Runnable {
                     if (success.equals("Success")) {
                         JOptionPane.showMessageDialog(null, "Item successfully removed from cart", "Cart",
                                 JOptionPane.INFORMATION_MESSAGE);
+
                         SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
                         cartFrame.dispose();
                     } else if (success.equals("Cart Empty")) {
-                        JOptionPane.showMessageDialog(null, "Cart is Empty", "Error",
+                        JOptionPane.showMessageDialog(null, "Cart is Empty - Cart Action", "Error",
                                 JOptionPane.ERROR_MESSAGE);
                     } else {
                         JOptionPane.showMessageDialog(null, "Item NOT Removed", "Error",
@@ -140,26 +141,26 @@ public class CartFrame extends JComponent implements Runnable {
             ArrayList<String> quantityList = new ArrayList<>();
             ArrayList<String> priceList = new ArrayList<>();
 
-            for (int i = 0; i < userCarts.length; i++) { // Get item name
-                String[] fields = userCarts[i].split("!");
+            for (int i = 0; i < userCarts.size(); i++) { // Get item name
+                String[] fields = userCarts.get(i).split("!");
                 itemNameList.add(fields[1]);
                 quantityList.add(fields[2]);
                 priceList.add(fields[3]);
             }
 
-            for (int i = 0; i < itemNameList.size(); i++) { // Add to radioButton group
+            for (int i = 0; i < userCarts.size(); i++) { // Add to radioButton group
                 Double totalCost = Integer.parseInt(quantityList.get(i)) * Double.parseDouble(priceList.get(i));
-                //radioButton = new JRadioButton(itemNameList.get(i) + " : " + quantityList.get(i) + " : $" +);
-                radioButton = new JRadioButton(String.format("%s : %s : $%.2f", itemNameList.get(i), quantityList.get(i), totalCost));
+                radioButton = new JRadioButton(String.format("%s : %s : $%.2f", itemNameList.get(i),
+                        quantityList.get(i), totalCost));
                 buttonGroup.add(radioButton);
                 radioButton.setBounds(50, 250 + (50 * i), 350, 30);
-                radioButton.setFont(new Font (radioButton.getFont().getName(), Font.PLAIN, 18));
+                radioButton.setFont(new Font(radioButton.getFont().getName(), Font.PLAIN, 18));
                 leftPanel.add(radioButton);
                 radioButton.addActionListener(actionListener);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Cart is Empty", "Error",
+            JOptionPane.showMessageDialog(null, "Cart is Empty - Cart Run exc", "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
 
@@ -232,15 +233,4 @@ public class CartFrame extends JComponent implements Runnable {
 
         return fontSizeToUse;
     }
-
-//    public static void main(String[] args) { // For testing
-//        try {
-//            Socket socket1 = new Socket("localhost", 4444);
-//            String[] userCartTemp = {"Cool Tables!Ufo-table!2!499.99", "Jack's Whiskey Shelves!Whiskey Shelf!2!159.99", "FD's Store!Super Gamer Chair!1!469.99"};
-//            CartFrame cart = new CartFrame(socket1, userCartTemp, "f");
-//            cart.run();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
 }

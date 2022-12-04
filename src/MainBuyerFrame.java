@@ -115,6 +115,9 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                 if (serverResponse.equals("Success")) {
                     JOptionPane.showMessageDialog(null, "Item Successfully Added To Cart",
                             "Cart Success", JOptionPane.INFORMATION_MESSAGE);
+                } else if (serverResponse.equals("Same Name")) {
+                    JOptionPane.showMessageDialog(null, "You can not add the same item twice",
+                            "Error", JOptionPane.ERROR_MESSAGE);
                 } else if (serverResponse.equals("Quantity error")) {
                     JOptionPane.showMessageDialog(null,
                             "Not enough in stock to match quantity requested", "Cart Error", JOptionPane.ERROR_MESSAGE);
@@ -244,8 +247,15 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                     if (cartLine.equals("Failure")) {
                         JOptionPane.showMessageDialog(null, "You have no items in your cart",
                                 "Error", JOptionPane.ERROR_MESSAGE);
+                    } else if (cartLine.equals("Cart Empty")) {
+                        JOptionPane.showMessageDialog(null, "Cart is Empty", "Error",
+                                JOptionPane.ERROR_MESSAGE);
                     } else {
-                        String[] buyerCarts = cartLine.split("~");
+                        String[] buyerCartsArr = cartLine.split("~");
+                        ArrayList<String> buyerCarts = new ArrayList<>();
+                        for (int i = 0; i < buyerCartsArr.length; i++) {
+                            buyerCarts.add(buyerCartsArr[i]);
+                        }
 
                         SwingUtilities.invokeLater(new CartFrame(socket, buyerCarts, userEmail));
                         mainBuyerFrame.dispose();
