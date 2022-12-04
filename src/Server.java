@@ -121,42 +121,54 @@ public class Server implements Runnable {
                         }
                     }
                     case "View Cart" -> {
-                        ArrayList<String> buyerCartList = ((Buyer) currentUser).getCart();
-                        if (buyerCartList.get(0).equals("x")) {
-                            printWriter.println("Failure");
-                            printWriter.flush();
-                        } else {
-                            String[] buyerCart = new String[buyerCartList.size()];
-                            for (int i = 0; i < buyerCartList.size(); i++) {
-                                if (i == buyerCartList.size() - 1) {
-                                    buyerCart[i] = buyerCartList.get(i);
+                        synchronized (SYNC) {
+                            try {
+                                String email = ((Buyer) currentUser).getEmail();
+                                ArrayList<String> buyerCartList = ((Buyer) currentUser).getCart();
+                                buyerCartList = ((Buyer) currentUser).showItemsInCart(email);
+                                System.out.println(((Buyer) currentUser).getEmail());
+                                System.out.println(buyerCartList);
+
+                                if (!buyerCartList.get(0).equals("x")) {
+                                    String[] buyerCart = new String[buyerCartList.size()];
+                                    for (int i = 0; i < buyerCartList.size(); i++) {
+                                        if (i == buyerCartList.size() - 1) {
+                                            buyerCart[i] = buyerCartList.get(i);
+                                        } else {
+                                            buyerCart[i] = buyerCartList.get(i) + "~";
+                                        }
+                                    }
+                                    String line = Arrays.toString(buyerCart);
+                                    printWriter.println(line.substring(1, line.length() - 1)); // remove "[]"
+                                    printWriter.flush();
                                 } else {
-                                    buyerCart[i] = buyerCartList.get(i) + "~";
+                                    printWriter.println("Failure");
+                                    printWriter.flush();
                                 }
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                                printWriter.println("Failure");
+                                printWriter.flush();
                             }
-                            String line = Arrays.toString(buyerCart);
-                            printWriter.println(line.substring(1, line.length() - 1)); // remove "[]"
-                            printWriter.flush();
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Cart is Empty. Please ", "Error",
-                                    JOptionPane.ERROR_MESSAGE);
                         }
                     }
                     case "Remove Cart Item" -> {
-                        try {
-                            String itemName = bufferedReader.readLine();
-                            String success = ((Buyer) currentUser).removeItemFromCart(itemName, ((Buyer) currentUser).getEmail());
-                            if (success.equals("Success")) {
-                                printWriter.println("Success");
-                            } else if (success.equals("Cart Empty")) {
-                                printWriter.println("Cart Empty");
-                            } else {
-                                printWriter.println("Error");
-                            }
-                            printWriter.flush();
+                        synchronized (SYNC) {
+                            try {
+                                String itemName = bufferedReader.readLine();
+                                String success = ((Buyer) currentUser).removeItemFromCart(itemName, ((Buyer) currentUser).getEmail());
+                                if (success.equals("Success")) {
+                                    printWriter.println("Success");
+                                } else if (success.equals("Cart Empty")) {
+                                    printWriter.println("Cart Empty");
+                                } else {
+                                    printWriter.println("Error");
+                                }
+                                printWriter.flush();
 
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
                         }
                     }
                     case "Search By Name" -> {
@@ -287,29 +299,66 @@ public class Server implements Runnable {
                         }*/
                     }
                     case "Add Item To Cart" -> {
-                        String nameOfItem = bufferedReader.readLine();
-                        int userQuantity = Integer.parseInt(bufferedReader.readLine());
-                        itemList = getItems();
-                        boolean found = false;
-                        for (int i = 0; i < itemList.size(); i++) {
-                            if (nameOfItem.equals(itemList.get(i).getName())) {
-                                if (itemList.get(i).getQuantity() >= userQuantity) {
-                                    ((Buyer) currentUser).addToCart(itemList.get(i), String.valueOf(userQuantity));
-                                    printWriter.println("Success");
-                                    printWriter.flush();
-                                    found = true;
-                                    break;
-                                } else {
-                                    printWriter.println("Quantity error");
-                                    printWriter.flush();
-                                    found = true;
-                                    break;
+                        String nameOfItem = "";
+                        int userQuantity = -1;
+                        boolean itemInCart = false;
+                        synchronized (SYNC) {
+                            nameOfItem = bufferedReader.readLine();
+                            userQuantity = Integer.parseInt(bufferedReader.readLine());
+                            itemList = getItems();
+                        }
+
+                        BufferedReader cartReader = new BufferedReader(new FileReader("FMCredentials.csv"));
+                        try {
+                            String currentCred = "";
+
+                            String line;
+                            while ((line = cartReader.readLine()) != null) {
+                                String[] lineSplit = line.split(",");
+                                if (lineSplit[0].equals(((Buyer) currentUser).getEmail())) {
+                                    currentCred = line;
                                 }
                             }
+                            cartReader.close();
+
+                            String[] lineData = currentCred.split(",");
+                            String[] cartData = lineData[4].split("~");
+                            for (int i = 0; i < cartData.length; i++) {
+                                String[] cartFields = cartData[i].split("!");
+                                if (cartFields[1].equals(nameOfItem)) {
+                                    itemInCart = true;
+                                }
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
                         }
-                        if (!found) {
-                            printWriter.println("Item Not Found");
-                            printWriter.flush();
+                        synchronized (SYNC) {
+                            if (itemInCart == false) {
+                                boolean found = false;
+                                for (int i = 0; i < itemList.size(); i++) {
+                                    if (nameOfItem.equals(itemList.get(i).getName())) {
+                                        if (itemList.get(i).getQuantity() >= userQuantity) {
+                                            ((Buyer) currentUser).addToCart(itemList.get(i), String.valueOf(userQuantity));
+                                            printWriter.println("Success");
+                                            printWriter.flush();
+                                            found = true;
+                                            break;
+                                        } else {
+                                            printWriter.println("Quantity error");
+                                            printWriter.flush();
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (!found) {
+                                    printWriter.println("Item Not Found");
+                                    printWriter.flush();
+                                }
+                            } else {
+                                printWriter.println("Same Name");
+                                printWriter.flush();
+                            }
                         }
                     }
                     case "More Details" -> {
