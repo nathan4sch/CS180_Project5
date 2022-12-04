@@ -121,25 +121,30 @@ public class Server implements Runnable {
                         }
                     }
                     case "View Cart" -> {
-                        ArrayList<String> buyerCartList = ((Buyer) currentUser).getCart();
-                        if (buyerCartList.get(0).equals("x")) {
+                        try {
+                            String email = ((Buyer) currentUser).getEmail();
+                            ArrayList<String> buyerCartList = ((Buyer) currentUser).getCart();
+                            System.out.println(buyerCartList);
+                            if (!buyerCartList.get(0).equals("x")) {
+                                String[] buyerCart = new String[buyerCartList.size()];
+                                for (int i = 0; i < buyerCartList.size(); i++) {
+                                    if (i == buyerCartList.size() - 1) {
+                                        buyerCart[i] = buyerCartList.get(i);
+                                    } else {
+                                        buyerCart[i] = buyerCartList.get(i) + "~";
+                                    }
+                                }
+                                String line = Arrays.toString(buyerCart);
+                                printWriter.println(line.substring(1, line.length() - 1)); // remove "[]"
+                                printWriter.flush();
+                            } else {
+                                printWriter.println("Failure");
+                                printWriter.flush();
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
                             printWriter.println("Failure");
                             printWriter.flush();
-                        } else {
-                            String[] buyerCart = new String[buyerCartList.size()];
-                            for (int i = 0; i < buyerCartList.size(); i++) {
-                                if (i == buyerCartList.size() - 1) {
-                                    buyerCart[i] = buyerCartList.get(i);
-                                } else {
-                                    buyerCart[i] = buyerCartList.get(i) + "~";
-                                }
-                            }
-                            String line = Arrays.toString(buyerCart);
-                            printWriter.println(line.substring(1, line.length() - 1)); // remove "[]"
-                            printWriter.flush();
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Cart is Empty. Please ", "Error",
-                                    JOptionPane.ERROR_MESSAGE);
                         }
                     }
                     case "Remove Cart Item" -> {
@@ -154,6 +159,7 @@ public class Server implements Runnable {
                                 printWriter.println("Error");
                             }
                             printWriter.flush();
+
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
@@ -289,27 +295,59 @@ public class Server implements Runnable {
                         String nameOfItem = bufferedReader.readLine();
                         int userQuantity = Integer.parseInt(bufferedReader.readLine());
                         itemList = getItems();
-                        boolean found = false;
-                        for (int i = 0; i < itemList.size(); i++) {
-                            if (nameOfItem.equals(itemList.get(i).getName())) {
-                                if (itemList.get(i).getQuantity() >= userQuantity) {
-                                    ((Buyer) currentUser).addToCart(itemList.get(i), String.valueOf(userQuantity));
-                                    printWriter.println("Success");
-                                    printWriter.flush();
-                                    found = true;
-                                    break;
-                                } else {
-                                    printWriter.println("Quantity error");
-                                    printWriter.flush();
-                                    found = true;
-                                    break;
+                        boolean itemInCart = false;
+
+                        BufferedReader cartReader = new BufferedReader(new FileReader("FMCredentials.csv"));
+                        try {
+                            String currentCred = "";
+
+                            String line;
+                            while ((line = cartReader.readLine()) != null) {
+                                String[] lineSplit = line.split(",");
+                                if (lineSplit[0].equals(((Buyer)currentUser).getEmail())) {
+                                    currentCred = line;
                                 }
                             }
+                            cartReader.close();
+
+                            String[] lineData = currentCred.split(",");
+                            String[] cartData = lineData[4].split("~");
+                            for (int i = 0; i < cartData.length; i++) {
+                                String[] cartFields = cartData[i].split("!");
+                                if (cartFields[1].equals(nameOfItem)) {
+                                    itemInCart = true;
+                                }
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
                         }
-                        if (!found) {
-                            printWriter.println("Item Not Found");
+                        if (itemInCart == false) {
+                            boolean found = false;
+                            for (int i = 0; i < itemList.size(); i++) {
+                                if (nameOfItem.equals(itemList.get(i).getName())) {
+                                    if (itemList.get(i).getQuantity() >= userQuantity) {
+                                        ((Buyer) currentUser).addToCart(itemList.get(i), String.valueOf(userQuantity));
+                                        printWriter.println("Success");
+                                        printWriter.flush();
+                                        found = true;
+                                        break;
+                                    } else {
+                                        printWriter.println("Quantity error");
+                                        printWriter.flush();
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!found) {
+                                printWriter.println("Item Not Found");
+                                printWriter.flush();
+                            }
+                        } else {
+                            printWriter.println("Same Name");
                             printWriter.flush();
                         }
+
                     }
                     case "More Details" -> {
                         String selectedItem = bufferedReader.readLine();
@@ -549,8 +587,6 @@ public class Server implements Runnable {
 
                         Store currentStore = ((Seller) currentUser).getSpecificStore(currentStoreString);
                         Item itemToChange = currentStore.getSpecificItem(itemNameString);
-                        String oldName = itemToChange.getName();
-                        String oldPrice = String.format("%.2f", itemToChange.getPrice());
 
                         if (itemNameString.equals("")) {
                             printWriter.println("No Item Selected");
@@ -597,59 +633,6 @@ public class Server implements Runnable {
                                     printWriter.println("This Product Name Already Exists");
                                     printWriter.flush();
                                 } else if (itemToChange.changeField(nameOfFieldChanged, newText)) {
-                                    //reflect the new name change in all the user carts
-                                    try {
-                                        BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
-                                        ArrayList<String> lines = new ArrayList<>();
-                                        String line;
-                                        while ((line = bfr.readLine()) != null) {
-                                            String output = "";
-                                            String newCartLine = "";
-                                            String[] splitLine = line.split(",");
-                                            if (splitLine[4].equals("x")) {
-                                                lines.add(line);
-                                            } else {
-                                                String[] cartItems = splitLine[4].split("~");
-                                                for (int i = 0; i < cartItems.length; i++) {
-                                                    String[] item = cartItems[i].split("!");
-                                                    if (item[1].equals(oldName)) {
-                                                        item[1] = newText;
-                                                    }
-                                                    for (int j = 0; j < 4; j++) {
-                                                        if (j != 0) {
-                                                            newCartLine += "!";
-                                                        }
-                                                        newCartLine += item[j];
-                                                        if (j == 3) {
-                                                            newCartLine += "~";
-                                                        }
-                                                    }
-                                                }
-                                                newCartLine = newCartLine.substring(0, newCartLine.length() - 1);
-                                                //rebuild credentials line
-                                                for (int i = 0; i < 6; i++) {
-                                                    if (i != 0) {
-                                                        output += ",";
-                                                    }
-                                                    if (i == 4) {
-                                                        output += newCartLine;
-                                                    } else {
-                                                        output += splitLine[i];
-                                                    }
-                                                }
-                                                lines.add(output);
-                                            }
-                                        }
-                                        bfr.close();
-                                        PrintWriter pw = new PrintWriter(new FileWriter("FMCredentials.csv"));
-                                        for (int i = 0; i < lines.size(); i++) {
-                                            pw.println(lines.get(i));
-                                        }
-                                        pw.close();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-
                                     printWriter.println("Name Change Success");
                                     printWriter.flush();
                                 }
@@ -666,58 +649,6 @@ public class Server implements Runnable {
                                     printWriter.println("Price Must be a Two Decimal Number");
                                     printWriter.flush();
                                 } else if (itemToChange.changeField(nameOfFieldChanged, newText)) {
-                                    //reflect the new price change in all the user carts
-                                    try {
-                                        BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
-                                        ArrayList<String> lines = new ArrayList<>();
-                                        String line;
-                                        while ((line = bfr.readLine()) != null) {
-                                            String output = "";
-                                            String newCartLine = "";
-                                            String[] splitLine = line.split(",");
-                                            if (splitLine[4].equals("x")) {
-                                                lines.add(line);
-                                            } else {
-                                                String[] cartItems = splitLine[4].split("~");
-                                                for (int i = 0; i < cartItems.length; i++) {
-                                                    String[] item = cartItems[i].split("!");
-                                                    if (item[3].equals(oldPrice) && item[1].equals(oldName)) {
-                                                        item[3] = String.format("%.2f", Double.parseDouble(newText));
-                                                    }
-                                                    for (int j = 0; j < 4; j++) {
-                                                        if (j != 0) {
-                                                            newCartLine += "!";
-                                                        }
-                                                        newCartLine += item[j];
-                                                        if (j == 3) {
-                                                            newCartLine += "~";
-                                                        }
-                                                    }
-                                                }
-                                                newCartLine = newCartLine.substring(0, newCartLine.length() - 1);
-                                                //rebuild credentials line
-                                                for (int i = 0; i < 6; i++) {
-                                                    if (i != 0) {
-                                                        output += ",";
-                                                    }
-                                                    if (i == 4) {
-                                                        output += newCartLine;
-                                                    } else {
-                                                        output += splitLine[i];
-                                                    }
-                                                }
-                                                lines.add(output);
-                                            }
-                                        }
-                                        bfr.close();
-                                        PrintWriter pw = new PrintWriter(new FileWriter("FMCredentials.csv"));
-                                        for (int i = 0; i < lines.size(); i++) {
-                                            pw.println(lines.get(i));
-                                        }
-                                        pw.close();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
                                     printWriter.println("Success");
                                     printWriter.flush();
                                 }
