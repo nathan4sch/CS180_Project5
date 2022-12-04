@@ -115,6 +115,9 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                 if (serverResponse.equals("Success")) {
                     JOptionPane.showMessageDialog(null, "Item Successfully Added To Cart",
                             "Cart Success", JOptionPane.INFORMATION_MESSAGE);
+                } else if (serverResponse.equals("Same Name")) {
+                    JOptionPane.showMessageDialog(null, "You can not add the same item twice",
+                            "Error", JOptionPane.ERROR_MESSAGE);
                 } else if (serverResponse.equals("Quantity error")) {
                     JOptionPane.showMessageDialog(null,
                             "Not enough in stock to match quantity requested", "Cart Error", JOptionPane.ERROR_MESSAGE);
@@ -244,8 +247,15 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                     if (cartLine.equals("Failure")) {
                         JOptionPane.showMessageDialog(null, "You have no items in your cart",
                                 "Error", JOptionPane.ERROR_MESSAGE);
+                    } else if (cartLine.equals("Cart Empty")) {
+                        JOptionPane.showMessageDialog(null, "Cart is Empty - Main Buyer", "Error",
+                                JOptionPane.ERROR_MESSAGE);
                     } else {
-                        String[] buyerCarts = cartLine.split("~");
+                        String[] buyerCartsArr = cartLine.split("~");
+                        ArrayList<String> buyerCarts = new ArrayList<>();
+                        for (int i = 0; i < buyerCartsArr.length; i++) {
+                            buyerCarts.add(buyerCartsArr[i]);
+                        }
 
                         SwingUtilities.invokeLater(new CartFrame(socket, buyerCarts, userEmail));
                         mainBuyerFrame.dispose();
@@ -505,7 +515,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                     String price = bufferedReader.readLine();
                     rowData[i][0] = store;
                     rowData[i][1] = productName;
-                    rowData[i][2] = String.format("$%.2f", Double.parseDouble(price));
+                    rowData[i][2] = price;
                 }
             } catch (IOException ioe) {
                 ioe.printStackTrace();
