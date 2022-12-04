@@ -22,8 +22,6 @@ public class MainSellerFrame extends JComponent implements Runnable {
     JPanel leftPanel;
     JPanel rightPanel;
     JButton manageStoresButton;
-    JButton salesListButton;
-    JButton statisticsButton;
     JButton viewCartButton;
     JButton manageAccountButton;
     JButton signOutButton;
@@ -59,11 +57,36 @@ public class MainSellerFrame extends JComponent implements Runnable {
                     currentlyVisible.add(manageStoreGUI[i]);
                 }
 
-            } else if (source == salesListButton) {
-
-            } else if (source == statisticsButton) {
-
             } else if (source == viewCartButton) {
+                printWriter.println("View Current Carts");
+                printWriter.flush();
+
+                try {
+                    String successOrFailure = bufferedReader.readLine();
+
+                    if (successOrFailure.equals("Failure")) {
+                        JOptionPane.showMessageDialog(null, "No Customers",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        String[] output = successOrFailure.split("~");
+
+                        JScrollPane scrollPane;
+                        String[] paneOptions = output;
+                        JList<String> list = new JList<>(paneOptions);
+                        scrollPane = new JScrollPane(list);
+
+                        JPanel panel = new JPanel();
+                        panel.add(scrollPane);
+
+                        scrollPane.getViewport().add(list);
+                        scrollPane.setSize(1000, 1000);
+
+                        JOptionPane.showMessageDialog(null, scrollPane, "Customer Carts",
+                                JOptionPane.PLAIN_MESSAGE);
+                    }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
 
             } else if (source == manageAccountButton) {
                 resetVisible();
@@ -181,19 +204,9 @@ public class MainSellerFrame extends JComponent implements Runnable {
         rightPanel.setLayout(new GridLayout(6, 1, 20, 20));
 
         //Manage Stores Button
-        manageStoresButton = new JButton("Manage Stores");
+        manageStoresButton = new JButton("Stores");
         manageStoresButton.addActionListener(actionListener);
         rightPanel.add(manageStoresButton);
-
-        //Sales List Button
-        salesListButton = new JButton("Sales List");
-        salesListButton.addActionListener(actionListener);
-        rightPanel.add(salesListButton);
-
-        //Statistics Dashboard Button
-        statisticsButton = new JButton("Statistics Dashboard");
-        statisticsButton.addActionListener(actionListener);
-        rightPanel.add(statisticsButton);
 
         //View Current Carts Button
         viewCartButton = new JButton("View Current Carts");
@@ -214,12 +227,11 @@ public class MainSellerFrame extends JComponent implements Runnable {
         leftPanel.setLayout(null);
 
         //Manage Stores
-        manageStoreMainLabel = new JLabel("Manage Stores");
-        manageStoreMainLabel.setBounds(200, 10, 400, 100);
+        manageStoreMainLabel = new JLabel("Create and Manage Stores");
+        manageStoreMainLabel.setBounds(150, 10, 550, 100);
         manageStoreMainLabel.setFont(new Font(manageStoreMainLabel.getFont().getName(),
                 Font.PLAIN, fontSizeToUse(manageStoreMainLabel)));
         leftPanel.add(manageStoreMainLabel);
-        manageStoreMainLabel.setVisible(false);
 
         newStoreName = new JLabel("Input Store Name: ");
         newStoreName.setBounds(500, 300, 200, 40);
@@ -239,7 +251,7 @@ public class MainSellerFrame extends JComponent implements Runnable {
         leftPanel.add(createStoreButton);
         createStoreButton.setVisible(false);
 
-        manageCatalogueButton = new JButton("Manage Catalogue");
+        manageCatalogueButton = new JButton("Manage Stores");
         manageCatalogueButton.addActionListener(actionListener);
         manageCatalogueButton.setBounds(100, 350, 200, 80);
         leftPanel.add(manageCatalogueButton);
@@ -247,6 +259,10 @@ public class MainSellerFrame extends JComponent implements Runnable {
 
         manageStoreGUI = new JComponent[]{manageStoreMainLabel, manageCatalogueButton, createStoreButton
                 , newStoreName, inputStoreName};
+        for (int i = 0; i < manageStoreGUI.length; i++) {
+            manageStoreGUI[i].setVisible(true);
+            currentlyVisible.add(manageStoreGUI[i]);
+        }
 
 
         //Manage Account

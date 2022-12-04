@@ -17,9 +17,10 @@ import java.util.*;
 public class Server implements Runnable {
     Socket socket;
     Object currentUser = null;
+    static ArrayList<Item> itemList;
 
     /**
-     * Constructs Server object
+     * Constructs Server objects
      *
      * @param socket The socket that connect this computer connect with the server
      */
@@ -29,6 +30,7 @@ public class Server implements Runnable {
 
     public static void main(String[] args) {
         try {
+            itemList = new ArrayList<Item>();
             ServerSocket serverSocket = new ServerSocket(4444);
             while (true) {
                 Socket socket = serverSocket.accept();
@@ -42,7 +44,7 @@ public class Server implements Runnable {
 
     /**
      * Synchronized Object to synchronize methods called from other classes
-     * */
+     */
     public static final Object SYNC = new Object();
 
     /**
@@ -107,19 +109,278 @@ public class Server implements Runnable {
                             printWriter.flush();
                         }
                     }
+                    case "Initial Table" -> {
+                        ArrayList<Item> itemList = getItems();
+                        printWriter.println(itemList.size());
+                        printWriter.flush();
+                        for (int i = 0; i < itemList.size(); i++) {
+                            printWriter.println(itemList.get(i).getStore());
+                            printWriter.println(itemList.get(i).getName());
+                            printWriter.println(itemList.get(i).getPrice());
+                            printWriter.flush();
+                        }
+                    }
                     case "View Cart" -> {
-                        ArrayList<String> buyerCartList = ((Buyer) currentUser).getCart();
-                        String[] buyerCart = new String[buyerCartList.size()];
-                        for (int i = 0; i < buyerCartList.size(); i++) {
-                            if (i == buyerCartList.size() - 1) {
-                                buyerCart[i] = buyerCartList.get(i);
-                            } else {
-                                buyerCart[i] = buyerCartList.get(i) + "~";
+                        synchronized (SYNC) {
+                            try {
+                                String email = ((Buyer) currentUser).getEmail();
+                                ArrayList<String> buyerCartList = ((Buyer) currentUser).getCart();
+                                buyerCartList = ((Buyer) currentUser).showItemsInCart(email);
+                                System.out.println(((Buyer) currentUser).getEmail());
+                                System.out.println(buyerCartList);
+
+                                if (!buyerCartList.get(0).equals("x")) {
+                                    String[] buyerCart = new String[buyerCartList.size()];
+                                    for (int i = 0; i < buyerCartList.size(); i++) {
+                                        if (i == buyerCartList.size() - 1) {
+                                            buyerCart[i] = buyerCartList.get(i);
+                                        } else {
+                                            buyerCart[i] = buyerCartList.get(i) + "~";
+                                        }
+                                    }
+                                    String line = Arrays.toString(buyerCart);
+                                    printWriter.println(line.substring(1, line.length() - 1)); // remove "[]"
+                                    printWriter.flush();
+                                } else {
+                                    printWriter.println("Failure");
+                                    printWriter.flush();
+                                }
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                                printWriter.println("Failure");
+                                printWriter.flush();
                             }
                         }
+                    }
+                    case "Remove Cart Item" -> {
+                        synchronized (SYNC) {
+                            try {
+                                String itemName = bufferedReader.readLine();
+                                String success = ((Buyer) currentUser).removeItemFromCart(itemName, ((Buyer) currentUser).getEmail());
+                                if (success.equals("Success")) {
+                                    printWriter.println("Success");
+                                } else if (success.equals("Cart Empty")) {
+                                    printWriter.println("Cart Empty");
+                                } else {
+                                    printWriter.println("Error");
+                                }
+                                printWriter.flush();
 
-                        printWriter.println(Arrays.toString(buyerCart));
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    }
+                    case "Search By Name" -> {
+                        String searchedText = bufferedReader.readLine();
+                        ArrayList<Item> itemList = getItems();
+                        ArrayList<Item> matches = new ArrayList<>();
+                        for (int i = 0; i < itemList.size(); i++) {
+                            if (itemList.get(i).getName().contains(searchedText)) {
+                                matches.add(itemList.get(i));
+                            }
+                        }
+                        printWriter.println(matches.size());
                         printWriter.flush();
+                        for (int i = 0; i < matches.size(); i++) {
+                            printWriter.println(matches.get(i).getStore());
+                            printWriter.println(matches.get(i).getName());
+                            printWriter.println(matches.get(i).getPrice());
+                            printWriter.flush();
+                        }
+                    }
+                    case "Search By Store" -> {
+                        String searchedText = bufferedReader.readLine();
+                        ArrayList<Item> itemList = getItems();
+                        ArrayList<Item> matches = new ArrayList<>();
+                        for (int i = 0; i < itemList.size(); i++) {
+                            if (itemList.get(i).getStore().contains(searchedText)) {
+                                matches.add(itemList.get(i));
+                            }
+                        }
+                        printWriter.println(matches.size());
+                        printWriter.flush();
+                        for (int i = 0; i < matches.size(); i++) {
+                            printWriter.println(matches.get(i).getStore());
+                            printWriter.println(matches.get(i).getName());
+                            printWriter.println(matches.get(i).getPrice());
+                            printWriter.flush();
+                        }
+                    }
+                    case "Search By Description" -> {
+                        String searchedText = bufferedReader.readLine();
+                        ArrayList<Item> itemList = getItems();
+                        ArrayList<Item> matches = new ArrayList<>();
+                        for (int i = 0; i < itemList.size(); i++) {
+                            if (itemList.get(i).getDescription().contains(searchedText)) {
+                                matches.add(itemList.get(i));
+                            }
+                        }
+                        printWriter.println(matches.size());
+                        printWriter.flush();
+                        for (int i = 0; i < matches.size(); i++) {
+                            printWriter.println(matches.get(i).getStore());
+                            printWriter.println(matches.get(i).getName());
+                            printWriter.println(matches.get(i).getPrice());
+                            printWriter.flush();
+                        }
+                    }
+                    case "Sort By Price" -> {
+                        ArrayList<Item> itemList = getItems();
+                        ArrayList<Item> sortedItemList = new ArrayList<>();
+                        ArrayList<Double> prices = new ArrayList<>();
+                        for (int i = 0; i < itemList.size(); i++) {
+                            if (!(prices.contains(itemList.get(i).getPrice()))) {
+                                prices.add(itemList.get(i).getPrice());
+                            }
+                        }
+                        Collections.sort(prices);
+                        for (int i = 0; i < prices.size(); i++) {
+                            for (int j = 0; j < itemList.size(); j++) {
+                                if (prices.get(i) == itemList.get(j).getPrice()) {
+                                    sortedItemList.add(itemList.get(j));
+                                    itemList.remove(j);
+                                    j--;
+                                }
+                            }
+                        }
+                        printWriter.println(sortedItemList.size());
+                        printWriter.flush();
+                        for (int i = 0; i < sortedItemList.size(); i++) {
+                            printWriter.println(sortedItemList.get(i).getStore());
+                            printWriter.println(sortedItemList.get(i).getName());
+                            printWriter.println(sortedItemList.get(i).getPrice());
+                            printWriter.flush();
+                        }
+                        //code below sorts in reverse order
+                        /*
+                        for (int i = sortedItemList.size(); i > 0; i--) {
+                            printWriter.println(sortedItemList.get(i - 1).getStore());
+                            printWriter.println(sortedItemList.get(i - 1).getName());
+                            printWriter.println(sortedItemList.get(i - 1).getPrice());
+                            printWriter.flush();
+                        } */
+
+                    }
+                    case "Sort By Quantity" -> {
+                        ArrayList<Item> itemList = getItems();
+                        ArrayList<Item> sortedItemList = new ArrayList<>();
+                        ArrayList<Integer> quantities = new ArrayList<>();
+                        for (int i = 0; i < itemList.size(); i++) {
+                            if (!(quantities.contains(itemList.get(i).getQuantity()))) {
+                                quantities.add(itemList.get(i).getQuantity());
+                            }
+                        }
+                        Collections.sort(quantities);
+                        for (int i = 0; i < quantities.size(); i++) {
+                            for (int j = 0; j < itemList.size(); j++) {
+                                if (quantities.get(i) == itemList.get(j).getQuantity()) {
+                                    sortedItemList.add(itemList.get(j));
+                                    itemList.remove(j);
+                                    j--;
+                                }
+                            }
+                        }
+                        printWriter.println(sortedItemList.size());
+                        printWriter.flush();
+                        for (int i = 0; i < sortedItemList.size(); i++) {
+                            printWriter.println(sortedItemList.get(i).getStore());
+                            printWriter.println(sortedItemList.get(i).getName());
+                            printWriter.println(sortedItemList.get(i).getPrice());
+                            printWriter.flush();
+                        }
+                        //code below sorts in the reverse order
+                        /*
+                        for (int i = sortedItemList.size(); i > 0; i--) {
+                            printWriter.println(sortedItemList.get(i - 1).getStore());
+                            printWriter.println(sortedItemList.get(i - 1).getName());
+                            printWriter.println(sortedItemList.get(i - 1).getPrice());
+                            printWriter.flush();
+                        }*/
+                    }
+                    case "Add Item To Cart" -> {
+                        String nameOfItem = "";
+                        int userQuantity = -1;
+                        boolean itemInCart = false;
+                        synchronized (SYNC) {
+                            nameOfItem = bufferedReader.readLine();
+                            userQuantity = Integer.parseInt(bufferedReader.readLine());
+                            itemList = getItems();
+                        }
+
+                        BufferedReader cartReader = new BufferedReader(new FileReader("FMCredentials.csv"));
+                        try {
+                            String currentCred = "";
+
+                            String line;
+                            while ((line = cartReader.readLine()) != null) {
+                                String[] lineSplit = line.split(",");
+                                if (lineSplit[0].equals(((Buyer) currentUser).getEmail())) {
+                                    currentCred = line;
+                                }
+                            }
+                            cartReader.close();
+
+                            String[] lineData = currentCred.split(",");
+                            String[] cartData = lineData[4].split("~");
+                            for (int i = 0; i < cartData.length; i++) {
+                                String[] cartFields = cartData[i].split("!");
+                                if (cartFields[1].equals(nameOfItem)) {
+                                    itemInCart = true;
+                                }
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                        synchronized (SYNC) {
+                            if (itemInCart == false) {
+                                boolean found = false;
+                                for (int i = 0; i < itemList.size(); i++) {
+                                    if (nameOfItem.equals(itemList.get(i).getName())) {
+                                        if (itemList.get(i).getQuantity() >= userQuantity) {
+                                            ((Buyer) currentUser).addToCart(itemList.get(i), String.valueOf(userQuantity));
+                                            printWriter.println("Success");
+                                            printWriter.flush();
+                                            found = true;
+                                            break;
+                                        } else {
+                                            printWriter.println("Quantity error");
+                                            printWriter.flush();
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (!found) {
+                                    printWriter.println("Item Not Found");
+                                    printWriter.flush();
+                                }
+                            } else {
+                                printWriter.println("Same Name");
+                                printWriter.flush();
+                            }
+                        }
+                    }
+                    case "More Details" -> {
+                        String selectedItem = bufferedReader.readLine();
+                        itemList = getItems();
+                        boolean found = false;
+                        for (int i = 0; i < itemList.size(); i++) {
+                            if (selectedItem.equals(itemList.get(i).getName())) {
+                                printWriter.println("Success");
+                                printWriter.println(itemList.get(i).getStore());
+                                printWriter.println(itemList.get(i).getDescription());
+                                printWriter.println(itemList.get(i).getPrice());
+                                printWriter.println(itemList.get(i).getQuantity());
+                                printWriter.flush();
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            printWriter.println("Failure");
+                            printWriter.flush();
+                        }
                     }
                     case "View History" -> {
                         ArrayList<String> historyList = ((Buyer) currentUser).
@@ -145,8 +406,51 @@ public class Server implements Runnable {
                             }
                         }
                     }
-                    case "Buyer Statistics" -> {
-
+                    case "BSF - Show Buyer Statistics" -> {
+                        ArrayList<String> buyerStatList = ((Buyer) currentUser).
+                                storesFromBuyerProducts(((Buyer) currentUser).getEmail());
+                        String line = parseList(buyerStatList);
+                        if (line != null) {
+                            printWriter.println(line);
+                            printWriter.flush();
+                        } else {
+                            printWriter.println("Error");
+                            printWriter.flush();
+                        }
+                    }
+                    case "BSF - Sort Buyer Statistics" -> {
+                        ArrayList<String> sortedBuyerStatList = ((Buyer) currentUser).
+                                sortStoresFromBuyerProducts(((Buyer) currentUser).getEmail());
+                        String line = parseList(sortedBuyerStatList);
+                        if (line != null) {
+                            printWriter.println(line);
+                            printWriter.flush();
+                        } else {
+                            printWriter.println("Error");
+                            printWriter.flush();
+                        }
+                    }
+                    case "BSF - Show Store Statistics" -> {
+                        ArrayList<String> storeStatList = ((Buyer) currentUser).storesFromProductsSold();
+                        String line = parseList(storeStatList);
+                        if (line != null) {
+                            printWriter.println(line);
+                            printWriter.flush();
+                        } else {
+                            printWriter.println("Error");
+                            printWriter.flush();
+                        }
+                    }
+                    case "BSF - Sort Store Statistics" -> {
+                        ArrayList<String> sortedStoreStatList = ((Buyer) currentUser).sortStoresProductsSold();
+                        String line = parseList(sortedStoreStatList);
+                        if (line != null) {
+                            printWriter.println(line);
+                            printWriter.flush();
+                        } else {
+                            printWriter.println("Error");
+                            printWriter.flush();
+                        }
                     }
                     case "Manage Store" -> {
                         Store[] userStoreList = ((Seller) currentUser).getStore();
@@ -160,6 +464,9 @@ public class Server implements Runnable {
                     case "Create Store" -> {
                         String storeName = bufferedReader.readLine();
                         String successOrFailure = validStoreName(storeName);
+                        if (storeName.equals("")) {
+                            successOrFailure = "Failure";
+                        }
                         if (successOrFailure.equals("Failure")) {
                             printWriter.println("Failure");
                             printWriter.flush();
@@ -189,7 +496,7 @@ public class Server implements Runnable {
                                 currentStore = userStoreList[i];
                             }
                         }
-                        ArrayList<Item> storeItems = currentStore.getItems();
+                        ArrayList<Item> storeItems = Objects.requireNonNull(currentStore).getItems();
                         if (storeItems.size() == 0) {
                             printWriter.println("[No items]");
                             printWriter.flush();
@@ -292,6 +599,8 @@ public class Server implements Runnable {
 
                         Store currentStore = ((Seller) currentUser).getSpecificStore(currentStoreString);
                         Item itemToChange = currentStore.getSpecificItem(itemNameString);
+                        String oldName = itemToChange.getName();
+                        String oldPrice = String.format("%.2f", itemToChange.getPrice());
 
                         if (itemNameString.equals("")) {
                             printWriter.println("No Item Selected");
@@ -338,6 +647,59 @@ public class Server implements Runnable {
                                     printWriter.println("This Product Name Already Exists");
                                     printWriter.flush();
                                 } else if (itemToChange.changeField(nameOfFieldChanged, newText)) {
+                                    //reflect the new name change in all the user carts
+                                    try {
+                                        BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
+                                        ArrayList<String> lines = new ArrayList<>();
+                                        String line;
+                                        while ((line = bfr.readLine()) != null) {
+                                            String output = "";
+                                            String newCartLine = "";
+                                            String[] splitLine = line.split(",");
+                                            if (splitLine[4].equals("x")) {
+                                                lines.add(line);
+                                            } else {
+                                                String[] cartItems = splitLine[4].split("~");
+                                                for (int i = 0; i < cartItems.length; i++) {
+                                                    String[] item = cartItems[i].split("!");
+                                                    if (item[1].equals(oldName)) {
+                                                        item[1] = newText;
+                                                    }
+                                                    for (int j = 0; j < 4; j++) {
+                                                        if (j != 0) {
+                                                            newCartLine += "!";
+                                                        }
+                                                        newCartLine += item[j];
+                                                        if (j == 3) {
+                                                            newCartLine += "~";
+                                                        }
+                                                    }
+                                                }
+                                                newCartLine = newCartLine.substring(0, newCartLine.length() - 1);
+                                                //rebuild credentials line
+                                                for (int i = 0; i < 6; i++) {
+                                                    if (i != 0) {
+                                                        output += ",";
+                                                    }
+                                                    if (i == 4) {
+                                                        output += newCartLine;
+                                                    } else {
+                                                        output += splitLine[i];
+                                                    }
+                                                }
+                                                lines.add(output);
+                                            }
+                                        }
+                                        bfr.close();
+                                        PrintWriter pw = new PrintWriter(new FileWriter("FMCredentials.csv"));
+                                        for (int i = 0; i < lines.size(); i++) {
+                                            pw.println(lines.get(i));
+                                        }
+                                        pw.close();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+
                                     printWriter.println("Name Change Success");
                                     printWriter.flush();
                                 }
@@ -354,6 +716,58 @@ public class Server implements Runnable {
                                     printWriter.println("Price Must be a Two Decimal Number");
                                     printWriter.flush();
                                 } else if (itemToChange.changeField(nameOfFieldChanged, newText)) {
+                                    //reflect the new price change in all the user carts
+                                    try {
+                                        BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
+                                        ArrayList<String> lines = new ArrayList<>();
+                                        String line;
+                                        while ((line = bfr.readLine()) != null) {
+                                            String output = "";
+                                            String newCartLine = "";
+                                            String[] splitLine = line.split(",");
+                                            if (splitLine[4].equals("x")) {
+                                                lines.add(line);
+                                            } else {
+                                                String[] cartItems = splitLine[4].split("~");
+                                                for (int i = 0; i < cartItems.length; i++) {
+                                                    String[] item = cartItems[i].split("!");
+                                                    if (item[3].equals(oldPrice) && item[1].equals(oldName)) {
+                                                        item[3] = String.format("%.2f", Double.parseDouble(newText));
+                                                    }
+                                                    for (int j = 0; j < 4; j++) {
+                                                        if (j != 0) {
+                                                            newCartLine += "!";
+                                                        }
+                                                        newCartLine += item[j];
+                                                        if (j == 3) {
+                                                            newCartLine += "~";
+                                                        }
+                                                    }
+                                                }
+                                                newCartLine = newCartLine.substring(0, newCartLine.length() - 1);
+                                                //rebuild credentials line
+                                                for (int i = 0; i < 6; i++) {
+                                                    if (i != 0) {
+                                                        output += ",";
+                                                    }
+                                                    if (i == 4) {
+                                                        output += newCartLine;
+                                                    } else {
+                                                        output += splitLine[i];
+                                                    }
+                                                }
+                                                lines.add(output);
+                                            }
+                                        }
+                                        bfr.close();
+                                        PrintWriter pw = new PrintWriter(new FileWriter("FMCredentials.csv"));
+                                        for (int i = 0; i < lines.size(); i++) {
+                                            pw.println(lines.get(i));
+                                        }
+                                        pw.close();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
                                     printWriter.println("Success");
                                     printWriter.flush();
                                 }
@@ -387,15 +801,74 @@ public class Server implements Runnable {
                     case "Import Product File" -> {
                         String filename = bufferedReader.readLine();
 
-                        Store[] currentUserStores = ((Seller)currentUser).getStore();
+                        Store[] currentUserStores = ((Seller) currentUser).getStore();
 
-                        int numberOfProductAdded = ((Seller)currentUser).importItems(filename, currentUserStores);
+                        int numberOfProductAdded = ((Seller) currentUser).importItems(filename, currentUserStores);
                         if (numberOfProductAdded == -1 || numberOfProductAdded == 0) {
                             printWriter.println("Failure");
                             printWriter.flush();
                         } else {
                             printWriter.println("Success");
                             printWriter.println(numberOfProductAdded);
+                            printWriter.flush();
+                        }
+                    }
+                    case "Seller Sales List" -> {
+                        String storeSelectedString = bufferedReader.readLine();
+                        Store currentStore = ((Seller) currentUser).getSpecificStore(storeSelectedString);
+
+                        String salesData = currentStore.showSales();
+                        if (salesData == null) {
+                            printWriter.println("Failure");
+                            printWriter.flush();
+                        } else {
+                            printWriter.println(salesData);
+                            printWriter.flush();
+                        }
+                    }
+                    case "Seller Statistics" -> {
+                        String statisticToView = bufferedReader.readLine();
+                        String storeSelectedString = bufferedReader.readLine();
+
+                        String buyerOrItem;
+                        Store currentStore = ((Seller) currentUser).getSpecificStore(storeSelectedString);
+                        ArrayList<String> stats;
+                        if (statisticToView.equals("Sorted Buyer Statistics") || statisticToView.equals("Buyer Statistics")) {
+                            buyerOrItem = "buyer";
+                        } else {
+                            buyerOrItem = "item";
+                        }
+                        if (statisticToView.equals("Sorted Buyer Statistics") || statisticToView.equals("Sorted Item Statistics")) {
+                            stats = Store.showSortedStats(currentStore.getStoreName(), buyerOrItem);
+                        } else {
+                            stats = Store.showStats(currentStore.getStoreName(), buyerOrItem);
+                        }
+
+                        if (stats.toString().equals("[]")) {
+                            printWriter.println("Failure");
+                            printWriter.flush();
+                        } else {
+                            String output = stats.toString();
+                            printWriter.println(output);
+                            printWriter.println(buyerOrItem);
+                            printWriter.flush();
+                        }
+                    }
+                    case "View Current Carts" -> {
+                        ArrayList<String> cartInformation = Seller.viewCustomerShoppingCart();
+                        if (cartInformation == null) {
+                            printWriter.println("Failure");
+                            printWriter.flush();
+                        } else {
+                            String output = "";
+                            for (int i = 0; i < cartInformation.size(); i++) {
+                                if (i != 0) {
+                                    output = output + "~" + cartInformation.get(i);
+                                } else {
+                                    output = output + cartInformation.get(i);
+                                }
+                            }
+                            printWriter.println(output);
                             printWriter.flush();
                         }
                     }
@@ -685,7 +1158,7 @@ public class Server implements Runnable {
         }
         return "Failure";
     }
-    
+
     /**
      * Loops through list and concatenates everything to a string
      *
@@ -697,7 +1170,7 @@ public class Server implements Runnable {
             for (int i = 0; i < listToParse.size(); i++) {
                 returnString += listToParse.get(i) + "~";
             }
-            
+
             return returnString.substring(0, returnString.length() - 1);
         } catch (Exception e) {
             return null;
@@ -777,5 +1250,22 @@ public class Server implements Runnable {
             e.printStackTrace();
         }
         return "Failure";
+    }
+
+    public synchronized ArrayList<Item> getItems() {
+        ArrayList<Item> items = new ArrayList<>();
+        try {
+            BufferedReader bfr = new BufferedReader(new FileReader("FMItems.csv"));
+
+            String line = bfr.readLine();
+            while (line != null) {
+                String[] splitLine = line.split(",");
+                items.add(new Item(splitLine[0], splitLine[1], splitLine[2], Integer.parseInt(splitLine[3]), Double.parseDouble(splitLine[4])));
+                line = bfr.readLine();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return items;
     }
 }

@@ -107,58 +107,56 @@ public class LoginFrame extends JComponent implements Runnable {
             e.printStackTrace();
         }
         loginFrame = new JFrame("Account Frame");
-        JPanel panel = new JPanel(new GridBagLayout());
+        JPanel panel = new JPanel(null);
         panel.setSize(new Dimension(500, 300));
-        GridBagConstraints gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridx = 0;
 
         //Email
         JLabel email = new JLabel("Email:");
-        email.setHorizontalAlignment(JLabel.CENTER);
-        panel.add(email, gridBagConstraints);
-        emailText = new JTextField(20);
-        gridBagConstraints.fill = GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.3;
-        gridBagConstraints.gridx = 1;
-        panel.add(emailText, gridBagConstraints);
+        email.setFont(new Font(email.getFont().getName(), Font.BOLD, 20));
+        email.setHorizontalAlignment(SwingConstants.CENTER);
+        email.setBounds(10, 40, 150, 50);
+        panel.add(email);
+        emailText = new JTextField(25);
+        emailText.setFont(new Font(emailText.getFont().getName(), Font.PLAIN, 20));
+        emailText.setBounds(185, 40, 250, 50);
+        panel.add(emailText);
 
         //Password
         JLabel password = new JLabel("Password:");
-        password.setHorizontalAlignment(JLabel.CENTER);
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        panel.add(password , gridBagConstraints);
-        passwordText = new JTextField(20);
-        gridBagConstraints.gridx = 1;
-        panel.add(passwordText, gridBagConstraints);
-        gridBagConstraints.weightx = 1;
+        password.setFont(new Font(email.getFont().getName(), Font.BOLD, 20));
+        password.setBounds(55, 120, 150, 50);
+        panel.add(password);
+        passwordText = new JTextField(25);
+        passwordText.setFont(new Font(passwordText.getFont().getName(), Font.PLAIN, 20));
+        passwordText.setBounds(185, 120, 250, 50);
+        panel.add(passwordText);
 
         //Buyer or Seller
         JLabel userRole = new JLabel("Role:");
+        userRole.setFont(new Font(userRole.getFont().getName(), Font.BOLD,15));
         userRole.setHorizontalAlignment(JLabel.CENTER);
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        panel.add(userRole , gridBagConstraints);
+        userRole.setBounds(250, 203, 50, 30);
+        panel.add(userRole);
         userRoleSelection = new JComboBox<>();
+        userRoleSelection.setBounds(310, 205, 100, 30);
+        userRoleSelection.setFont(new Font(userRoleSelection.getFont().getName(), Font.BOLD, 13));
         userRoleSelection.addItem("Buyer");
         userRoleSelection.addItem("Seller");
-        gridBagConstraints.gridx = 1;
-        panel.add(userRoleSelection, gridBagConstraints);
+        panel.add(userRoleSelection);
 
         //SignIn Button
         signInButton = new JButton("SignIn");
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 4;
         signInButton.addActionListener(actionListener);
-        panel.add(signInButton, gridBagConstraints);
+        signInButton.setFont(new Font(signInButton.getFont().getName(), Font.BOLD, 17));
+        signInButton.setBounds(55, 275, 180, 50);
+        panel.add(signInButton);
 
         //CreateAccount Button
         createAccountButton = new JButton("Create Account");
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 4;
         createAccountButton.addActionListener(actionListener);
-        panel.add(createAccountButton, gridBagConstraints);
+        createAccountButton.setFont(new Font(createAccountButton.getFont().getName(), Font.BOLD, 17));
+        createAccountButton.setBounds(255, 275, 180, 50);
+        panel.add(createAccountButton);
 
         //Finalize frame
         loginFrame.add(panel);

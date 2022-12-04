@@ -258,6 +258,87 @@ public class Seller {
         return -1;
     }
 
+    /**
+     * Purpose: Prints customer shopping cart info for Sellers
+     */
+    public static ArrayList<String> viewCustomerShoppingCart() {
+        try {
+            ArrayList<String> output = new ArrayList<>();
+            // Read through CSV file
+            BufferedReader fmReader = new BufferedReader(new FileReader("FMCredentials.csv"));
+
+            ArrayList<String> credentials = new ArrayList<>();
+
+            // Add existing items to ArrayList;
+            String line;
+            while ((line = fmReader.readLine()) != null) {
+                credentials.add(line);
+            }
+
+            fmReader.close();
+
+            ArrayList<String> shoppingCart = new ArrayList<>();
+            ArrayList<String> customerNames = new ArrayList<>();
+
+            // loop through arraylist and find the correct account
+            int credSize = credentials.size();
+            for (int i = 0; i < credSize; i++) {
+                String[] credentialsSplit = credentials.get(i).split(",");
+                String shoppingCartLine = credentialsSplit[4];
+                if (credentialsSplit[2].equals("buyer")) {
+                    shoppingCart.add(shoppingCartLine);
+                    customerNames.add(credentialsSplit[0]);
+                }
+            }
+
+            if (customerNames.size() == 0) {
+                return null;
+            }
+
+            ArrayList<String> cartInfoLine = new ArrayList<>();
+
+            // Get amount of items in cart for each customer
+            for (int i = 0; i < shoppingCart.size(); i++) {
+                if (!shoppingCart.get(i).equals("x")) {
+                    String[] cartItems = shoppingCart.get(i).split("~");
+                    for (int j = 0; j < cartItems.length; j++) {
+                        try {
+                            String[] itemFields = cartItems[j].split("!");
+                            String storeName = itemFields[0];
+                            String itemName = itemFields[1];
+                            String quantity = itemFields[2];
+                            String price = itemFields[3];
+                            String itemInfoLine = "Store Name: " + storeName + ", Item Name: " + itemName +
+                                    ", Quantity: " + quantity + ", Price: $" + price;
+                            cartInfoLine.add(itemInfoLine);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+
+            int y = 0;
+            for (int i = 0; i < shoppingCart.size(); i++) {
+                output.add(String.format("Customer Name: %s", customerNames.get(i)));
+                String[] cartLine = shoppingCart.get(i).split("~");
+                for (int j = 0; j < cartLine.length; j++) {
+                    if (!cartLine[j].equals("x")) {
+                        output.add("   " + cartInfoLine.get(y));
+                        y++;
+                    } else {
+                        output.add("   Customer cart empty!");
+                    }
+                }
+            }
+            return output;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public Store[] getStore() {
         Store[] userStores = new Store[this.stores.size()];
         for (int i = 0; i < this.stores.size(); i++) {

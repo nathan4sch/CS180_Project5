@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.Socket;
+import java.util.*;
 
 /**
  * Interface that allows users to see all their current items in cart, remove items from cart,
@@ -12,7 +13,7 @@ import java.net.Socket;
  */
 public class CartFrame extends JComponent implements Runnable {
     Socket socket;
-    String[] userCarts;
+    ArrayList<String> userCarts;
     BufferedReader bufferedReader;
     PrintWriter printWriter;
     JFrame cartFrame;
@@ -20,19 +21,21 @@ public class CartFrame extends JComponent implements Runnable {
     JPanel rightPanel;
     JPanel leftPanel;
     JButton returnToDashButton;
-    String storeSelected = "";
+    String itemSelected = "";
     String userEmail;
 
     //Right Panel
     JLabel selectItem;
+    JLabel itemsInCartLabel;
     JRadioButton radioButton;
 
-    //Objective Manage Catalogue
-    JButton deleteStoreButton;
-    JButton modifyProductsButton;
+    // Cart Options
+    JButton removeItemButton;
+    JButton checkoutButton;
 
     //Left Panel
-    JLabel currentStore;
+    JLabel currentItem;
+    JLabel cartOptions;
 
     /**
      *  The constructor of CartFrame
@@ -40,7 +43,7 @@ public class CartFrame extends JComponent implements Runnable {
      * @param socket The socket that connect this local machine with the server
      * @param userCarts String Array of all cart items of current user
      */
-    public CartFrame(Socket socket, String[] userCarts, String userEmail) {
+    public CartFrame(Socket socket, ArrayList<String> userCarts, String userEmail) {
         this.socket = socket;
         this.userCarts = userCarts;
         this.userEmail = userEmail;
@@ -52,50 +55,43 @@ public class CartFrame extends JComponent implements Runnable {
             if (source == returnToDashButton) {
                 SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
                 cartFrame.dispose();
-            } else if (source == deleteStoreButton) {
-//                if (storeSelected.equals("")) {
-//                    JOptionPane.showMessageDialog(null, "No Store Selected",
-//                            "Error", JOptionPane.ERROR_MESSAGE);
-//                } else {
-//                    printWriter.println("Delete Store");
-//                    printWriter.println(storeSelected);
-//                    printWriter.flush();
-//                    try {
-//                        String userCartsString = bufferedReader.readLine();
-//                        userCartsString = userCartsString.substring(1, userCartsString.length() - 1);
-//                        userCarts = userCartsString.split(", ");
-//                        cartFrame.dispose();
-//                        run();
-//                        JOptionPane.showMessageDialog(null, "Store Deleted",
-//                                "Success", JOptionPane.INFORMATION_MESSAGE);
-//                    } catch (IOException ex) {
-//                        ex.printStackTrace();
-//                    }
-//                }
-            } else if (source == modifyProductsButton) {
-//                if (storeSelected.equals("")) {
-//                    JOptionPane.showMessageDialog(null, "No Store Selected",
-//                            "Error", JOptionPane.ERROR_MESSAGE);
-//                } else {
-//                    printWriter.println("Modify Product");
-//                    printWriter.println(storeSelected);
-//                    printWriter.flush();
-//                    try {
-//                        String storeItemsString = bufferedReader.readLine();
-//                        storeItemsString = storeItemsString.substring(1, storeItemsString.length() - 1);
-//                        String[] storeItemNames = storeItemsString.split(", ");
-//                        SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, storeItemNames));
-//                        cartFrame.dispose();
-//                    } catch (IOException ex) {
-//                        ex.printStackTrace();
-//                    }
-//                }
+            } else if (source == removeItemButton) {
+                try {
+                    String itemName = currentItem.getText();
+                    itemName = itemName.substring(itemName.indexOf(":") + 2);
+                    printWriter.println("Remove Cart Item");
+                    printWriter.println(itemName);
+                    printWriter.flush();
+
+                    String success = bufferedReader.readLine();
+                    if (success.equals("Success")) {
+                        JOptionPane.showMessageDialog(null, "Item successfully removed from cart", "Cart",
+                                JOptionPane.INFORMATION_MESSAGE);
+
+                        SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
+                        cartFrame.dispose();
+                    } else if (success.equals("Cart Empty")) {
+                        JOptionPane.showMessageDialog(null, "Cart is Empty - Cart Action", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Item NOT Removed", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Item NOT Removed", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            } else if (source == checkoutButton) {
+
             } else {
                 try {
-                    storeSelected = e.getActionCommand();
-                    currentStore.setText("Item Selected: " + storeSelected);
-                    currentStore.setFont(new Font(currentStore.getFont().getName(),
-                            Font.BOLD, fontSizeToUse(currentStore)));
+                    itemSelected = e.getActionCommand();
+                    currentItem.setText("Item Selected: " + itemSelected.substring(0, itemSelected.indexOf(":") - 1));
+                    currentItem.setFont(new Font(currentItem.getFont().getName(),
+                            Font.BOLD, fontSizeToUse(currentItem)));
+                    int xOffset = 130 - currentItem.getText().length();
+                    currentItem.setBounds(xOffset, 175, 400, 20);
                 } catch (Exception exc) {
                     exc.printStackTrace();
                 }
@@ -118,50 +114,86 @@ public class CartFrame extends JComponent implements Runnable {
 
         //configure splitPane
         splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setDividerLocation(600);
+        splitPane.setDividerLocation(500);
         splitPane.setLeftComponent(rightPanel);
         splitPane.setRightComponent(leftPanel);
 
         //left panel
-        leftPanel.setLayout(new GridLayout(userCarts.length + 1, 1, 20, 20));
+        leftPanel.setLayout(null);
 
-        selectItem = new JLabel("Your Cart");
-        selectItem.setBounds(500, 50, 200, 40);
+        itemsInCartLabel = new JLabel("Items in Cart");
+        itemsInCartLabel.setBounds(50, 50, 350, 50);
+        itemsInCartLabel.setFont(new Font(itemsInCartLabel.getFont().getName(),
+                Font.BOLD, fontSizeToUse(itemsInCartLabel)));
+        leftPanel.add(itemsInCartLabel);
+
+        selectItem = new JLabel("Item Name : Quantity : Total Cost      ");
+        selectItem.setBounds(50, 155, 350, 60);
         selectItem.setFont(new Font(selectItem.getFont().getName(),
                 Font.BOLD, fontSizeToUse(selectItem)));
         leftPanel.add(selectItem);
 
-        ButtonGroup buttonGroup = new ButtonGroup();
-        for (int i = 0; i < userCarts.length; i++) {
-            radioButton = new JRadioButton(userCarts[i]);
-            buttonGroup.add(radioButton);
-            leftPanel.add(radioButton);
-            radioButton.addActionListener(actionListener);
+        // Cart Items
+        try {
+            ButtonGroup buttonGroup = new ButtonGroup();
+
+            ArrayList<String> itemNameList = new ArrayList<>();
+            ArrayList<String> quantityList = new ArrayList<>();
+            ArrayList<String> priceList = new ArrayList<>();
+
+            for (int i = 0; i < userCarts.size(); i++) { // Get item name
+                String[] fields = userCarts.get(i).split("!");
+                itemNameList.add(fields[1]);
+                quantityList.add(fields[2]);
+                priceList.add(fields[3]);
+            }
+
+            for (int i = 0; i < userCarts.size(); i++) { // Add to radioButton group
+                Double totalCost = Integer.parseInt(quantityList.get(i)) * Double.parseDouble(priceList.get(i));
+                radioButton = new JRadioButton(String.format("%s : %s : $%.2f", itemNameList.get(i),
+                        quantityList.get(i), totalCost));
+                buttonGroup.add(radioButton);
+                radioButton.setBounds(50, 250 + (50 * i), 350, 30);
+                radioButton.setFont(new Font(radioButton.getFont().getName(), Font.PLAIN, 18));
+                leftPanel.add(radioButton);
+                radioButton.addActionListener(actionListener);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Cart is Empty - Cart Run exc", "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
 
         //right panel
         rightPanel.setLayout(null);
-        currentStore = new JLabel("Cart Options");
-        currentStore.setBounds(200, 50, 400, 50);
-        currentStore.setFont(new Font(currentStore.getFont().getName(),
-                Font.BOLD, fontSizeToUse(currentStore)));
-        rightPanel.add(currentStore);
+        cartOptions = new JLabel("Cart Options");
+        cartOptions.setBounds(100, 50, 400, 50);
+        cartOptions.setFont(new Font(cartOptions.getFont().getName(),
+                Font.BOLD, fontSizeToUse(cartOptions)));
+        rightPanel.add(cartOptions);
 
-        //Objective Manage Catalogue
-        deleteStoreButton = new JButton("Remove Item From Cart");
-        deleteStoreButton.addActionListener(actionListener);
-        deleteStoreButton.setBounds(100, 300, 200, 50);
-        rightPanel.add(deleteStoreButton);
+        currentItem = new JLabel("No item selected");
+        currentItem.setBounds(170, 175, 400, 20);
+        currentItem.setFont(new Font(currentItem.getFont().getName(),
+                Font.BOLD, fontSizeToUse(currentItem)));
+        rightPanel.add(currentItem);
+
+        // Checkout all Items from Cart
+        checkoutButton = new JButton("Checkout");
+        checkoutButton.addActionListener(actionListener);
+        checkoutButton.setBounds(150, 250, 200, 50);
+        rightPanel.add(checkoutButton);
+
+        // Remove Item from Cart
+        removeItemButton = new JButton("Remove Item From Cart");
+        removeItemButton.addActionListener(actionListener);
+        removeItemButton.setBounds(150, 350, 200, 50);
+        rightPanel.add(removeItemButton);
 
         returnToDashButton = new JButton("Return to Dashboard");
         returnToDashButton.addActionListener(actionListener);
-        returnToDashButton.setBounds(100, 400, 200, 50);
+        returnToDashButton.setBounds(150, 450, 200, 50);
         rightPanel.add(returnToDashButton);
-
-        modifyProductsButton = new JButton("Checkout");
-        modifyProductsButton.addActionListener(actionListener);
-        modifyProductsButton.setBounds(100, 200, 200, 50);
-        rightPanel.add(modifyProductsButton);
 
         //Finalize frame
         cartFrame.add(splitPane);
@@ -201,15 +233,4 @@ public class CartFrame extends JComponent implements Runnable {
 
         return fontSizeToUse;
     }
-
-//    public static void main(String[] args) { // For testing
-//        try {
-//            Socket socket1 = new Socket("localhost", 4444);
-//            String[] temp =  {"123", "#@", "2"};
-//            CartFrame cart = new CartFrame(socket1, temp);
-//            cart.run();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
 }

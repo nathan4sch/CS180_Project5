@@ -265,24 +265,37 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
 
         //configure splitPane
         splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setDividerLocation(800);
+        splitPane.setDividerLocation(750);
         splitPane.setLeftComponent(leftPanel);
         splitPane.setRightComponent(rightPanel);
 
         //rightPanel
-        rightPanel.setLayout(new GridLayout(storeItemNames.length + 1, 1, 20, 20));
+        //rightPanel.setLayout(new GridLayout(storeItemNames.length + 1, 1, 20, 20));
+        rightPanel.setLayout(null);
 
         if (storeItemNames.length == 0) {
             selectProduct = new JLabel("No Items in Store");
         } else {
-            selectProduct = new JLabel("Select Product");
+            selectProduct = new JLabel("Current Products");
         }
+        selectProduct.setBounds(10, 50, 200, 80);
+        selectProduct.setFont(new Font(selectProduct.getFont().getName(),
+                Font.BOLD, fontSizeToUse(selectProduct)));
         rightPanel.add(selectProduct);
 
         ButtonGroup buttonGroup = new ButtonGroup();
-        for (int i = 0; i < storeItemNames.length; i++) {
+//        for (int i = 0; i < storeItemNames.length; i++) {
+//            radioButton = new JRadioButton(storeItemNames[i]);
+//            buttonGroup.add(radioButton);
+//            rightPanel.add(radioButton);
+//            radioButton.addActionListener(actionListener);
+//        }
+
+        for (int i = 0; i < storeItemNames.length; i++) { // Add to radioButton group
             radioButton = new JRadioButton(storeItemNames[i]);
             buttonGroup.add(radioButton);
+            radioButton.setBounds(10, 150 + (50 * i), 200, 30);
+            radioButton.setFont(new Font (radioButton.getFont().getName(), Font.PLAIN, 18));
             rightPanel.add(radioButton);
             radioButton.addActionListener(actionListener);
         }
@@ -343,12 +356,12 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
         //Buttons to modify the selected Product
         editProductButton = new JButton("Edit Selected Item");
         editProductButton.addActionListener(actionListener);
-        editProductButton.setBounds(550, 200, 180, 80);
+        editProductButton.setBounds(500, 200, 180, 80);
         leftPanel.add(editProductButton);
 
         deleteProductButton = new JButton("Delete Selected Item");
         deleteProductButton.addActionListener(actionListener);
-        deleteProductButton.setBounds(550, 300, 180, 80);
+        deleteProductButton.setBounds(500, 300, 180, 80);
         leftPanel.add(deleteProductButton);
 
 
@@ -356,12 +369,12 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
 
         exportFileButton = new JButton("Export Product File");
         exportFileButton.addActionListener(actionListener);
-        exportFileButton.setBounds(300, 650, 180, 80);
+        exportFileButton.setBounds(200, 650, 180, 80);
         leftPanel.add(exportFileButton);
 
         returnToDashButton = new JButton("Return to Dashboard");
         returnToDashButton.addActionListener(actionListener);
-        returnToDashButton.setBounds(500, 650, 180, 80);
+        returnToDashButton.setBounds(400, 650, 180, 80);
         leftPanel.add(returnToDashButton);
 
 
