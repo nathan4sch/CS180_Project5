@@ -4,6 +4,7 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Interface that allows users to see all their current items in cart, remove items from cart,
@@ -13,7 +14,7 @@ import java.util.ArrayList;
  */
 public class CartFrame extends JComponent implements Runnable {
     Socket socket;
-    String[] userCarts;
+    ArrayList<String> userCarts;
     BufferedReader bufferedReader;
     PrintWriter printWriter;
     JFrame cartFrame;
@@ -43,7 +44,7 @@ public class CartFrame extends JComponent implements Runnable {
      * @param socket The socket that connect this local machine with the server
      * @param userCarts String Array of all cart items of current user
      */
-    public CartFrame(Socket socket, String[] userCarts, String userEmail) {
+    public CartFrame(Socket socket, ArrayList<String> userCarts, String userEmail) {
         this.socket = socket;
         this.userCarts = userCarts;
         this.userEmail = userEmail;
@@ -65,12 +66,38 @@ public class CartFrame extends JComponent implements Runnable {
 
                     String success = bufferedReader.readLine();
                     if (success.equals("Success")) {
+                        ArrayList<String> userCartArr = new ArrayList<>();
+                        System.out.println(itemSelected);
+                        for (int i = 0; i < userCarts.size(); i++) {
+                            userCartArr.add(userCarts.get(i));
+                        }
+                        System.out.println(userCarts);
+
+                        ArrayList<String> newUserCart = new ArrayList<>();
+
+                        for (int i = 0; i < newUserCart.size(); i++) {
+                            if (!userCarts.equals(itemSelected) || !Objects.equals(userCarts, "")) {
+                                newUserCart.add(userCarts.get(i));
+                            }
+                        }
+                        System.out.println(newUserCart);
+
+                        if (newUserCart.size() == 0) {
+                            newUserCart.add("Cart Empty");
+                        }
+
+                        ArrayList<String> userCartsShow = new ArrayList<>(newUserCart.size());
+                        for (int i = 0; i < userCartsShow.size(); i++) {
+                            userCartsShow.set(i, newUserCart.get(i));
+                        }
+                        System.out.println(userCartsShow);
+
                         JOptionPane.showMessageDialog(null, "Item successfully removed from cart", "Cart",
                                 JOptionPane.INFORMATION_MESSAGE);
-                        SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
                         cartFrame.dispose();
+                        SwingUtilities.invokeLater(new CartFrame(socket, userCartsShow, userEmail));
                     } else if (success.equals("Cart Empty")) {
-                        JOptionPane.showMessageDialog(null, "Cart is Empty", "Error",
+                        JOptionPane.showMessageDialog(null, "Cart is Empty - Cart Action", "Error",
                                 JOptionPane.ERROR_MESSAGE);
                     } else {
                         JOptionPane.showMessageDialog(null, "Item NOT Removed", "Error",
@@ -140,8 +167,8 @@ public class CartFrame extends JComponent implements Runnable {
             ArrayList<String> quantityList = new ArrayList<>();
             ArrayList<String> priceList = new ArrayList<>();
 
-            for (int i = 0; i < userCarts.length; i++) { // Get item name
-                String[] fields = userCarts[i].split("!");
+            for (int i = 0; i < userCarts.size(); i++) { // Get item name
+                String[] fields = userCarts.get(i).split("!");
                 itemNameList.add(fields[1]);
                 quantityList.add(fields[2]);
                 priceList.add(fields[3]);
@@ -149,18 +176,20 @@ public class CartFrame extends JComponent implements Runnable {
 
             for (int i = 0; i < itemNameList.size(); i++) { // Add to radioButton group
                 Double totalCost = Integer.parseInt(quantityList.get(i)) * Double.parseDouble(priceList.get(i));
-                //radioButton = new JRadioButton(itemNameList.get(i) + " : " + quantityList.get(i) + " : $" +);
-                radioButton = new JRadioButton(String.format("%s : %s : $%.2f", itemNameList.get(i), quantityList.get(i), totalCost));
+                radioButton = new JRadioButton(String.format("%s : %s : $%.2f", itemNameList.get(i),
+                        quantityList.get(i), totalCost));
                 buttonGroup.add(radioButton);
                 radioButton.setBounds(50, 250 + (50 * i), 350, 30);
-                radioButton.setFont(new Font (radioButton.getFont().getName(), Font.PLAIN, 18));
+                radioButton.setFont(new Font(radioButton.getFont().getName(), Font.PLAIN, 18));
                 leftPanel.add(radioButton);
                 radioButton.addActionListener(actionListener);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Cart is Empty", "Error",
+            JOptionPane.showMessageDialog(null, "Cart is Empty - Cart Run exc", "Error",
                     JOptionPane.ERROR_MESSAGE);
+//            cartFrame.dispose();
+//            SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
         }
 
         //right panel
