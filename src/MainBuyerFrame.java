@@ -508,7 +508,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                     String price = bufferedReader.readLine();
                     rowData[i][0] = store;
                     rowData[i][1] = productName;
-                    rowData[i][2] = price;
+                    rowData[i][2] = String.format("$%.2f", Double.parseDouble(price));
                 }
             } catch (IOException ioe) {
                 ioe.printStackTrace();
