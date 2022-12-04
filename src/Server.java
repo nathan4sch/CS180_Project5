@@ -135,9 +135,27 @@ public class Server implements Runnable {
                                 }
                             }
                             String line = Arrays.toString(buyerCart);
-                            System.out.println(line);
                             printWriter.println(line.substring(1, line.length() - 1)); // remove "[]"
                             printWriter.flush();
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Cart is Empty. Please ", "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                    case "Remove Cart Item" -> {
+                        try {
+                            String itemName = bufferedReader.readLine();
+                            String success = ((Buyer) currentUser).removeItemFromCart(itemName, ((Buyer) currentUser).getEmail());
+                            if (success.equals("Success")) {
+                                printWriter.println("Success");
+                            } else if (success.equals("Cart Empty")) {
+                                printWriter.println("Cart Empty");
+                            } else {
+                                printWriter.println("Error");
+                            }
+                            printWriter.flush();
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
                         }
                     }
                     case "Search By Name" -> {
@@ -428,7 +446,7 @@ public class Server implements Runnable {
                                 currentStore = userStoreList[i];
                             }
                         }
-                        ArrayList<Item> storeItems = currentStore.getItems();
+                        ArrayList<Item> storeItems = Objects.requireNonNull(currentStore).getItems();
                         if (storeItems.size() == 0) {
                             printWriter.println("[No items]");
                             printWriter.flush();
@@ -762,9 +780,9 @@ public class Server implements Runnable {
                         String statisticToView = bufferedReader.readLine();
                         String storeSelectedString = bufferedReader.readLine();
 
-                        String buyerOrItem = "";
+                        String buyerOrItem;
                         Store currentStore = ((Seller) currentUser).getSpecificStore(storeSelectedString);
-                        ArrayList<String> stats = new ArrayList<>();
+                        ArrayList<String> stats;
                         if (statisticToView.equals("Sorted Buyer Statistics") || statisticToView.equals("Buyer Statistics")) {
                             buyerOrItem = "buyer";
                         } else {

@@ -304,7 +304,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
             e.printStackTrace();
         }
 
-        mainBuyerFrame = new JFrame("Account Frame");
+        mainBuyerFrame = new JFrame("Buyer Frame");
         splitPane = new JSplitPane();
         leftPanel = new JPanel();
         rightPanel = new JPanel();
