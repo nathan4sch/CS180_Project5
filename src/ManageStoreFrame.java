@@ -27,6 +27,7 @@ public class ManageStoreFrame extends JComponent implements Runnable {
     String storeSelected = "";
     //Right Panel
     JLabel selectStore;
+    JLabel optionsOfStore;
     JRadioButton radioButton;
 
     //Objective Manage Catalogue
@@ -305,38 +306,45 @@ public class ManageStoreFrame extends JComponent implements Runnable {
                 Font.BOLD, fontSizeToUse(currentStore)));
         leftPanel.add(currentStore);
 
+        optionsOfStore = new JLabel("Options for the Selected Store");
+        optionsOfStore.setBounds(260, 180, 400, 80);
+        optionsOfStore.setFont(new Font(optionsOfStore.getFont().getName(),
+                Font.PLAIN, 24));
+        leftPanel.add(optionsOfStore);
+
+
         //Objective Manage Catalogue
 
         deleteStoreButton = new JButton("Delete Store");
         deleteStoreButton.addActionListener(actionListener);
-        deleteStoreButton.setBounds(450, 300, 200, 80);
+        deleteStoreButton.setBounds(450, 350, 200, 80);
         leftPanel.add(deleteStoreButton);
 
         returnToDashButton = new JButton("Return to Dashboard");
         returnToDashButton.addActionListener(actionListener);
-        returnToDashButton.setBounds(200, 400, 200, 80);
+        returnToDashButton.setBounds(470, 600, 200, 80);
         leftPanel.add(returnToDashButton);
 
         importProductFile = new JButton("Import Product File");
         importProductFile.addActionListener(actionListener);
-        importProductFile.setBounds(200, 300, 200, 80);
+        importProductFile.setBounds(180, 600, 200, 80);
         leftPanel.add(importProductFile);
 
         modifyProductsButton = new JButton("Modify Products");
         modifyProductsButton.addActionListener(actionListener);
-        modifyProductsButton.setBounds(450, 200, 200, 80);
+        modifyProductsButton.setBounds(450, 250, 200, 80);
         leftPanel.add(modifyProductsButton);
 
         //Sales List Button
         salesListButton = new JButton("Sales List");
         salesListButton.addActionListener(actionListener);
-        salesListButton.setBounds(450, 400, 200, 80);
+        salesListButton.setBounds(200, 250, 200, 80);
         leftPanel.add(salesListButton);
 
         //Statistics Dashboard Button
-        statisticsButton = new JButton("Statistics Dashboard");
+        statisticsButton = new JButton("Statistics of Store");
         statisticsButton.addActionListener(actionListener);
-        statisticsButton.setBounds(450, 500, 200, 80);
+        statisticsButton.setBounds(200, 350, 200, 80);
         leftPanel.add(statisticsButton);
 
         //Finalize frame
