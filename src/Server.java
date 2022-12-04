@@ -122,7 +122,6 @@ public class Server implements Runnable {
                     }
                     case "View Cart" -> {
                         ArrayList<String> buyerCartList = ((Buyer) currentUser).getCart();
-                        System.out.println(buyerCartList.get(0));
                         if (buyerCartList.get(0).equals("x")) {
                             printWriter.println("Failure");
                             printWriter.flush();
@@ -532,6 +531,8 @@ public class Server implements Runnable {
 
                         Store currentStore = ((Seller) currentUser).getSpecificStore(currentStoreString);
                         Item itemToChange = currentStore.getSpecificItem(itemNameString);
+                        String oldName = itemToChange.getName();
+                        String oldPrice = String.format("%.2f", itemToChange.getPrice());
 
                         if (itemNameString.equals("")) {
                             printWriter.println("No Item Selected");
@@ -578,6 +579,59 @@ public class Server implements Runnable {
                                     printWriter.println("This Product Name Already Exists");
                                     printWriter.flush();
                                 } else if (itemToChange.changeField(nameOfFieldChanged, newText)) {
+                                    //reflect the new name change in all the user carts
+                                    try {
+                                        BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
+                                        ArrayList<String> lines = new ArrayList<>();
+                                        String line;
+                                        while ((line = bfr.readLine()) != null) {
+                                            String output = "";
+                                            String newCartLine = "";
+                                            String[] splitLine = line.split(",");
+                                            if (splitLine[4].equals("x")) {
+                                                lines.add(line);
+                                            } else {
+                                                String[] cartItems = splitLine[4].split("~");
+                                                for (int i = 0; i < cartItems.length; i++) {
+                                                    String[] item = cartItems[i].split("!");
+                                                    if (item[1].equals(oldName)) {
+                                                        item[1] = newText;
+                                                    }
+                                                    for (int j = 0; j < 4; j++) {
+                                                        if (j != 0) {
+                                                            newCartLine += "!";
+                                                        }
+                                                        newCartLine += item[j];
+                                                        if (j == 3) {
+                                                            newCartLine += "~";
+                                                        }
+                                                    }
+                                                }
+                                                newCartLine = newCartLine.substring(0, newCartLine.length() - 1);
+                                                //rebuild credentials line
+                                                for (int i = 0; i < 6; i++) {
+                                                    if (i != 0) {
+                                                        output += ",";
+                                                    }
+                                                    if (i == 4) {
+                                                        output += newCartLine;
+                                                    } else {
+                                                        output += splitLine[i];
+                                                    }
+                                                }
+                                                lines.add(output);
+                                            }
+                                        }
+                                        bfr.close();
+                                        PrintWriter pw = new PrintWriter(new FileWriter("FMCredentials.csv"));
+                                        for (int i = 0; i < lines.size(); i++) {
+                                            pw.println(lines.get(i));
+                                        }
+                                        pw.close();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+
                                     printWriter.println("Name Change Success");
                                     printWriter.flush();
                                 }
@@ -594,6 +648,58 @@ public class Server implements Runnable {
                                     printWriter.println("Price Must be a Two Decimal Number");
                                     printWriter.flush();
                                 } else if (itemToChange.changeField(nameOfFieldChanged, newText)) {
+                                    //reflect the new price change in all the user carts
+                                    try {
+                                        BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
+                                        ArrayList<String> lines = new ArrayList<>();
+                                        String line;
+                                        while ((line = bfr.readLine()) != null) {
+                                            String output = "";
+                                            String newCartLine = "";
+                                            String[] splitLine = line.split(",");
+                                            if (splitLine[4].equals("x")) {
+                                                lines.add(line);
+                                            } else {
+                                                String[] cartItems = splitLine[4].split("~");
+                                                for (int i = 0; i < cartItems.length; i++) {
+                                                    String[] item = cartItems[i].split("!");
+                                                    if (item[3].equals(oldPrice) && item[1].equals(oldName)) {
+                                                        item[3] = String.format("%.2f", Double.parseDouble(newText));
+                                                    }
+                                                    for (int j = 0; j < 4; j++) {
+                                                        if (j != 0) {
+                                                            newCartLine += "!";
+                                                        }
+                                                        newCartLine += item[j];
+                                                        if (j == 3) {
+                                                            newCartLine += "~";
+                                                        }
+                                                    }
+                                                }
+                                                newCartLine = newCartLine.substring(0, newCartLine.length() - 1);
+                                                //rebuild credentials line
+                                                for (int i = 0; i < 6; i++) {
+                                                    if (i != 0) {
+                                                        output += ",";
+                                                    }
+                                                    if (i == 4) {
+                                                        output += newCartLine;
+                                                    } else {
+                                                        output += splitLine[i];
+                                                    }
+                                                }
+                                                lines.add(output);
+                                            }
+                                        }
+                                        bfr.close();
+                                        PrintWriter pw = new PrintWriter(new FileWriter("FMCredentials.csv"));
+                                        for (int i = 0; i < lines.size(); i++) {
+                                            pw.println(lines.get(i));
+                                        }
+                                        pw.close();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
                                     printWriter.println("Success");
                                     printWriter.flush();
                                 }
