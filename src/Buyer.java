@@ -85,7 +85,17 @@ public class Buyer {
         return null;
     }
 
-//    public static void main(String[] args) {
+
+    /**
+     * Sets the user's cart to new String ArrayList
+     *
+     * @param cart new String Cart ArrayList
+     */
+    public void setCart(ArrayList<String> cart) {
+        this.cart = cart;
+    }
+
+    //    public static void main(String[] args) {
 //        Buyer buyer = new Buyer("jamesz@outlook.com", "e", null, null);
 //        String success = buyer.removeItemFromCart("Ufo-table", "f");
 //        System.out.println(success);
@@ -118,7 +128,12 @@ public class Buyer {
                             String[] fields = cartSplit[i].split("!");
                             if (fields[1].equals(itemToRemove)) {
                                 cartRemove = cartSplit[i];
-                                cart.remove(cartRemove);
+                                cart.remove(cart.indexOf(cartRemove));
+                                System.out.println(cart.toString());
+                                if (cart.toString().equals("[]")) {
+                                    cart.add("x");
+                                    System.out.println(cart);
+                                }
                                 break;
                             }
                         }
@@ -136,7 +151,6 @@ public class Buyer {
             ArrayList<String> output = new ArrayList<>();
             PrintWriter printWriter = new PrintWriter(new FileWriter("FMCredentials.csv", false));
 
-            int counter = -1;
             for (int i = 0; i < storedCSVData.size(); i++) {
                 String[] splitLine = storedCSVData.get(i).split(",");
                 if (!userEmail.equals(splitLine[0])) {
@@ -146,11 +160,14 @@ public class Buyer {
                     String currentCart = "";
                     for (int j = 0; j < cartLine.length; j++) {
                         if (!cartLine[j].equals(cartRemove)) {
-                            counter++;
-                            if (counter == 0) {
+                            if (currentCart.equals("x")) {
                                 currentCart += cartLine[j];
                             } else {
-                                currentCart += "~" + cartLine[j];
+                                if (j == cartLine.length - 1) {
+                                    currentCart += cartLine[j];
+                                } else {
+                                    currentCart += cartLine[j] + "~";
+                                }
                             }
                         }
                     }
@@ -483,31 +500,10 @@ public class Buyer {
     /**
      * gets user's cart
      *
-     * @param userEmail Buyer's email to search for
      * @return cart ArrayList
      */
-    public ArrayList<String> getCart(String userEmail) {
-        try {
-            File file = new File("FMCredentials.csv");
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-            ArrayList<String> cart = new ArrayList<>();
-
-            String line;
-            while ((line = reader.readLine()) != null) { // read through csv
-                String[] cartSplit = line.split(",");
-                if (cartSplit[0].equals(userEmail)) {
-                    if (!(cartSplit[4].equals("x"))) {
-                        String[] cartItems = cartSplit[4].split("~");
-                        Collections.addAll(cart, cartItems);
-                    }
-                }
-            }
-            reader.close();
-            return cart;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
+    public ArrayList<String> getCart() {
+        return cart;
     }
 
     /**
@@ -553,6 +549,8 @@ public class Buyer {
         try {
             BufferedReader cartReader = new BufferedReader(new FileReader("FMCredentials.csv"));
             ArrayList<String> fmCredentials = new ArrayList<>();
+            String itemName = item.getName();
+
             // Add existing items to ArrayList;
             String line;
             while ((line = cartReader.readLine()) != null) {
