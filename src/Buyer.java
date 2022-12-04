@@ -85,11 +85,15 @@ public class Buyer {
         return null;
     }
 
-//    public static void main(String[] args) {
-//        Buyer buyer = new Buyer("jamesz@outlook.com", "e", null, null);
-//        String success = buyer.removeItemFromCart("Ufo-table", "f");
-//        System.out.println(success);
-//    }
+
+    /**
+     * Sets the user's cart to new String ArrayList
+     *
+     * @param cart new String Cart ArrayList
+     */
+    public void setCart(ArrayList<String> cart) {
+        this.cart = cart;
+    }
 
     /**
      * Removes an item from a user's cart.
@@ -118,7 +122,12 @@ public class Buyer {
                             String[] fields = cartSplit[i].split("!");
                             if (fields[1].equals(itemToRemove)) {
                                 cartRemove = cartSplit[i];
-                                cart.remove(cartRemove);
+                                cart.remove(cart.indexOf(cartRemove));
+                                System.out.println(cart.toString());
+                                if (cart.toString().equals("[]")) {
+                                    cart.add("x");
+                                    System.out.println(cart);
+                                }
                                 break;
                             }
                         }
@@ -136,7 +145,6 @@ public class Buyer {
             ArrayList<String> output = new ArrayList<>();
             PrintWriter printWriter = new PrintWriter(new FileWriter("FMCredentials.csv", false));
 
-            int counter = -1;
             for (int i = 0; i < storedCSVData.size(); i++) {
                 String[] splitLine = storedCSVData.get(i).split(",");
                 if (!userEmail.equals(splitLine[0])) {
@@ -145,13 +153,8 @@ public class Buyer {
                     String[] cartLine = splitLine[4].split("~");
                     String currentCart = "";
                     for (int j = 0; j < cartLine.length; j++) {
-                        if (!cartLine[j].equals(cartRemove)) {
-                            counter++;
-                            if (counter == 0) {
-                                currentCart += cartLine[j];
-                            } else {
-                                currentCart += "~" + cartLine[j];
-                            }
+                        if (!cartLine[j].equals(cartRemove)) { // Stuff to keep
+                            currentCart += cartLine[j] + "~";
                         }
                     }
                     if (currentCart.equals("")) {
@@ -425,23 +428,24 @@ public class Buyer {
      * @param email Email to search for when adding to array list
      * @return String ArrayList of all the items in a buyer's cart
      **/
-    public static ArrayList<String> showItemsInCart(String email) {
+    public ArrayList<String> showItemsInCart(String email) {
         try {
             BufferedReader cartReader = new BufferedReader(new FileReader("FMCredentials.csv"));
 
-            ArrayList<String> FMCredentials = new ArrayList<>();
+            ArrayList<String> fmCredentials = new ArrayList<>();
 
             // Add existing items to ArrayList;
             String line;
             while ((line = cartReader.readLine()) != null) {
-                FMCredentials.add(line);
+                fmCredentials.add(line);
             }
             cartReader.close();
 
-            for (String fmCredential : FMCredentials) {
+            for (String fmCredential : fmCredentials) {
+                String[] strSplit = fmCredential.split(",");
+
                 // If arraylist index has email
-                if (fmCredential.contains(email)) {
-                    String[] strSplit = fmCredential.split(",");
+                if (strSplit[0].equals(email)) {
                     String shoppingCartInfo = strSplit[4];
                     String[] shoppingCartLine = shoppingCartInfo.split("~");
 
@@ -483,31 +487,10 @@ public class Buyer {
     /**
      * gets user's cart
      *
-     * @param userEmail Buyer's email to search for
      * @return cart ArrayList
      */
-    public ArrayList<String> getCart(String userEmail) {
-        try {
-            File file = new File("FMCredentials.csv");
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-            ArrayList<String> cart = new ArrayList<>();
-
-            String line;
-            while ((line = reader.readLine()) != null) { // read through csv
-                String[] cartSplit = line.split(",");
-                if (cartSplit[0].equals(userEmail)) {
-                    if (!(cartSplit[4].equals("x"))) {
-                        String[] cartItems = cartSplit[4].split("~");
-                        Collections.addAll(cart, cartItems);
-                    }
-                }
-            }
-            reader.close();
-            return cart;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
+    public ArrayList<String> getCart() {
+        return cart;
     }
 
     /**
@@ -553,6 +536,8 @@ public class Buyer {
         try {
             BufferedReader cartReader = new BufferedReader(new FileReader("FMCredentials.csv"));
             ArrayList<String> fmCredentials = new ArrayList<>();
+            String itemName = item.getName();
+
             // Add existing items to ArrayList;
             String line;
             while ((line = cartReader.readLine()) != null) {
@@ -562,15 +547,17 @@ public class Buyer {
 
             PrintWriter pw = new PrintWriter(new FileWriter("FMCredentials.csv"));
 
-            for (String fmCredential : fmCredentials) {
-                if (fmCredential.contains(email)) {
-                    String[] splitLine = fmCredential.split(",");
+            for (int i = 0; i < fmCredentials.size(); i++) {
+                String fmCredential = fmCredentials.get(i);
+                String[] splitLine = fmCredential.split(",");
+
+                if (splitLine[0].equals(email)) {
                     String shoppingCart = splitLine[4];
                     if (shoppingCart.equals("x")) {
-                        shoppingCart = formatted;
+                        shoppingCart = formatted + "~";
                         cart.set(0, formatted);
                     } else {
-                        shoppingCart = shoppingCart + "~" + formatted;
+                        shoppingCart += formatted + "~";
                         cart.add(formatted);
                     }
                     pw.printf("%s,%s,%s,%s,%s,%s\n", splitLine[0], splitLine[1], splitLine[2],
