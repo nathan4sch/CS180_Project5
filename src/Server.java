@@ -194,7 +194,7 @@ public class Server implements Runnable {
                             }
                             reader.close();
 
-                            PrintWriter pw = new PrintWriter(new FileWriter("FMCredentials.csv"));
+                            PrintWriter credWriter = new PrintWriter(new FileWriter("FMCredentials.csv"));
 
                             assert userSplit != null;
                             String formattedSuccess = "";
@@ -210,14 +210,22 @@ public class Server implements Runnable {
                                 }
                             }
                                     //email,password,buyer/seller,history,emptycart,login status
-                            pw.println(userSplit[0] + "," + userSplit[1] + "," + userSplit[2] + "," + formattedSuccess + ",x," + userSplit[5]);
+                            credWriter.println(userSplit[0] + "," + userSplit[1] + "," + userSplit[2] + "," + formattedSuccess + ",x," + userSplit[5]);
                             for (int i = 0; i < fmCredentials.size(); i++) {
-                                pw.println(fmCredentials.get(i));
+                                credWriter.println(fmCredentials.get(i));
                             }
+                            credWriter.close();
                         } catch (Exception exc) {
                             exc.printStackTrace();
                         }
-                        if (unsuccessfulItems.size() > 0) {
+                        if (unsuccessfulItems.isEmpty()) {
+                            printWriter.println("Success");
+                            printWriter.flush();
+                        } else if (successfulItems.isEmpty()) {
+                            printWriter.println("Failure");
+                            printWriter.flush();
+                        } else {
+                            printWriter.println("Partial Success");
                             printWriter.println(successfulItems.size());
                             printWriter.println(unsuccessfulItems.size());
                             printWriter.flush();
@@ -231,6 +239,7 @@ public class Server implements Runnable {
                                 printWriter.flush();
                             }
                         }
+                        printWriter.close();
                     }
                     case "Remove Cart Item" -> {
                         synchronized (SYNC) {
