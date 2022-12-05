@@ -386,8 +386,8 @@ public class Server implements Runnable {
                         }*/
                     }
                     case "Add Item To Cart" -> {
-                        String nameOfItem;
-                        int userQuantity;
+                        String nameOfItem = "";
+                        int userQuantity = -1;
                         boolean itemInCart = false;
                         synchronized (SYNC) {
                             nameOfItem = bufferedReader.readLine();
@@ -417,7 +417,7 @@ public class Server implements Runnable {
                                 }
                             }
                         } catch (Exception ex) {
-                            
+                            ex.printStackTrace();
                         }
                         synchronized (SYNC) {
                             if (!itemInCart) {
