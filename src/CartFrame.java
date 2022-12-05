@@ -38,9 +38,9 @@ public class CartFrame extends JComponent implements Runnable {
     JLabel cartOptions;
 
     /**
-     *  The constructor of CartFrame
+     * The constructor of CartFrame
      *
-     * @param socket The socket that connect this local machine with the server
+     * @param socket    The socket that connect this local machine with the server
      * @param userCarts String Array of all cart items of current user
      */
     public CartFrame(Socket socket, ArrayList<String> userCarts, String userEmail) {
@@ -141,8 +141,8 @@ public class CartFrame extends JComponent implements Runnable {
             ArrayList<String> quantityList = new ArrayList<>();
             ArrayList<String> priceList = new ArrayList<>();
 
-            for (int i = 0; i < userCarts.size(); i++) { // Get item name
-                String[] fields = userCarts.get(i).split("!");
+            for (String userCart : userCarts) { // Get item name
+                String[] fields = userCart.split("!");
                 itemNameList.add(fields[1]);
                 quantityList.add(fields[2]);
                 priceList.add(fields[3]);
@@ -229,8 +229,7 @@ public class CartFrame extends JComponent implements Runnable {
         double widthRatio = (double) componentWidth / (double) stringWidth;
         int newFontSize = (int) (currentFont.getSize() * widthRatio);
         int componentHeight = label.getHeight();
-        int fontSizeToUse = Math.min(newFontSize, componentHeight);
 
-        return fontSizeToUse;
+        return Math.min(newFontSize, componentHeight);
     }
 }
