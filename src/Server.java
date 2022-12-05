@@ -124,8 +124,7 @@ public class Server implements Runnable {
                         synchronized (SYNC) {
                             try {
                                 String email = ((Buyer) currentUser).getEmail();
-                                ArrayList<String> buyerCartList = ((Buyer) currentUser).getCart();
-                                buyerCartList = ((Buyer) currentUser).showItemsInCart(email);
+                                ArrayList<String> buyerCartList = ((Buyer) currentUser).showItemsInCart(email);
                                 System.out.println(((Buyer) currentUser).getEmail());
                                 System.out.println(buyerCartList);
 
@@ -155,7 +154,7 @@ public class Server implements Runnable {
                     case "Checkout" -> {
                         ArrayList<String> successfulItems = new ArrayList<>(); // full cart item copied to array list in case of success
                         ArrayList<String> unsuccessfulItems = new ArrayList<>(); // only name, quantity, and error info
-                        ArrayList<String> cart = ((Buyer) currentUser).getCart(((Buyer) currentUser).getEmail());
+                        ArrayList<String> cart = ((Buyer) currentUser).getCart();
                         itemList = getItems();
 
                         boolean itemFound; // boolean used to check if item still exists in items
@@ -239,7 +238,6 @@ public class Server implements Runnable {
                                 printWriter.flush();
                             }
                         }
-                        printWriter.close();
                     }
                     case "Remove Cart Item" -> {
                         synchronized (SYNC) {
@@ -388,8 +386,8 @@ public class Server implements Runnable {
                         }*/
                     }
                     case "Add Item To Cart" -> {
-                        String nameOfItem = "";
-                        int userQuantity = -1;
+                        String nameOfItem;
+                        int userQuantity;
                         boolean itemInCart = false;
                         synchronized (SYNC) {
                             nameOfItem = bufferedReader.readLine();
@@ -419,25 +417,22 @@ public class Server implements Runnable {
                                 }
                             }
                         } catch (Exception ex) {
-                            ex.printStackTrace();
+                            
                         }
                         synchronized (SYNC) {
-                            if (itemInCart == false) {
+                            if (!itemInCart) {
                                 boolean found = false;
                                 for (int i = 0; i < itemList.size(); i++) {
                                     if (nameOfItem.equals(itemList.get(i).getName())) {
                                         if (itemList.get(i).getQuantity() >= userQuantity) {
                                             ((Buyer) currentUser).addToCart(itemList.get(i), String.valueOf(userQuantity));
                                             printWriter.println("Success");
-                                            printWriter.flush();
-                                            found = true;
-                                            break;
                                         } else {
                                             printWriter.println("Quantity error");
-                                            printWriter.flush();
-                                            found = true;
-                                            break;
                                         }
+                                        printWriter.flush();
+                                        found = true;
+                                        break;
                                     }
                                 }
                                 if (!found) {
