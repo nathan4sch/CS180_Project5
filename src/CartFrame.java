@@ -83,7 +83,59 @@ public class CartFrame extends JComponent implements Runnable {
                             JOptionPane.ERROR_MESSAGE);
                 }
             } else if (source == checkoutButton) {
+                printWriter.println("Checkout");
+                printWriter.flush();
 
+                String serverResponse;
+                try {
+                    serverResponse = bufferedReader.readLine();
+                    if (serverResponse.equals("Success")) { // All items checked out successfully
+                        JOptionPane.showMessageDialog(null,
+                                "Checkout Successful", "Checkout", JOptionPane.INFORMATION_MESSAGE);
+                        SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
+                        cartFrame.dispose();
+                    } else if (serverResponse.equals("Partial Success")) { // some items checked out
+                        String[] checkoutSuccesses = new String[Integer.parseInt(bufferedReader.readLine())]; // number of success read
+                        String[] checkoutFailures = new String[Integer.parseInt(bufferedReader.readLine())]; // number of failures read
+                        for (int i = 0; i < checkoutSuccesses.length; i++) { // gathers descriptive data from server to display to user
+                            checkoutSuccesses[i] = bufferedReader.readLine();
+                        } // checkout failures have format of [Item,quantity requested,reason for error]
+                        for (int i = 0; i< checkoutFailures.length; i++) {
+                            checkoutFailures[i] = bufferedReader.readLine();
+                        }
+
+                        String[] splitCheckoutSuccess = checkoutSuccesses[0].split(",");
+                        String[] splitCheckoutFailure = checkoutFailures[0].split(",");
+                        // appropriately formatting strings to be used in JOptionPane below
+                        String formattedCheckoutSuccess = "1. " + splitCheckoutSuccess[0] + "; Quantity: " + splitCheckoutSuccess[1];
+                        String formattedCheckoutFailure = "1. " + splitCheckoutFailure[0] + "; Quantity: " +
+                                splitCheckoutFailure[1] + "; Reason for Checkout Failure: " + splitCheckoutFailure[2];
+
+                        for (int i = 1; i < checkoutSuccesses.length; i++) {
+                            splitCheckoutSuccess = checkoutSuccesses[i].split(",");
+                            formattedCheckoutSuccess = formattedCheckoutSuccess + "\n" + (i + 1) + ". " +
+                                    splitCheckoutSuccess[0] + "; Quantity: " + splitCheckoutSuccess[1];
+                        }
+                        for (int i = 1; i< checkoutFailures.length; i++) {
+                            splitCheckoutFailure = checkoutFailures[i].split(",");
+                            formattedCheckoutFailure = formattedCheckoutFailure + "\n" + (i + 1) + ". " +
+                                    splitCheckoutFailure[0] + "; Quantity: " + splitCheckoutFailure[1] +
+                                    "; Reason For Checkout Failure: " + splitCheckoutFailure[2];
+                        }
+                        JOptionPane.showMessageDialog(null, "SUCCESSFULLY CHECKED OUT ITEMS: \n" +
+                                formattedCheckoutSuccess + "\nUNSUCCESSFULLY CHECKED OUT ITEMS: \n"
+                                + formattedCheckoutFailure, "Partial Checkout", JOptionPane.WARNING_MESSAGE);
+                        SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
+                        cartFrame.dispose();
+                    } else if (serverResponse.equals("Checkout Failure")) {
+                        JOptionPane.showMessageDialog(null, "Unable to Checkout Items",
+                                "Checkout Failure", JOptionPane.ERROR_MESSAGE);
+                        SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
+                        cartFrame.dispose();
+                    }
+                } catch (Exception exc) {
+                    exc.printStackTrace();
+                }
             } else {
                 try {
                     itemSelected = e.getActionCommand();
