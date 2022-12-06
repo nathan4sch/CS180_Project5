@@ -33,35 +33,45 @@ public class Item {
     }
 
     /**
-     * Returns store
+     * Gets the Item's store
+     * 
+     * @return store
      **/
     public String getStore() {
         return store;
     }
 
     /**
-     * Returns name
+     * Gets the Item's name
+     *
+     * @return name
      **/
     public String getName() {
         return name;
     }
 
     /**
-     * Returns description
+     * Gets the Item's description
+     *
+     * @return description
      **/
     public String getDescription() {
         return description;
     }
 
     /**
-     * Returns quantity
+     * Gets the Item's quantity available
+     *
+     * @return quantity
      **/
     public int getQuantity() {
         return quantity;
     }
 
     /**
-     * Returns price
+     * Gets the Item's selling price
+     *
+     * @return price
      **/
     public double getPrice() {
         return price;
@@ -69,11 +79,11 @@ public class Item {
 
     /**
      * Changes field in of item FMItems.csv
-     * returns if operation was successful or not
      *
      * @param field    : Field type to change
      * @param newValue : New value to change it to
-     **/
+     * @return true if operation was successful, false if not
+     */
     public boolean changeField(String field, String newValue) {
         // Write quantity change to csv file
         File f = new File("FMItems.csv");
@@ -84,15 +94,14 @@ public class Item {
             String line = bfr.readLine();
             while (line != null) {
                 if (line.equals(String.format("%s,%s,%s,%d,%.2f", store, name, description, quantity, price))) {
-                    if (field.equals("name")) {
-                        line = String.format("%s,%s,%s,%d,%.2f", store, newValue, description, quantity, price);
-                    } else if (field.equals("description")) {
-                        line = String.format("%s,%s,%s,%d,%.2f", store, name, newValue, quantity, price);
-                    } else if (field.equals("quantity")) {
-                        line = String.format("%s,%s,%s,%d,%.2f", store, name, description,
+                    switch (field) {
+                        case "name" ->
+                                line = String.format("%s,%s,%s,%d,%.2f", store, newValue, description, quantity, price);
+                        case "description" ->
+                                line = String.format("%s,%s,%s,%d,%.2f", store, name, newValue, quantity, price);
+                        case "quantity" -> line = String.format("%s,%s,%s,%d,%.2f", store, name, description,
                                 Integer.parseInt(newValue), price);
-                    } else if (field.equals("price")) {
-                        line = String.format("%s,%s,%s,%d,%.2f", store, name, description, quantity,
+                        case "price" -> line = String.format("%s,%s,%s,%d,%.2f", store, name, description, quantity,
                                 Double.parseDouble(newValue));
                     }
                 }
@@ -120,4 +129,3 @@ public class Item {
         }
     }
 }
-
