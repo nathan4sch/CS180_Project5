@@ -52,6 +52,18 @@ Sample Dashboard
 - The client that handles all user functions and sends information to Server.java. 
 ## Server.java
 - The server handles all information sent to it by clients. Whenever a client sucessfully signs in, the server allocates a new thread to the client, allowing for multiple clients to be handled simultaneously. 
+## LoginFrame.java
+- The JFrame GUI that users use to sign in and create new accounts. If a user sucessfully creates a new account, they will be redirected to the corresponding GUI for either buyers or sellers.
+- LoginFrame checks for a valid email input which requires the email to have a "@" and requires the password to be at least 6 characters long. If the sign in credentials are correct, users will be redirected to either MainBuyerFrame.java or MainSellerFrame.java based on their corresponding account type. 
+## MainBuyerFrame.java
+- Main Buyer Dashboard for all buyer functionalities. 
+### The left panel shows the Furniture Marketplace that lists all the products available for purchase.
+- Users can select an item by clicking on it. Once highlited, users can right click to either see more details of the product or click add to cart to add the item to cart. Adding to cart will prompt the user to enter the quantity of the product to add. If the amount is equal or less than the amount in stock, the product will sucessfully be added to their cart.
+- Users can search for a product by its name, description, or store name. This will make the Furniture Marketplace dashboard only show the items searched for.
+- Users can refresh the dashboard to reflect changes made by Sellers (Adding new items, editing prices, etc.)
+### The right panel shows buttons that contain other functions for Buyers.
+- **View Cart: ** redirects the user to CartFrame.java
+- **Sort Dashboard: ** 
 ## Buyer.java
 - Contains all methods the buyers may use. These methods are called in Server.java.
 ## Seller.java
@@ -60,6 +72,3 @@ Sample Dashboard
 - Contains all methods related to the stores owned by sellers. These methods are called in Server.java
 ## Item.java
 - Contains all methods related to the products sold by stores. These methods are called in Server.java
-## LoginFrame.java
-- The JFrame GUI that users use to sign in and create new accounts. If a user sucessfully creates a new account, they will be redirected to the corresponding GUI for either buyers or sellers.
-- LoginFrame checks for a valid email input which requires the email to have a "@" and requires the password to be at least 6 characters long. If the sign in credentials are correct, users will be redirected to the corresponding GUI for either buyers or sellers. 
