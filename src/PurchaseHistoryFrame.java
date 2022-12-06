@@ -105,8 +105,6 @@ public class PurchaseHistoryFrame extends JComponent implements Runnable {
                     if (success.equals("Success")) {
                         JOptionPane.showMessageDialog(null, "File Exported!", "Success",
                                 JOptionPane.INFORMATION_MESSAGE);
-                        SwingUtilities.invokeLater(new LoginFrame(socket));
-                        purchaseHistoryFrame.dispose();
                     } else {
                         JOptionPane.showMessageDialog(null, "Export Failed!", "Error",
                                 JOptionPane.ERROR_MESSAGE);
