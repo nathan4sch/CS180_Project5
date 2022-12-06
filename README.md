@@ -3,14 +3,21 @@
 ## CS 18000 GLD Capstone Project
 
 ### Description
-This is a furniture reselling marketplace where users can buy and sell items. Users can create an account that is either a Buyer or Seller with their information saved between sessions. To access their account after creation, users just have to log into their account by entering the correct credentials. 
+This is a furniture marketplace where users can buy and sell their items. Users can create an account that is either a Buyer or Seller with their information saved between sessions. To access their account after creation, users just have to log into their account by entering the correct credentials. 
 
-For buyers, the Buyer Dashboard shows a marketplace listing page shows the store, product name, and price of the available goods. This dashboard can be sorted by price and amount of items available, and users can search for specific products. Buyers can add the marketplace items to their cart, remove items from their cart, and checkout their items in cart. Buyers can also view and export a file of their purchase history. Buyers can view statistics of the stores they bought from and all stores by the number of their products sold; these statistics can be sorted by quantity from most to least. Lastly buyers can change their passwords and delete their accounts.
+For buyers, the Buyer Dashboard shows a marketplace listing page shows the store, product name, and price of the available goods. 
+This dashboard can be sorted by price and amount of items available, and users can search for specific products. 
+Buyers can add the marketplace items to their cart, remove items from their cart, and checkout their items in cart. 
+Buyers can also view and export a file of their purchase history. 
+Buyers can view statistics of the stores they bought from and all stores by the number of their products sold; these statistics can be sorted by quantity from most to least. 
+Lastly buyers can change their passwords and delete their accounts.
 
-For sellers, the Seller Dashboard has many options including creating stores, creating products for a specific store, and viewing items currently in the buyers' carts. Under managing stores, sellers can view a list of all sales of the selected store, view the statistics of their stores, import product files, and delete their stores. Sellers can then select a store and modify the products sold under the store. This includes adding a new product, editing existing products, deleting a selected product, and exporting a product file. Lastly, sellers can change their passwords and delete their accounts.
+For sellers, the Seller Dashboard has many options including creating stores, creating products for a specific store, and viewing items currently in the buyers' carts. 
+Under managing stores, sellers can view a list of all sales of the selected store, view the statistics of their stores, import product files, and delete their stores. 
+Sellers can then select a store and modify the products sold under the store. This includes adding a new product, editing existing products, deleting a selected product, and exporting a product file. 
+Lastly, sellers can change their passwords and delete their accounts.
 
-
-# How to run project
+# How to run the project
 ## Step 1 - Run Server.java and Client.java
 - This will run the server in which multiple clients will be able to access their accounts. 
 ## Step 2 - Account Login & Creation
@@ -27,3 +34,32 @@ Sample Dashboard
 - If the account type is a Seller, the Seller dasboard is shown will all available items 
 
 Sample Dashboard
+
+# Project Members & Roles Contributed
+### Andrei Deaconescu
+- 
+### Benjamin Herrington
+-
+### Colin Wu
+- 
+### Dakota Baldwin
+- 
+### Nathan Schneider
+-
+
+# Class Information
+## Client.java
+- The client that handles all user functions and sends information to Server.java. 
+## Server.java
+- The server handles all information sent to it by clients. Whenever a client sucessfully signs in, the server allocates a new thread to the client, allowing for multiple clients to be handled simultaneously. 
+## Buyer.java
+- Contains all methods the buyers may use. These methods are called in Server.java.
+## Seller.java
+- Contains all methods the sellers may use. These methods are called in Server.java.
+## Store.java
+- Contains all methods related to the stores owned by sellers. These methods are called in Server.java
+## Item.java
+- Contains all methods related to the products sold by stores. These methods are called in Server.java
+## LoginFrame.java
+- The JFrame GUI that users use to sign in and create new accounts. If a user sucessfully creates a new account, they will be redirected to the corresponding GUI for either buyers or sellers.
+- LoginFrame checks for a valid email input which requires the email to have a "@" and requires the password to be at least 6 characters long. If the sign in credentials are correct, users will be redirected to the corresponding GUI for either buyers or sellers. 
