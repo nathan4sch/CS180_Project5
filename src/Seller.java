@@ -1,7 +1,5 @@
 import java.io.*;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 
 /**
  * The Seller class and all the variables and methods they may use.
@@ -14,6 +12,12 @@ public class Seller {
     private String password; // the user's password
     private ArrayList<Store> stores; // a list of stores the seller owns
 
+    /**
+     * Seller constructor
+     *
+     * @param email    Seller email
+     * @param password Seller password
+     **/
     public Seller(String email, String password) {
         this.email = email;
         this.password = password;
@@ -46,7 +50,7 @@ public class Seller {
         stores.add(store);
         try {
             PrintWriter printStore = new PrintWriter(new FileOutputStream("FMStores.csv", true));
-            printStore.println(store.getStoreName() + "," + store.getOwner());
+            printStore.println(store.getStoreName() + "," + store.getOwner() + ",x");
             printStore.flush();
             printStore.close();
         } catch (Exception e) {
@@ -63,7 +67,7 @@ public class Seller {
     public void deleteStore(String storeName) {
         Store currentStore = null;
         for (int i = 0; i < stores.size(); i++) {
-            if (stores.get(i).getStoreName().equals(storeName)){
+            if (stores.get(i).getStoreName().equals(storeName)) {
                 currentStore = stores.get(i);
             }
         }
@@ -73,10 +77,10 @@ public class Seller {
         try {
             // First, remove store belonging to this owner from stores file
             BufferedReader bfrOne = new BufferedReader(new FileReader("FMStores.csv"));
-            String line = "";
+            String line;
             while ((line = bfrOne.readLine()) != null) {
                 String[] splitLine = line.split(",");
-                if (!currentStore.getStoreName().equals(splitLine[0])) {
+                if (!Objects.requireNonNull(currentStore).getStoreName().equals(splitLine[0])) {
                     storesLines.add(line);
                 }
             }
@@ -93,12 +97,12 @@ public class Seller {
         try {
             // Second, remove all items belonging to this store from items file
             BufferedReader bfrTwo = new BufferedReader(new FileReader("FMItems.csv"));
-            String line = "";
 
+            String line;
             while ((line = bfrTwo.readLine()) != null) {
                 // Only saves items whose store doesn't match this store
                 String[] splitLine = line.split(",");
-                if (!currentStore.getStoreName().equals(splitLine[0])) {
+                if (!Objects.requireNonNull(currentStore).getStoreName().equals(splitLine[0])) {
                     itemsLines.add(line);
                 }
             }
@@ -115,7 +119,7 @@ public class Seller {
     }
 
     /**
-     * Purpose: Deletes the current seller's account. This deletes all the sellers information from the csv files
+     * Deletes the current seller's account. This deletes all the sellers information from the csv files
      * as well. This includes FMCredentials, FMStores, and FMItems.
      */
     public void deleteAccount() {
@@ -198,7 +202,7 @@ public class Seller {
         try {
             // Third, remove all items belonging to this owner's stores from items file
             BufferedReader bfrThree = new BufferedReader(new FileReader("FMItems.csv"));
-            String itemLine = "";
+            String itemLine;
             while ((itemLine = bfrThree.readLine()) != null) {
                 boolean keep = true;
                 // Only saves items whose store doesn't match any of this owner's stores
@@ -228,11 +232,12 @@ public class Seller {
      *
      * @param fileName Contains the file name that the imported files should be read from.
      * @param stores   Array containing all the stores of the current seller
+     * @return int number of successfully imported items
      */
     public synchronized int importItems(String fileName, Store[] stores) { // Adds imported items to stores
         try {
             BufferedReader bfr = new BufferedReader(new FileReader(fileName));
-            String line = "";
+            String line;
             int numberSuccess = 0;
             while ((line = bfr.readLine()) != null) {
                 String[] splitLine = line.split(",");
@@ -259,7 +264,9 @@ public class Seller {
     }
 
     /**
-     * Purpose: Prints customer shopping cart info for Sellers
+     * Prints customer shopping cart info for Sellers
+     *
+     * @return String ArrayList of shopping cart
      */
     public static ArrayList<String> viewCustomerShoppingCart() {
         try {
@@ -339,6 +346,11 @@ public class Seller {
         return null;
     }
 
+    /**
+     * Gets all Stores owned by the user
+     *
+     * @return Store Array
+     */
     public Store[] getStore() {
         Store[] userStores = new Store[this.stores.size()];
         for (int i = 0; i < this.stores.size(); i++) {
@@ -347,7 +359,11 @@ public class Seller {
         return userStores;
     }
 
-    //Return the store with the same name as the inputted string
+    /**
+     * Gets the specific Store object by storeName
+     *
+     * @return Store Object
+     */
     public Store getSpecificStore(String storeName) {
         Store[] userStores = getStore();
         for (int i = 0; i < userStores.length; i++) {
@@ -358,12 +374,21 @@ public class Seller {
         return null;
     }
 
+    /**
+     * Gets the email of Seller
+     *
+     * @return String email
+     */
     public String getEmail() {
         return email;
     }
 
+    /**
+     * Sets the password of Seller to a new value
+     *
+     * @param password String new password
+     */
     public void setPassword(String password) {
         this.password = password;
     }
-
 }
