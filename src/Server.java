@@ -217,6 +217,46 @@ public class Server implements Runnable {
                         } catch (Exception exc) {
                             exc.printStackTrace();
                         }
+
+                        //rewrite FMItems to reflect changes in stock
+                        try {
+                            BufferedReader reader = new BufferedReader(new FileReader("FMItems.csv"));
+                            ArrayList<String> fmItemsUnchanged = new ArrayList<>(); // saves unchanged data
+                            ArrayList<String> fmItemsChanged = new ArrayList<>();
+                            String line = reader.readLine();
+                            while (line != null) { // checks lines against every successfully checked out item
+                                String[] splitLine = line.split(",");
+                                boolean found = false; // only becomes true if item is line is one of the items changed
+                                for (int i = 0; i < successfulItems.size(); i++) {
+                                    String[] splitItem = successfulItems.get(i).split("!");
+                                    if (splitItem[1].equals(splitLine[1])) {
+                                        fmItemsChanged.add(splitLine[0] + "," + splitLine[1] + "," + splitLine[2] + "," + // adds changed data to list of changed data
+                                                (Integer.parseInt(splitLine[3]) - Integer.parseInt(splitItem[2]))
+                                                + "," + splitLine[4]);
+                                        found = true;
+                                    }
+                                }
+                                if (!found) { // If item is not found in list of successful items, it is added to unchanged list
+                                    fmItemsUnchanged.add(line);
+                                }
+                                line = reader.readLine();
+                            }
+                            reader.close();
+
+                            PrintWriter itemWriter = new PrintWriter(new FileWriter("FMItems.csv",false));
+
+                            for (int i = 0; i < fmItemsChanged.size(); i++) {
+                                itemWriter.println(fmItemsChanged.get(i));
+                            }
+                            for (int i = 0; i < fmItemsUnchanged.size(); i++) {
+                                itemWriter.println(fmItemsUnchanged.get(i));
+                            }
+                            itemWriter.close();
+                        } catch (Exception exc) {
+                            exc.printStackTrace();
+                        }
+
+                        //Communicates to client
                         if (unsuccessfulItems.isEmpty()) {
                             printWriter.println("Success");
                             printWriter.flush();
