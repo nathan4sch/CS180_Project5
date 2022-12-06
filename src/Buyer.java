@@ -1,8 +1,5 @@
 import java.io.*;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 
 /**
  * Buyers class - contains all methods the buyers may use
@@ -241,7 +238,6 @@ public class Buyer {
         return "Not Exported";
     }
 
-
     /**
      * Statistics storesFromBuyerProducts
      *
@@ -256,7 +252,8 @@ public class Buyer {
 
             boolean containsUser = false;
             for (int i = 0; i < stores.size(); i++) { // check if stores has buyer email
-                if (stores.get(i).contains(buyerEmail)) {
+                String[] storeSplit = stores.get(i).split(",");
+                if (storeSplit[2].contains(buyerEmail)) {
                     containsUser = true;
                     relevantStores.add(stores.get(i));
                 }
