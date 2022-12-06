@@ -182,7 +182,7 @@ public class CartFrame extends JComponent implements Runnable {
         selectItem = new JLabel("Item Name : Quantity : Total Cost      ");
         selectItem.setBounds(50, 155, 350, 60);
         selectItem.setFont(new Font(selectItem.getFont().getName(),
-                Font.BOLD, fontSizeToUse(selectItem)));
+                Font.BOLD, fontSizeToUse(selectItem) - 1));
         leftPanel.add(selectItem);
 
         // Cart Items

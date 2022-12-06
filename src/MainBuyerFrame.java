@@ -409,7 +409,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         leftPanel.add(searchButton);
         
         refreshButton = new JButton("Refresh Dashboard");
-        refreshButton.setBounds(50,510,200,60);
+        refreshButton.setBounds(550,630,200,60);
         refreshButton.addActionListener(actionListener);
         leftPanel.add(refreshButton);
 
