@@ -8,10 +8,16 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.lang.reflect.Array;
 import java.net.Socket;
 import java.util.ArrayList;
 
+/**
+ * Interface that allows users to manage their current stores.
+ * Users can view a list of a selected store's sales, modify the products of the selected store,
+ * view store statistics, delete their selected store, and import a product file with a list of products to be added to a store.
+ *
+ * @version 24/11/2022
+ */
 public class ManageStoreFrame extends JComponent implements Runnable {
 
     Socket socket;
@@ -25,6 +31,7 @@ public class ManageStoreFrame extends JComponent implements Runnable {
     JPanel rightPanel;
     JButton returnToDashButton;
     String storeSelected = "";
+
     //Right Panel
     JLabel selectStore;
     JLabel optionsOfStore;
@@ -37,10 +44,17 @@ public class ManageStoreFrame extends JComponent implements Runnable {
     JButton salesListButton;
     JButton statisticsButton;
 
-
     //Left Panel
-    JLabel currentStore;
+    JLabel mainLabel;
+    JLabel currentStoreLabel;
 
+    /**
+     * The constructor of ManageStoreFrame
+     *
+     * @param socket     The socket that connect this local machine with the server
+     * @param userStores String Array of all store names of the current user
+     * @param userEmail  Email of current user
+     */
     public ManageStoreFrame(Socket socket, String[] userStores, String userEmail) {
         this.socket = socket;
         this.userStores = userStores;
@@ -58,20 +72,27 @@ public class ManageStoreFrame extends JComponent implements Runnable {
                     JOptionPane.showMessageDialog(null, "No Store Selected",
                             "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
-                    printWriter.println("Delete Store");
-                    printWriter.println(storeSelected);
-                    printWriter.flush();
-                    try {
-                        String userStoresString = bufferedReader.readLine();
-                        userStoresString = userStoresString.substring(1, userStoresString.length() - 1);
-                        userStores = userStoresString.split(", ");
-                        storeSelected = "";
-                        manageStoreFrame.dispose();
-                        run();
-                        JOptionPane.showMessageDialog(null, "Store Deleted",
-                                "Success", JOptionPane.INFORMATION_MESSAGE);
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
+                    int confirmDelete = JOptionPane.showConfirmDialog(null,
+                            "Are you sure you want to delete this store?", "Delete Store",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.QUESTION_MESSAGE);
+
+                    if (confirmDelete == 0) { // Confirm delete store
+                        printWriter.println("Delete Store");
+                        printWriter.println(storeSelected);
+                        printWriter.flush();
+                        try {
+                            String userStoresString = bufferedReader.readLine();
+                            userStoresString = userStoresString.substring(1, userStoresString.length() - 1);
+                            userStores = userStoresString.split(", ");
+                            storeSelected = "";
+                            manageStoreFrame.dispose();
+                            run();
+                            JOptionPane.showMessageDialog(null, "Store Deleted",
+                                    "Success", JOptionPane.INFORMATION_MESSAGE);
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
                     }
                 }
             } else if (source == modifyProductsButton) {
@@ -142,7 +163,7 @@ public class ManageStoreFrame extends JComponent implements Runnable {
                             for (int i = 0; i < salesData.length; i++) {
                                 String[] individualSale = salesData[i].split("!");
                                 String output = String.format("(%s) Customer: %s   Product: %s   Quantity Bought: %s   " +
-                                        "Price Bought At: $%s", i + 1, individualSale[0], individualSale[1],
+                                                "Price Bought At: $%s", i + 1, individualSale[0], individualSale[1],
                                         individualSale[2], individualSale[3]);
                                 saleList.add(output);
                             }
@@ -171,7 +192,8 @@ public class ManageStoreFrame extends JComponent implements Runnable {
                     JOptionPane.showMessageDialog(null, "No Store Selected",
                             "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
-                    String[] options = {"Buyer Statistics", "Sorted Buyer Statistics", "Item Statistics", "Sorted Item Statistics"};
+                    String[] options = {"Buyer Statistics", "Sorted Buyer Statistics",
+                            "Item Statistics", "Sorted Item Statistics"};
                     Object selectionObject = JOptionPane.showInputDialog(null,
                             "Select Statistics to View", "Statistics",
                             JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
@@ -247,9 +269,11 @@ public class ManageStoreFrame extends JComponent implements Runnable {
 
             } else {
                 storeSelected = e.getActionCommand();
-                currentStore.setText("Store Selected: " + storeSelected);
-                currentStore.setFont(new Font(currentStore.getFont().getName(),
-                        Font.BOLD, fontSizeToUse(currentStore)));
+                currentStoreLabel.setText("Store Selected: " + storeSelected);
+                currentStoreLabel.setFont(new Font(currentStoreLabel.getFont().getName(),
+                        Font.PLAIN, fontSizeToUse(currentStoreLabel)));
+                int xOffset = 240 - currentStoreLabel.getText().length();
+                currentStoreLabel.setBounds(xOffset, 175, 400, 30);
             }
         }
     };
@@ -282,69 +306,69 @@ public class ManageStoreFrame extends JComponent implements Runnable {
         rightPanel.add(selectStore);
 
         ButtonGroup buttonGroup = new ButtonGroup();
-//        for (int i = 0; i < userStores.length; i++) {
-//            radioButton = new JRadioButton(userStores[i]);
-//            buttonGroup.add(radioButton);
-//            rightPanel.add(radioButton);
-//            radioButton.addActionListener(actionListener);
-//        }
 
         for (int i = 0; i < userStores.length; i++) { // Add to radioButton group
             radioButton = new JRadioButton(userStores[i]);
             buttonGroup.add(radioButton);
             radioButton.setBounds(10, 150 + (50 * i), 200, 30);
-            radioButton.setFont(new Font (radioButton.getFont().getName(), Font.PLAIN, 18));
+            radioButton.setFont(new Font(radioButton.getFont().getName(), Font.PLAIN, 18));
             rightPanel.add(radioButton);
             radioButton.addActionListener(actionListener);
         }
 
         //leftPanel
         leftPanel.setLayout(null);
-        currentStore = new JLabel("Select a Store");
-        currentStore.setBounds(200, 10, 400, 120);
-        currentStore.setFont(new Font(currentStore.getFont().getName(),
-                Font.BOLD, fontSizeToUse(currentStore)));
-        leftPanel.add(currentStore);
 
-        optionsOfStore = new JLabel("Options for the Selected Store");
-        optionsOfStore.setBounds(260, 180, 400, 80);
+        mainLabel = new JLabel("Manage Stores");
+        mainLabel.setBounds(180, 10, 400, 120);
+        mainLabel.setFont(new Font(mainLabel.getFont().getName(),
+                Font.BOLD, fontSizeToUse(mainLabel)));
+        leftPanel.add(mainLabel);
+
+        currentStoreLabel = new JLabel("Select a Store");
+        currentStoreLabel.setBounds(280, 175, 400, 30);
+        currentStoreLabel.setFont(new Font(currentStoreLabel.getFont().getName(),
+                Font.PLAIN, fontSizeToUse(currentStoreLabel)));
+        leftPanel.add(currentStoreLabel);
+
+        optionsOfStore = new JLabel("Store Options");
+        optionsOfStore.setBounds(280, 260, 400, 80);
         optionsOfStore.setFont(new Font(optionsOfStore.getFont().getName(),
-                Font.PLAIN, 24));
+                Font.BOLD, 30));
         leftPanel.add(optionsOfStore);
 
-
-        //Objective Manage Catalogue
-
-        deleteStoreButton = new JButton("Delete Store");
-        deleteStoreButton.addActionListener(actionListener);
-        deleteStoreButton.setBounds(450, 350, 200, 80);
-        leftPanel.add(deleteStoreButton);
-
+        // Return to Dashboard & Import Product
         returnToDashButton = new JButton("Return to Dashboard");
         returnToDashButton.addActionListener(actionListener);
-        returnToDashButton.setBounds(470, 600, 200, 80);
+        returnToDashButton.setBounds(420, 660, 200, 60);
         leftPanel.add(returnToDashButton);
 
         importProductFile = new JButton("Import Product File");
         importProductFile.addActionListener(actionListener);
-        importProductFile.setBounds(180, 600, 200, 80);
+        importProductFile.setBounds(120, 660, 200, 60);
         leftPanel.add(importProductFile);
+
+        //Objective Manage Catalogue
+        deleteStoreButton = new JButton("Delete Store");
+        deleteStoreButton.addActionListener(actionListener);
+        deleteStoreButton.setBounds(400, 425, 200, 60);
+        leftPanel.add(deleteStoreButton);
 
         modifyProductsButton = new JButton("Modify Products");
         modifyProductsButton.addActionListener(actionListener);
-        modifyProductsButton.setBounds(450, 250, 200, 80);
+        modifyProductsButton.setBounds(400, 350, 200, 60);
         leftPanel.add(modifyProductsButton);
 
         //Sales List Button
         salesListButton = new JButton("Sales List");
         salesListButton.addActionListener(actionListener);
-        salesListButton.setBounds(200, 250, 200, 80);
+        salesListButton.setBounds(160, 350, 200, 60);
         leftPanel.add(salesListButton);
 
         //Statistics Dashboard Button
         statisticsButton = new JButton("Statistics of Store");
         statisticsButton.addActionListener(actionListener);
-        statisticsButton.setBounds(200, 350, 200, 80);
+        statisticsButton.setBounds(160, 425, 200, 60);
         leftPanel.add(statisticsButton);
 
         //Finalize frame
@@ -373,8 +397,6 @@ public class ManageStoreFrame extends JComponent implements Runnable {
         manageStoreFrame.setVisible(true);
     }
 
-
-    //FOUND THIS ONLINE (will change)
     public int fontSizeToUse(JLabel label) {
         Font currentFont = label.getFont();
         String textInLabel = label.getText();
@@ -383,11 +405,7 @@ public class ManageStoreFrame extends JComponent implements Runnable {
         double widthRatio = (double) componentWidth / (double) stringWidth;
         int newFontSize = (int) (currentFont.getSize() * widthRatio);
         int componentHeight = label.getHeight();
-        int fontSizeToUse = Math.min(newFontSize, componentHeight);
 
-        return fontSizeToUse;
+        return Math.min(newFontSize, componentHeight);
     }
 }
-
-
-//work on the wonky girdlayout for the users stores. Probably do gridbaglayout
