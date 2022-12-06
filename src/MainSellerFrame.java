@@ -30,6 +30,7 @@ public class MainSellerFrame extends JComponent implements Runnable {
     JButton manageCatalogueButton;
     JButton createStoreButton;
     JLabel newStoreName;
+    JLabel manageStoreButtonLabel;
     JTextField inputStoreName;
     JComponent[] manageStoreGUI;
 
@@ -39,8 +40,15 @@ public class MainSellerFrame extends JComponent implements Runnable {
     JButton deleteAccountButton;
     JTextField newPassword;
     JLabel passwordLabel;
+    JLabel deleteAccountLabel;
     JComponent[] manageAccountGUI;
 
+    /**
+     * The constructor of MainSellerFrame
+     *
+     * @param socket    The socket that connect this local machine with the server
+     * @param userEmail Email of currently logged-in user
+     */
     public MainSellerFrame(Socket socket, String userEmail) {
         this.socket = socket;
         this.userEmail = userEmail;
@@ -71,8 +79,7 @@ public class MainSellerFrame extends JComponent implements Runnable {
                         String[] output = successOrFailure.split("~");
 
                         JScrollPane scrollPane;
-                        String[] paneOptions = output;
-                        JList<String> list = new JList<>(paneOptions);
+                        JList<String> list = new JList<>(output);
                         scrollPane = new JScrollPane(list);
 
                         JPanel panel = new JPanel();
@@ -128,18 +135,25 @@ public class MainSellerFrame extends JComponent implements Runnable {
                     ex.printStackTrace();
                 }
             } else if (source == deleteAccountButton) {
-                printWriter.println("Delete Account");
-                printWriter.println(userEmail);
-                printWriter.flush();
+                int confirmDelete = JOptionPane.showConfirmDialog(null,
+                        "Are you sure you want to delete your account?", "Delete Account",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE);
 
-                try {
-                    String success = bufferedReader.readLine();
-                    JOptionPane.showMessageDialog(null, "Account Deleted", "Success",
-                            JOptionPane.INFORMATION_MESSAGE);
-                    SwingUtilities.invokeLater(new LoginFrame(socket));
-                    mainSellerFrame.dispose();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
+                if (confirmDelete == 0) { // Confirm delete account
+                    printWriter.println("Delete Account");
+                    printWriter.println(userEmail);
+                    printWriter.flush();
+
+                    try {
+                        String success = bufferedReader.readLine();
+                        JOptionPane.showMessageDialog(null, "Account Deleted", "Success",
+                                JOptionPane.INFORMATION_MESSAGE);
+                        SwingUtilities.invokeLater(new LoginFrame(socket));
+                        mainSellerFrame.dispose();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
 
@@ -189,7 +203,7 @@ public class MainSellerFrame extends JComponent implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        mainSellerFrame = new JFrame("Account Frame");
+        mainSellerFrame = new JFrame("Main Seller Frame");
         splitPane = new JSplitPane();
         leftPanel = new JPanel();
         rightPanel = new JPanel();
@@ -227,43 +241,48 @@ public class MainSellerFrame extends JComponent implements Runnable {
         leftPanel.setLayout(null);
 
         //Manage Stores
-        manageStoreMainLabel = new JLabel("Create and Manage Stores");
-        manageStoreMainLabel.setBounds(150, 10, 550, 100);
+        manageStoreMainLabel = new JLabel("Create And Manage Stores");
+        manageStoreMainLabel.setBounds(130, 10, 550, 100);
         manageStoreMainLabel.setFont(new Font(manageStoreMainLabel.getFont().getName(),
-                Font.PLAIN, fontSizeToUse(manageStoreMainLabel)));
+                Font.BOLD, fontSizeToUse(manageStoreMainLabel)));
         leftPanel.add(manageStoreMainLabel);
 
-        newStoreName = new JLabel("Input Store Name: ");
-        newStoreName.setBounds(500, 300, 200, 40);
+        newStoreName = new JLabel("Create a New Store: ");
+        newStoreName.setBounds(500, 250, 200, 40);
         int fontSize = fontSizeToUse(newStoreName);
         newStoreName.setFont(new Font(newStoreName.getFont().getName(), Font.PLAIN, fontSize));
         leftPanel.add(newStoreName);
         newStoreName.setVisible(false);
 
         inputStoreName = new JTextField(100);
-        inputStoreName.setBounds(500, 350, 200, 40);
+        inputStoreName.setBounds(500, 300, 200, 40);
         leftPanel.add(inputStoreName);
         inputStoreName.setVisible(false);
 
         createStoreButton = new JButton("Create Store");
         createStoreButton.addActionListener(actionListener);
-        createStoreButton.setBounds(500, 400, 200, 40);
+        createStoreButton.setBounds(500, 350, 200, 60);
         leftPanel.add(createStoreButton);
         createStoreButton.setVisible(false);
 
+        manageStoreButtonLabel = new JLabel("View All Your Stores: ");
+        manageStoreButtonLabel.setBounds(100, 300, 200, 40);
+        manageStoreButtonLabel.setFont(new Font(manageStoreButtonLabel.getFont().getName(), Font.PLAIN, fontSize));
+        leftPanel.add(manageStoreButtonLabel);
+        manageStoreButtonLabel.setVisible(false);
+
         manageCatalogueButton = new JButton("Manage Stores");
         manageCatalogueButton.addActionListener(actionListener);
-        manageCatalogueButton.setBounds(100, 350, 200, 80);
+        manageCatalogueButton.setBounds(100, 350, 200, 60);
         leftPanel.add(manageCatalogueButton);
         manageCatalogueButton.setVisible(false);
 
-        manageStoreGUI = new JComponent[]{manageStoreMainLabel, manageCatalogueButton, createStoreButton
-                , newStoreName, inputStoreName};
+        manageStoreGUI = new JComponent[]{manageStoreMainLabel, manageStoreButtonLabel, manageCatalogueButton,
+                createStoreButton, newStoreName, inputStoreName};
         for (int i = 0; i < manageStoreGUI.length; i++) {
             manageStoreGUI[i].setVisible(true);
             currentlyVisible.add(manageStoreGUI[i]);
         }
-
 
         //Manage Account
         manageAccountMainLabel = new JLabel("Manage Account");
@@ -273,7 +292,7 @@ public class MainSellerFrame extends JComponent implements Runnable {
         leftPanel.add(manageAccountMainLabel);
         manageAccountMainLabel.setVisible(false);
 
-        passwordLabel = new JLabel("Input New Password: ");
+        passwordLabel = new JLabel("Enter New Password: ");
         passwordLabel.setBounds(100, 250, 200, 40);
         fontSize = fontSizeToUse(passwordLabel);
         passwordLabel.setFont(new Font(passwordLabel.getFont().getName(), Font.PLAIN, fontSize));
@@ -281,23 +300,30 @@ public class MainSellerFrame extends JComponent implements Runnable {
         passwordLabel.setVisible(false);
 
         newPassword = new JTextField(100);
-        newPassword.setBounds(300, 250, 200, 40);
+        newPassword.setBounds(100, 300, 200, 40);
         leftPanel.add(newPassword);
         newPassword.setVisible(false);
 
         editAccountButton = new JButton("Change Password");
         editAccountButton.addActionListener(actionListener);
-        editAccountButton.setBounds(100, 300, 200, 70);
+        editAccountButton.setBounds(100, 350, 200, 60);
         leftPanel.add(editAccountButton);
         editAccountButton.setVisible(false);
 
-        deleteAccountButton = new JButton("Delete Account");
+        deleteAccountLabel = new JLabel("Delete Account: ");
+        deleteAccountLabel.setBounds(500, 300, 200, 40);
+        deleteAccountLabel.setFont(new Font(deleteAccountLabel.getFont().getName(), Font.PLAIN, fontSize));
+        leftPanel.add(deleteAccountLabel);
+        deleteAccountLabel.setVisible(false);
+
+        deleteAccountButton = new JButton("Delete Your Account");
         deleteAccountButton.addActionListener(actionListener);
-        deleteAccountButton.setBounds(310, 300, 200, 70);
+        deleteAccountButton.setBounds(500, 350, 200, 60);
         leftPanel.add(deleteAccountButton);
         deleteAccountButton.setVisible(false);
 
-        manageAccountGUI = new JComponent[]{manageAccountMainLabel, editAccountButton, deleteAccountButton, newPassword, passwordLabel};
+        manageAccountGUI = new JComponent[]{manageAccountMainLabel, deleteAccountLabel ,editAccountButton,
+                deleteAccountButton, newPassword, passwordLabel};
 
         //Finalize frame
         mainSellerFrame.add(splitPane);
@@ -326,7 +352,6 @@ public class MainSellerFrame extends JComponent implements Runnable {
 
     }
 
-    //FOUND THIS ONLINE (will change)
     public int fontSizeToUse(JLabel label) {
         Font currentFont = label.getFont();
         String textInLabel = label.getText();
@@ -335,18 +360,16 @@ public class MainSellerFrame extends JComponent implements Runnable {
         double widthRatio = (double) componentWidth / (double) stringWidth;
         int newFontSize = (int) (currentFont.getSize() * widthRatio);
         int componentHeight = label.getHeight();
-        int fontSizeToUse = Math.min(newFontSize, componentHeight);
 
-        return fontSizeToUse;
+        return Math.min(newFontSize, componentHeight);
     }
 
     /**
      * Sets currentlyVisible panel to false
-     * */
+     */
     public void resetVisible() {
         for (int i = 0; i < currentlyVisible.size(); i++) {
             currentlyVisible.get(i).setVisible(false);
         }
     }
 }
-
