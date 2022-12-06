@@ -151,6 +151,161 @@ public class Server implements Runnable {
                             }
                         }
                     }
+                    case "Checkout" -> {
+                        ArrayList<String> successfulItems = new ArrayList<>(); // full cart item copied to array list in case of success
+                        ArrayList<String> unsuccessfulItems = new ArrayList<>(); // only name, quantity, and error info
+                        ArrayList<String> cart = ((Buyer) currentUser).getCart();
+                        itemList = getItems();
+
+                        boolean itemFound; // boolean used to check if item still exists in items
+                        for (int i = 0; i < cart.size(); i++) {
+                            itemFound = false;
+                            String[] splitCart = cart.get(i).split("!");
+                            for (int j = 0; j < itemList.size(); j++) {
+                                if (splitCart[1].equals(itemList.get(j).getName())) { // every item in cart against item list
+                                    itemFound = true;
+                                    if (itemList.get(j).getQuantity() < Integer.parseInt(splitCart[2])) { // if not enough in stock, add to unsuccessful items list
+                                        unsuccessfulItems.add(itemList.get(j).getName() + "," + splitCart[2] + ",Not enough in stock to fulfill order");
+                                    } else {
+                                        successfulItems.add(cart.get(i));
+                                    }
+                                }
+                            }
+                            if (!itemFound) {
+                                unsuccessfulItems.add(splitCart[1] + "," + splitCart[2] + ",Item No longer exists");
+                            }
+                        }
+
+                        //Writes Successful checkouts to purchase history and removes all items from cart
+                        try {
+                            BufferedReader reader = new BufferedReader(new FileReader("FMCredentials.csv"));
+                            ArrayList<String> fmCredentials = new ArrayList<>();
+                            String line = reader.readLine();
+                            String[] userSplit = null; // saves current user data for ease of access
+                            while (line != null) {
+                                String[] splitLine = line.split(",");
+                                if (!((Buyer) currentUser).getEmail().equals(splitLine[0])) {
+                                    fmCredentials.add(line);
+                                } else {
+                                    userSplit = line.split(",");
+                                }
+                                line = reader.readLine();
+                            }
+                            reader.close();
+
+                            PrintWriter credWriter = new PrintWriter(new FileWriter("FMCredentials.csv"));
+
+                            assert userSplit != null;
+                            String formattedSuccess = "";
+                            if (!(userSplit[3].equals("x"))) {
+                                formattedSuccess = userSplit[3];
+                                for (int i = 0; i < successfulItems.size(); i++) {
+                                    formattedSuccess = formattedSuccess + "~" + successfulItems.get(i);
+                                }
+                            } else {
+                                formattedSuccess = successfulItems.get(0);
+                                for (int i = 1; i < successfulItems.size(); i++) {
+                                    formattedSuccess = formattedSuccess + "~" + successfulItems.get(i);
+                                }
+                            }
+                                    //email,password,buyer/seller,history,emptycart,login status
+                            credWriter.println(userSplit[0] + "," + userSplit[1] + "," + userSplit[2] + "," + formattedSuccess + ",x," + userSplit[5]);
+                            for (int i = 0; i < fmCredentials.size(); i++) {
+                                credWriter.println(fmCredentials.get(i));
+                            }
+                            credWriter.close();
+                        } catch (Exception exc) {
+                            exc.printStackTrace();
+                        }
+
+                        //rewrite FMItems to reflect changes in stock
+                        try {
+                            BufferedReader reader = new BufferedReader(new FileReader("FMItems.csv"));
+                            ArrayList<String> fmItemsUnchanged = new ArrayList<>(); // saves unchanged data
+                            ArrayList<String> fmItemsChanged = new ArrayList<>();
+                            String line = reader.readLine();
+                            while (line != null) { // checks lines against every successfully checked out item
+                                String[] splitLine = line.split(",");
+                                boolean found = false; // only becomes true if item is line is one of the items changed
+                                for (int i = 0; i < successfulItems.size(); i++) {
+                                    String[] splitItem = successfulItems.get(i).split("!");
+                                    if (splitItem[1].equals(splitLine[1])) {
+                                        fmItemsChanged.add(splitLine[0] + "," + splitLine[1] + "," + splitLine[2] + "," + // adds changed data to list of changed data
+                                                (Integer.parseInt(splitLine[3]) - Integer.parseInt(splitItem[2]))
+                                                + "," + splitLine[4]);
+                                        found = true;
+                                    }
+                                }
+                                if (!found) { // If item is not found in list of successful items, it is added to unchanged list
+                                    fmItemsUnchanged.add(line);
+                                }
+                                line = reader.readLine();
+                            }
+                            reader.close();
+
+                            PrintWriter itemWriter = new PrintWriter(new FileWriter("FMItems.csv",false));
+
+                            for (int i = 0; i < fmItemsChanged.size(); i++) {
+                                itemWriter.println(fmItemsChanged.get(i));
+                            }
+                            for (int i = 0; i < fmItemsUnchanged.size(); i++) {
+                                itemWriter.println(fmItemsUnchanged.get(i));
+                            }
+                            itemWriter.close();
+                        } catch (Exception exc) {
+                            exc.printStackTrace();
+                        }
+
+                        //writes to fmStats
+                        for (int i = 0; i < successfulItems.size(); i++) {
+                            //ArrayList<String> successfulItems = new ArrayList<>(); // full cart item copied to array list in case of success
+                            //SchneiderTables!Expensive!4!9.99
+                            //(String buyer, Item item, int amountSold) {
+                            String buyer = ((Buyer) currentUser).getEmail();
+                            String[] purchaseInfo = successfulItems.get(i).split("!");
+                            String itemName = purchaseInfo[1];
+                            int quantity = Integer.parseInt(purchaseInfo[2]);
+                            Item item = null;
+
+                            try {
+                                BufferedReader bfr = new BufferedReader(new FileReader("FMItems.csv"));
+                                String line;
+                                while ((line = bfr.readLine()) != null) {
+                                    String[] splitLine = line.split(",");
+                                    if (splitLine[1].equals(itemName)) {
+                                        item = new Item(splitLine[0],splitLine[1],splitLine[2],
+                                                Integer.parseInt(splitLine[3]),Double.parseDouble(splitLine[4]));
+                                    }
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            saveSale(buyer, item, quantity);
+                        }
+
+                        //Communicates to client
+                        if (unsuccessfulItems.isEmpty()) {
+                            printWriter.println("Success");
+                            printWriter.flush();
+                        } else if (successfulItems.isEmpty()) {
+                            printWriter.println("Failure");
+                            printWriter.flush();
+                        } else {
+                            printWriter.println("Partial Success");
+                            printWriter.println(successfulItems.size());
+                            printWriter.println(unsuccessfulItems.size());
+                            printWriter.flush();
+                            for (int i = 0; i < successfulItems.size(); i++) {
+                                String[] splitSuccess = successfulItems.get(i).split("!");
+                                printWriter.println(splitSuccess[1] + "," + splitSuccess[2]);
+                                printWriter.flush();
+                            }
+                            for (int i = 0; i < unsuccessfulItems.size(); i++) {
+                                printWriter.println(unsuccessfulItems.get(i));
+                                printWriter.flush();
+                            }
+                        }
+                    }
                     case "Remove Cart Item" -> {
                         synchronized (SYNC) {
                             try {
@@ -1263,5 +1418,50 @@ public class Server implements Runnable {
             e.printStackTrace();
         }
         return items;
+    }
+
+    public static void saveSale(String buyer, Item item, int amountSold) {
+        //Write to FMStats.csv
+        try {
+            // Read file holding statistics and update buyer and item numbers if already present
+            File fmStats = new File("FMStats.csv");
+            BufferedReader bfrTwo = new BufferedReader(new FileReader(fmStats));
+            ArrayList<String> statsFile = new ArrayList<>();
+            boolean buyerFound = false;
+            boolean currentItemFound = false;
+            String statsLine;
+            while ((statsLine = bfrTwo.readLine()) != null) {
+                String[] splitLine = statsLine.split(",");
+                if (splitLine[0].equals(item.getStore())) {
+                    if (buyer.equals(splitLine[1])) {
+                        buyerFound = true;
+                        splitLine[2] = Integer.toString((Integer.parseInt(splitLine[2]) + amountSold));
+                    } else if (item.getName().equals(splitLine[1])) {
+                        currentItemFound = true;
+                        splitLine[2] = Integer.toString((Integer.parseInt(splitLine[2]) + amountSold));
+                    }
+                }
+                statsFile.add(String.format("%s,%s,%s,%s", splitLine[0], splitLine[1], splitLine[2], splitLine[3]));
+            }
+            /*
+             File will have buyer statistics above item statistics, and this will make sure
+             new buyers are printed at top of file
+            */
+            if (!buyerFound) {
+                statsFile.add(0, String.format("%s,%s,%s,buyer", item.getStore(), buyer, amountSold));
+            }
+            if (!currentItemFound) {
+                statsFile.add(String.format("%s,%s,%s,item", item.getStore(), item.getName(), amountSold));
+            }
+            bfrTwo.close();
+            // Print updated statistics back to the file
+            PrintWriter pwTwo = new PrintWriter(new FileOutputStream("FMStats.csv", false));
+            for (int i = 0; i < statsFile.size(); i++) {
+                pwTwo.println(statsFile.get(i));
+            }
+            pwTwo.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

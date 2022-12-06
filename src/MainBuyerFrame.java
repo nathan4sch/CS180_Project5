@@ -37,6 +37,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
     JButton reviewHistoryButton;
     JButton manageAccountButton;
     JButton logoutButton;
+    JButton refreshButton;
 
     JPopupMenu tablePopupMenu;
     JMenuItem addToCart;
@@ -283,6 +284,19 @@ public class MainBuyerFrame extends JComponent implements Runnable {
 
                 SwingUtilities.invokeLater(new PurchaseHistoryFrame(socket, userEmail));
                 mainBuyerFrame.dispose();
+            } else if (source == refreshButton) {
+                printWriter.println("Initial Table"); // reuse Initial Table code because it is functionally identical.
+                printWriter.flush();
+                try {
+                    //Gets number of items
+                    int numItems = Integer.parseInt(bufferedReader.readLine());
+                    tableModel = updateTable(numItems);
+                    //resets table for user
+                    jTable.setModel(tableModel);
+                    mainBuyerFrame.repaint();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
             } else if (source == statisticsButton) { // View Statistics
                 resetVisible();
 
@@ -393,6 +407,11 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         });
         searchButton.setComponentPopupMenu(searchPopupMenu);
         leftPanel.add(searchButton);
+        
+        refreshButton = new JButton("Refresh Dashboard");
+        refreshButton.setBounds(550,630,200,60);
+        refreshButton.addActionListener(actionListener);
+        leftPanel.add(refreshButton);
 
         mainLabel = new JLabel("Products on Furniture Marketplace");
         mainLabel.setBounds(125, 15, 550, 80);
