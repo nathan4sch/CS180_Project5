@@ -256,6 +256,33 @@ public class Server implements Runnable {
                             exc.printStackTrace();
                         }
 
+                        //writes to fmStats
+                        for (int i = 0; i < successfulItems.size(); i++) {
+                            //ArrayList<String> successfulItems = new ArrayList<>(); // full cart item copied to array list in case of success
+                            //SchneiderTables!Expensive!4!9.99
+                            //(String buyer, Item item, int amountSold) {
+                            String buyer = ((Buyer) currentUser).getEmail();
+                            String[] purchaseInfo = successfulItems.get(i).split("!");
+                            String itemName = purchaseInfo[1];
+                            int quantity = Integer.parseInt(purchaseInfo[2]);
+                            Item item = null;
+
+                            try {
+                                BufferedReader bfr = new BufferedReader(new FileReader("FMItems.csv"));
+                                String line;
+                                while ((line = bfr.readLine()) != null) {
+                                    String[] splitLine = line.split(",");
+                                    if (splitLine[1].equals(itemName)) {
+                                        item = new Item(splitLine[0],splitLine[1],splitLine[2],
+                                                Integer.parseInt(splitLine[3]),Double.parseDouble(splitLine[4]));
+                                    }
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            saveSale(buyer, item, quantity);
+                        }
+
                         //Communicates to client
                         if (unsuccessfulItems.isEmpty()) {
                             printWriter.println("Success");
@@ -1391,5 +1418,50 @@ public class Server implements Runnable {
             e.printStackTrace();
         }
         return items;
+    }
+
+    public static void saveSale(String buyer, Item item, int amountSold) {
+        //Write to FMStats.csv
+        try {
+            // Read file holding statistics and update buyer and item numbers if already present
+            File fmStats = new File("FMStats.csv");
+            BufferedReader bfrTwo = new BufferedReader(new FileReader(fmStats));
+            ArrayList<String> statsFile = new ArrayList<>();
+            boolean buyerFound = false;
+            boolean currentItemFound = false;
+            String statsLine;
+            while ((statsLine = bfrTwo.readLine()) != null) {
+                String[] splitLine = statsLine.split(",");
+                if (splitLine[0].equals(item.getStore())) {
+                    if (buyer.equals(splitLine[1])) {
+                        buyerFound = true;
+                        splitLine[2] = Integer.toString((Integer.parseInt(splitLine[2]) + amountSold));
+                    } else if (item.getName().equals(splitLine[1])) {
+                        currentItemFound = true;
+                        splitLine[2] = Integer.toString((Integer.parseInt(splitLine[2]) + amountSold));
+                    }
+                }
+                statsFile.add(String.format("%s,%s,%s,%s", splitLine[0], splitLine[1], splitLine[2], splitLine[3]));
+            }
+            /*
+             File will have buyer statistics above item statistics, and this will make sure
+             new buyers are printed at top of file
+            */
+            if (!buyerFound) {
+                statsFile.add(0, String.format("%s,%s,%s,buyer", item.getStore(), buyer, amountSold));
+            }
+            if (!currentItemFound) {
+                statsFile.add(String.format("%s,%s,%s,item", item.getStore(), item.getName(), amountSold));
+            }
+            bfrTwo.close();
+            // Print updated statistics back to the file
+            PrintWriter pwTwo = new PrintWriter(new FileOutputStream("FMStats.csv", false));
+            for (int i = 0; i < statsFile.size(); i++) {
+                pwTwo.println(statsFile.get(i));
+            }
+            pwTwo.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
