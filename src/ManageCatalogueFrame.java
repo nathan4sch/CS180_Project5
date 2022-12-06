@@ -431,15 +431,4 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
 
         return fontSizeToUse - 3;
     }
-
-    public static void main(String[] args) { // For testing
-        try {
-            Socket socket1 = new Socket("localhost", 4444);
-            String[] placeHolder = {"G's Store"};
-            ManageCatalogueFrame store = new ManageCatalogueFrame(socket1, "G's Store", placeHolder, "aa");
-            store.run();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }
