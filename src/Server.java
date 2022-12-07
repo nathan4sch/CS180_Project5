@@ -6,7 +6,7 @@ import java.util.*;
 
 /**
  * Server class
- *
+ * <p>
  * Handles all the information sent to send to client
  *
  * @version 24/11/2022
@@ -101,12 +101,23 @@ public class Server implements Runnable {
                             String roleInput = bufferedReader.readLine();
 
                             currentUser = createAccount(emailInput, passwordInput, roleInput);
-                            if (currentUser == null) {
-                                printWriter.println("Failure");
+                            if (emailInput.length() < 6 || passwordInput.length() < 6) {
+                                printWriter.println("Input Short");
+                                printWriter.flush();
+                            } else if (emailInput.contains(",") || passwordInput.contains(",")) {
+                                printWriter.println("Invalid Characters");
+                                printWriter.flush();
+                            } else if (!emailInput.contains("@")) {
+                                printWriter.println("Invalid Email");
                                 printWriter.flush();
                             } else {
-                                printWriter.println("Success");
-                                printWriter.flush();
+                                if (currentUser == null) {
+                                    printWriter.println("Failure");
+                                    printWriter.flush();
+                                } else {
+                                    printWriter.println("Success");
+                                    printWriter.flush();
+                                }
                             }
                         }
                     }
