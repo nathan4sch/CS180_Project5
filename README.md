@@ -76,12 +76,7 @@ Sample Dashboard
 ### The right panel shows buttons that contain other functions for Sellers.
 - **Stores:** returns the user to the Create and Manage Stores dashboard.
 - **View Current Carts:** shows all items in the carts of buyers.
-<li><b>Manage Account: </b> Changes the left panel to the Manage Account dashboard.
-  <ul>
-    <li>Users can enter a new password and click on <b>Change Password</b> to change their password.</li>
-    <li>The <b>Delete Your Account</b> button will have the user to confirm to delete their account. If the account is sucessfully deleted, users will be redirected to LoginFrame.java.</li>
-  </ul>
-</li>
+- **Manage Account:** changes the left panel to the Manage Account dashboard. Users can enter a new password and click on **Change Password** to change their password. The **Delete Your Account** button will have the user to confirm to delete their account. If the account is sucessfully deleted, users will be redirected to LoginFrame.java.
 - **Logout:** Logs the current user out, closes the socket, and redirects the user to LoginFrame.java
 ## CartFrame.java
 - Frame that allows users to see all their current items in cart, remove items from cart, and checkout all items from their cart.
