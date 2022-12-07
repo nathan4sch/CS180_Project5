@@ -1,5 +1,5 @@
 # Project 5 - Furniture Marketplace
----
+
 ## CS 18000 GLD Capstone Project
 
 ### Description
@@ -27,16 +27,17 @@ For sellers, the Seller Dashboard has many options including creating stores, cr
 - **Create an account**
 - Users can either create a Buyer account or a Seller account. They will need to enter an valid email and a password that is at least 6 characters long.
 ## Step 3 - Main Dashboard
+### Main Buyer Dashboard
+
 - If the account type is a Buyer, the Buyer Dashboard is shown with available options and all available items displayed to purchase.
 
-### Main Buyer Dashboard
 ![Buyer Dashboard](https://github.com/nathan4sch/CS180_Project5/blob/Readme/documents/Furniture%20Marketplace%20Main%20Dashboard.png "Buyer Dashboard")
+
+### Main Seller Dashboard
 
 - If the account type is a Seller, the Seller dasboard is shown will all available items 
 
-### Main Seller Dashboard
 ![Seller Dashboard](https://github.com/nathan4sch/CS180_Project5/blob/Readme/documents/Create%20And%20Manage%20Stores%20Dashboard.png "Seller Dashboard")
-
 
 # Project Members & Roles Contributed
 ### Andrei Deaconescu
