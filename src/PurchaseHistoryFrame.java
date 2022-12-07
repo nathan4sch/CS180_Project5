@@ -6,7 +6,7 @@ import java.net.Socket;
 import java.util.*;
 
 /**
- * Interface that allows users to manage their account. Users can either change their password or delete their account
+ * Interface that allows users to view their purchase history and export a file of their purchase history.
  *
  * @version 27/11/2022
  */
