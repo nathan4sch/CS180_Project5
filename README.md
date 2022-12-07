@@ -29,10 +29,12 @@ For sellers, the Seller Dashboard has many options including creating stores, cr
 ## Step 3 - Main Dashboard
 - If the account type is a Buyer, the Buyer Dashboard is shown with available options and all available items displayed to purchase.
 
+### Main Buyer Dashboard
 ![Buyer Dashboard](https://github.com/nathan4sch/CS180_Project5/blob/Readme/documents/Furniture%20Marketplace%20Main%20Dashboard.png "Buyer Dashboard")
 
 - If the account type is a Seller, the Seller dasboard is shown will all available items 
 
+### Main Seller Dashboard
 ![Seller Dashboard](https://github.com/nathan4sch/CS180_Project5/blob/Readme/documents/Create%20And%20Manage%20Stores%20Dashboard.png "Seller Dashboard")
 
 
