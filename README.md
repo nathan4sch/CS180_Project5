@@ -59,11 +59,25 @@ Sample Dashboard
 - Main Buyer Dashboard for all buyer functionalities. 
 ### The left panel shows the Furniture Marketplace that lists all the products available for purchase.
 - Users can select an item by clicking on it. Once highlited, users can right click to either see more details of the product or click add to cart to add the item to cart. Adding to cart will prompt the user to enter the quantity of the product to add. If the amount is equal or less than the amount in stock, the product will sucessfully be added to their cart.
-- Users can search for a product by its name, description, or store name. This will make the Furniture Marketplace dashboard only show the items searched for.
-- Users can refresh the dashboard to reflect changes made by Sellers (Adding new items, editing prices, etc.)
+- Users can search for a product by its name, description, or store name using the **Search for Product** button. This will make the Furniture Marketplace dashboard only show the items searched for.
+- Users can refresh the dashboard to reflect changes made by Sellers (Adding new items, editing prices, etc.) with the **Refresh Dashboard** button.
 ### The right panel shows buttons that contain other functions for Buyers.
 - **View Cart:** redirects the user to CartFrame.java
-- **Sort Dashboard:** 
+- **Sort Dashboard:** sorts the Furniture Marketplace dashboard by price and quantity available in ascending order.
+- **Purchase History:** redirects the user to PurchaseHistoryFrame.java
+- **Manage Account:** redirects the user to ManageAccountFrame.java
+- **Statistics:** redirects the user to BuyerStatisticsFrame.java
+- **Logout:** Logs the current user out, closes the socket, and redirects the user to LoginFrame.java
+## MainSellerFrame.java
+- Main Seller Dashboard for all seller functionalities.
+### The left panel shows the Create and Manage Store dashboard. 
+- Users can enter a new store name in the text field and click on tbe **Create Store** button to create a new store.
+- To manage all stores owned by the current user and many other functions, users can click on the **Manage Stores** button which redirects the user to ManageStoreFrame.java
+### The right panel shows buttons that contain other functions for Sellers.
+- **Stores:** returns the user to the Create and Manage Stores dashboard.
+- **View Current Carts:** shows all items in the carts of buyers.
+- **Manage Account:** changes the left panel to the Manage Account dashboard. Users can enter a new password and click on **Change Password** to change their password. The **Delete Your Account** button will have the user to confirm to delete their account. If the account is sucessfully deleted, users will be redirected to LoginFrame.java.
+- **Logout:** Logs the current user out, closes the socket, and redirects the user to LoginFrame.java
 ## Buyer.java
 - Contains all methods the buyers may use. These methods are called in Server.java.
 ## Seller.java
