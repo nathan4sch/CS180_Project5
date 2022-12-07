@@ -62,8 +62,8 @@ Sample Dashboard
 - Users can search for a product by its name, description, or store name. This will make the Furniture Marketplace dashboard only show the items searched for.
 - Users can refresh the dashboard to reflect changes made by Sellers (Adding new items, editing prices, etc.)
 ### The right panel shows buttons that contain other functions for Buyers.
-- **View Cart: ** redirects the user to CartFrame.java
-- **Sort Dashboard: ** 
+- **View Cart:** redirects the user to CartFrame.java
+- **Sort Dashboard:** 
 ## Buyer.java
 - Contains all methods the buyers may use. These methods are called in Server.java.
 ## Seller.java
