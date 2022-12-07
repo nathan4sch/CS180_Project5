@@ -176,8 +176,9 @@ public class ManageStoreFrame extends JComponent implements Runnable {
                             JOptionPane.showMessageDialog(null, scrollPane, "Sales List",
                                     JOptionPane.PLAIN_MESSAGE);
                         }
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(null, "Error Showing Sales",
+                                "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
 
