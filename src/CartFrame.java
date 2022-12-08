@@ -75,8 +75,8 @@ public class CartFrame extends JComponent implements Runnable {
                         JOptionPane.showMessageDialog(null, "Cart is Empty - Cart Action", "Error",
                                 JOptionPane.ERROR_MESSAGE);
                     } else {
-                        JOptionPane.showMessageDialog(null, "Item NOT Removed", "Error",
-                                JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Item NOT Removed: Please Reload the Frame"
+                                , "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();

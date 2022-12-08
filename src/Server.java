@@ -179,6 +179,8 @@ public class Server implements Runnable {
                                         itemFound = true;
                                         if (itemList.get(j).getQuantity() < Integer.parseInt(splitCart[2])) { // if not enough in stock, add to unsuccessful items list
                                             unsuccessfulItems.add(itemList.get(j).getName() + "," + splitCart[2] + ",Not enough in stock to fulfill order");
+                                        } else if (!Double.toString(itemList.get(j).getPrice()).equals(splitCart[3])) {
+                                            unsuccessfulItems.add(splitCart[1] + "," + splitCart[2] + ",Item No longer exists");
                                         } else {
                                             successfulItems.add(cart.get(i));
                                         }
@@ -218,7 +220,11 @@ public class Server implements Runnable {
                                         formattedSuccess = formattedSuccess + "~" + successfulItems.get(i);
                                     }
                                 } else {
-                                    formattedSuccess = successfulItems.get(0);
+                                    if (successfulItems.size() == 0) {
+                                        formattedSuccess = "x";
+                                    } else {
+                                        formattedSuccess = successfulItems.get(0);
+                                    }
                                     for (int i = 1; i < successfulItems.size(); i++) {
                                         formattedSuccess = formattedSuccess + "~" + successfulItems.get(i);
                                     }
@@ -835,14 +841,14 @@ public class Server implements Runnable {
 
                             Store currentStore = ((Seller) currentUser).getSpecificStore(currentStoreString);
                             Item itemToChange = currentStore.getSpecificItem(itemNameString);
-                            String oldName = itemToChange.getName();
-                            String oldPrice = String.format("%.2f", itemToChange.getPrice());
 
                             if (itemNameString.equals("")) {
                                 printWriter.println("No Item Selected");
                                 printWriter.flush();
                             } else {
                                 //Find field changed and what the new input is
+                                String oldName = itemToChange.getName();
+                                String oldPrice = String.format("%.2f", itemToChange.getPrice());
                                 int numberOfChangedFields = 0;
                                 String newText = "";
                                 String nameOfFieldChanged = "";
