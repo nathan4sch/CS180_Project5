@@ -178,14 +178,14 @@ public class ManageAccountFrame extends JComponent implements Runnable {
         }
     }
 
-    public int fontSizeToUse(JLabel label) {
-        Font currentFont = label.getFont();
-        String textInLabel = label.getText();
-        int stringWidth = label.getFontMetrics(currentFont).stringWidth(textInLabel);
-        int componentWidth = label.getWidth();
+    public int fontSizeToUse(JLabel component) {
+        Font fontOfLabel = component.getFont();
+        String textInLabel = component.getText();
+        int stringWidth = component.getFontMetrics(fontOfLabel).stringWidth(textInLabel);
+        int componentWidth = component.getWidth();
         double widthRatio = (double) componentWidth / (double) stringWidth;
-        int newFontSize = (int) (currentFont.getSize() * widthRatio);
-        int componentHeight = label.getHeight();
+        int newFontSize = (int) (fontOfLabel.getSize() * widthRatio);
+        int componentHeight = component.getHeight();
 
         return Math.min(newFontSize, componentHeight);
     }

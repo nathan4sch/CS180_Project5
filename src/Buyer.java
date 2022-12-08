@@ -107,6 +107,7 @@ public class Buyer {
             BufferedReader reader = new BufferedReader(new FileReader(file));
             ArrayList<String> storedCSVData = new ArrayList<>();
             String cartRemove = "";
+            cart = showItemsInCart(email);
 
             String line;
             while ((line = reader.readLine()) != null) { // read through csv
