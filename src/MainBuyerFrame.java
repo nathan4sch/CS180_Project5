@@ -20,12 +20,10 @@ public class MainBuyerFrame extends JComponent implements Runnable {
     ArrayList<JComponent> currentlyVisible = new ArrayList<>();
     String[] columnNames = {"Store", "Product Name", "Price"};
     String[][] rowData = new String[1][];
-    //Used for testing until server works
-    String[][] dummyRowData = {{"Joe's couches", "Couch", "199.99"}, {"Jim's Chairs", "chair", "29.99"}};
-    String[][] dummyRowData2 = {{"Jim's Chairs", "chair", "29.99"}, {"Joe's couches", "Couch", "199.99"}};
     DefaultTableModel tableModel;
     JTable jTable;
 
+    // Buyer Frame
     JFrame mainBuyerFrame;
     JSplitPane splitPane;
     JPanel leftPanel;
@@ -39,6 +37,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
     JButton reviewHistoryButton;
     JButton manageAccountButton;
     JButton logoutButton;
+    JButton refreshButton;
 
     JPopupMenu tablePopupMenu;
     JMenuItem addToCart;
@@ -62,11 +61,12 @@ public class MainBuyerFrame extends JComponent implements Runnable {
     JLabel priceLabel;
 
     /**
-     *  The constructor of MainBuyerFrame
+     * The constructor of MainBuyerFrame
      *
-     * @param socket The socket that connect this local machine with the server
+     * @param socket    The socket that connect this local machine with the server
+     * @param userEmail Email of currently logged-in user
      */
-    public MainBuyerFrame (Socket socket, String userEmail) {
+    public MainBuyerFrame(Socket socket, String userEmail) {
         this.socket = socket;
         this.userEmail = userEmail;
     }
@@ -253,9 +253,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                     } else {
                         String[] buyerCartsArr = cartLine.split("~");
                         ArrayList<String> buyerCarts = new ArrayList<>();
-                        for (int i = 0; i < buyerCartsArr.length; i++) {
-                            buyerCarts.add(buyerCartsArr[i]);
-                        }
+                        Collections.addAll(buyerCarts, buyerCartsArr); // Copies all items to new ArrayList
 
                         SwingUtilities.invokeLater(new CartFrame(socket, buyerCarts, userEmail));
                         mainBuyerFrame.dispose();
@@ -286,6 +284,19 @@ public class MainBuyerFrame extends JComponent implements Runnable {
 
                 SwingUtilities.invokeLater(new PurchaseHistoryFrame(socket, userEmail));
                 mainBuyerFrame.dispose();
+            } else if (source == refreshButton) {
+                printWriter.println("Initial Table"); // reuse Initial Table code because it is functionally identical.
+                printWriter.flush();
+                try {
+                    //Gets number of items
+                    int numItems = Integer.parseInt(bufferedReader.readLine());
+                    tableModel = updateTable(numItems);
+                    //resets table for user
+                    jTable.setModel(tableModel);
+                    mainBuyerFrame.repaint();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
             } else if (source == statisticsButton) { // View Statistics
                 resetVisible();
 
@@ -396,6 +407,11 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         });
         searchButton.setComponentPopupMenu(searchPopupMenu);
         leftPanel.add(searchButton);
+        
+        refreshButton = new JButton("Refresh Dashboard");
+        refreshButton.setBounds(550,630,200,60);
+        refreshButton.addActionListener(actionListener);
+        leftPanel.add(refreshButton);
 
         mainLabel = new JLabel("Products on Furniture Marketplace");
         mainLabel.setBounds(125, 15, 550, 80);
@@ -497,6 +513,7 @@ public class MainBuyerFrame extends JComponent implements Runnable {
 
     /**
      * Returns sorted Table Model
+     *
      * @param numItems how many rows the table will contain
      * @return Updated Item Table
      */
@@ -530,22 +547,21 @@ public class MainBuyerFrame extends JComponent implements Runnable {
 
     /**
      * Sets currentlyVisible panel to false
-     * */
+     */
     public void resetVisible() {
         for (int i = 0; i < currentlyVisible.size(); i++) {
             currentlyVisible.get(i).setVisible(false);
         }
     }
 
-    //FOUND THIS ONLINE (will change)
-    public int fontSizeToUse(JLabel label) {
-        Font currentFont = label.getFont();
-        String textInLabel = label.getText();
-        int stringWidth = label.getFontMetrics(currentFont).stringWidth(textInLabel);
-        int componentWidth = label.getWidth();
+    public int fontSizeToUse(JLabel component) {
+        Font fontOfLabel = component.getFont();
+        String textInLabel = component.getText();
+        int stringWidth = component.getFontMetrics(fontOfLabel).stringWidth(textInLabel);
+        int componentWidth = component.getWidth();
         double widthRatio = (double) componentWidth / (double) stringWidth;
-        int newFontSize = (int) (currentFont.getSize() * widthRatio);
-        int componentHeight = label.getHeight();
+        int newFontSize = (int) (fontOfLabel.getSize() * widthRatio);
+        int componentHeight = component.getHeight();
 
         return Math.min(newFontSize, componentHeight);
     }

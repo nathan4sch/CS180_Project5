@@ -1,19 +1,18 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.awt.event.*;
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 
+/**
+ * Interface that allows users to manage products in their store.
+ * Users can edit an existing product's information, create a new product, and deleted the selected product.
+ * Users can also export a file with a list of all their products under the specific store
+ *
+ * @version 24/11/2022
+ */
 public class ManageCatalogueFrame extends JComponent implements Runnable {
-
     Socket socket;
     BufferedReader bufferedReader;
     PrintWriter printWriter;
@@ -25,16 +24,19 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
     String itemSelected = "";
     String userEmail;
     String[] storeItemNames;
+
     //Right Panel
     JLabel selectProduct;
     JRadioButton radioButton;
+
     //Left Panel
-    JLabel currentItem;
+    JLabel mainLabel;
+    JLabel currentItemLabel;
     JButton returnToDashButton;
     JButton deleteProductButton;
     JButton editProductButton;
     JButton exportFileButton;
-    //adding product
+    // Adding product
     JLabel productName;
     JLabel productDescription;
     JLabel productQuantity;
@@ -45,7 +47,14 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
     JTextField priceInput;
     JButton addProductButton;
 
-
+    /**
+     * The constructor of ManageCatalogueFrame
+     *
+     * @param socket         The socket that connect this local machine with the server
+     * @param storeSelected  The name of the selected store
+     * @param storeItemNames String Array of all item names in the store
+     * @param userEmail      Email of current user
+     */
     public ManageCatalogueFrame(Socket socket, String storeSelected, String[] storeItemNames, String userEmail) {
         this.socket = socket;
         this.storeSelected = storeSelected;
@@ -99,24 +108,29 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
                     String successOrFailure = bufferedReader.readLine();
 
                     switch (successOrFailure) {
-                        case "Missing Input":
-                            JOptionPane.showMessageDialog(null, "Missing Input in Text Fields",
-                                    "Error", JOptionPane.ERROR_MESSAGE);
-                            break;
-                        case "Product Name Already Exists":
-                            JOptionPane.showMessageDialog(null, "Product Name Already Exists",
-                                    "Error", JOptionPane.ERROR_MESSAGE);
-                            break;
-                        case "Invalid Quantity":
-                            JOptionPane.showMessageDialog(null, "Inputted Quantity must be a " +
-                                    "Positive Integer", "Error", JOptionPane.ERROR_MESSAGE);
-                            break;
-                        case "Invalid Price":
-                            JOptionPane.showMessageDialog(null, "Inputted Price must be " +
-                                            "Positve and have Two Decimal Places", "Error",
-                                    JOptionPane.ERROR_MESSAGE);
-                            break;
-                        case "Success":
+                        case "Missing Input" -> JOptionPane.showMessageDialog(null, "Missing Input in Text Fields",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+
+                        case "Product Name Already Exists" ->
+                                JOptionPane.showMessageDialog(null, "Product Name Already Exists",
+                                        "Error", JOptionPane.ERROR_MESSAGE);
+
+                        case "Invalid Quantity" -> JOptionPane.showMessageDialog(null, "Inputted Quantity must be a " +
+                                "Positive Integer", "Error", JOptionPane.ERROR_MESSAGE);
+
+                        case "Invalid Price" -> JOptionPane.showMessageDialog(null, "Inputted Price must be " +
+                                        "Positive and have Two Decimal Places", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+
+                        case "Invalid Name Format" -> JOptionPane.showMessageDialog(null, "Invalid Name Format: " +
+                                        "Item name cannot have a comma ",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+
+                        case "Invalid Description Format" -> JOptionPane.showMessageDialog(null, "Invalid Description Format: " +
+                                        "Item description cannot have a comma ",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+
+                        case "Success" -> {
                             String[] newStoreItemNames = new String[storeItemNames.length + 1];
                             for (int i = 0; i < storeItemNames.length; i++) {
                                 newStoreItemNames[i] = storeItemNames[i];
@@ -126,46 +140,52 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
                                     "Success", JOptionPane.INFORMATION_MESSAGE);
                             manageCatalogueFrame.dispose();
                             SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, newStoreItemNames, userEmail));
-                            break;
+                        }
                     }
 
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
             } else if (source == deleteProductButton) {
+                int confirmDelete = JOptionPane.showConfirmDialog(null,
+                        "Are you sure you want to delete this product?", "Delete Product",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE);
 
-                printWriter.println("Delete Item");
-                printWriter.println(storeSelected);
-                printWriter.println(itemSelected);
-                printWriter.flush();
+                if (confirmDelete == 0) { // Confirm delete product
+                    printWriter.println("Delete Item");
+                    printWriter.println(storeSelected);
+                    printWriter.println(itemSelected);
+                    printWriter.flush();
 
-                try {
-                    String successOrFailure = bufferedReader.readLine();
-                    if (successOrFailure.equals("Success")) {
-                        ArrayList<String> newStoreItemNames = new ArrayList<>();
-                        for (int i = 0; i < storeItemNames.length; i++) {
-                            if (!storeItemNames[i].equals(itemSelected)) {
-                                newStoreItemNames.add(storeItemNames[i]);
+                    try {
+                        String successOrFailure = bufferedReader.readLine();
+                        if (successOrFailure.equals("Success")) {
+                            ArrayList<String> newStoreItemNames = new ArrayList<>();
+                            for (int i = 0; i < storeItemNames.length; i++) {
+                                if (!storeItemNames[i].equals(itemSelected)) {
+                                    newStoreItemNames.add(storeItemNames[i]);
+                                }
                             }
-                        }
-                        if (newStoreItemNames.size() == 0) {
-                            newStoreItemNames.add("No items");
-                        }
-                        String[] storeItemNames = new String[newStoreItemNames.size()];
-                        for (int i = 0; i < storeItemNames.length; i++) {
-                            storeItemNames[i] = newStoreItemNames.get(i);
-                        }
+                            if (newStoreItemNames.size() == 0) {
+                                newStoreItemNames.add("No items");
+                            }
+                            String[] storeItemNames = new String[newStoreItemNames.size()];
+                            for (int i = 0; i < storeItemNames.length; i++) {
+                                storeItemNames[i] = newStoreItemNames.get(i);
+                            }
 
-                        JOptionPane.showMessageDialog(null, "Product Deleted",
-                                "Success", JOptionPane.INFORMATION_MESSAGE);
-                        manageCatalogueFrame.dispose();
-                        SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, storeItemNames, userEmail));
-                    } else if (successOrFailure.equals("Failure")) {
-                        JOptionPane.showMessageDialog(null, "No Item Selected",
-                                "Error", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(null, "Product Deleted",
+                                    "Success", JOptionPane.INFORMATION_MESSAGE);
+                            manageCatalogueFrame.dispose();
+                            SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, storeItemNames, userEmail));
+                        } else if (successOrFailure.equals("Failure")) {
+                            JOptionPane.showMessageDialog(null, "No Item Selected",
+                                    "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
                     }
-                } catch (IOException ex) {
-                    ex.printStackTrace();
                 }
             } else if (source == editProductButton) {
                 String name = nameInput.getText();
@@ -186,54 +206,68 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
                 try {
                     String successOrFailure = bufferedReader.readLine();
 
-                    if (successOrFailure.equals("Name Change Success")) {
-                        ArrayList<String> newStoreItemNames = new ArrayList<>();
-                        for (int i = 0; i < storeItemNames.length; i++) {
-                            if (storeItemNames[i].equals(itemSelected)) {
-                                storeItemNames[i] = name;
+                    switch (successOrFailure) {
+                        case "Name Change Success" -> {
+                            ArrayList<String> newStoreItemNames = new ArrayList<>();
+                            for (int i = 0; i < storeItemNames.length; i++) {
+                                if (storeItemNames[i].equals(itemSelected)) {
+                                    storeItemNames[i] = name;
+                                }
+                                newStoreItemNames.add(storeItemNames[i]);
                             }
-                            newStoreItemNames.add(storeItemNames[i]);
+                            String[] storeItemNames = new String[newStoreItemNames.size()];
+                            for (int i = 0; i < storeItemNames.length; i++) {
+                                storeItemNames[i] = newStoreItemNames.get(i);
+                            }
+                            JOptionPane.showMessageDialog(null, "Product Name Successfully Changed",
+                                    "Success", JOptionPane.INFORMATION_MESSAGE);
+                            manageCatalogueFrame.dispose();
+                            SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, storeItemNames, userEmail));
                         }
-
-                        String[] storeItemNames = new String[newStoreItemNames.size()];
-                        for (int i = 0; i < storeItemNames.length; i++) {
-                            storeItemNames[i] = newStoreItemNames.get(i);
-                        }
-
-                        JOptionPane.showMessageDialog(null, "Product Name Successfully Changed",
+                        case "Success" -> JOptionPane.showMessageDialog(null, "Product Successfully Changed",
                                 "Success", JOptionPane.INFORMATION_MESSAGE);
-                        manageCatalogueFrame.dispose();
-                        SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, storeItemNames, userEmail));
-                    } else if (successOrFailure.equals("Success")) {
-                        JOptionPane.showMessageDialog(null, "Product Successfully Changed",
-                                "Success", JOptionPane.INFORMATION_MESSAGE);
-                    } else if (successOrFailure.equals("No Item Selected")) {
-                        JOptionPane.showMessageDialog(null, "Select an Item",
+
+                        case "No Item Selected" -> JOptionPane.showMessageDialog(null, "Select an Item",
                                 "Error", JOptionPane.ERROR_MESSAGE);
-                    } else if (successOrFailure.equals("Missing Input")) {
-                        JOptionPane.showMessageDialog(null, "Change One of the Input Fields",
+
+                        case "Missing Input" -> JOptionPane.showMessageDialog(null, "Change One of the Input Fields",
                                 "Error", JOptionPane.ERROR_MESSAGE);
-                    } else if (successOrFailure.equals("Changed More Than One Field")) {
-                        JOptionPane.showMessageDialog(null, "Only Change One of the Input Fields",
+
+                        case "Invalid Name Format" -> JOptionPane.showMessageDialog(null, "Invalid Name Format: " +
+                                        "Item name cannot have a ',' ",
                                 "Error", JOptionPane.ERROR_MESSAGE);
-                    } else if (successOrFailure.equals("This Product Name Already Exists")) {
-                        JOptionPane.showMessageDialog(null, "Product Name Already Exists",
-                                "Invalid Name", JOptionPane.ERROR_MESSAGE);
-                    } else if (successOrFailure.equals("Quantity Must be a Positive Integer")) {
-                        JOptionPane.showMessageDialog(null, "Quantity must be a Positive Integer",
+
+                        case "Invalid Description Format" -> JOptionPane.showMessageDialog(null, "Invalid Description Format: " +
+                                        "Item description cannot have a ',' ",
                                 "Error", JOptionPane.ERROR_MESSAGE);
-                    } else if (successOrFailure.equals("Price Must be a Two Decimal Number")) {
-                        JOptionPane.showMessageDialog(null, "Price must be a Positive Number " +
-                                "with Two Decimal Places", "Error", JOptionPane.ERROR_MESSAGE);
+
+                        case "Changed More Than One Field" ->
+                                JOptionPane.showMessageDialog(null, "Only Change One of the Input Fields",
+                                        "Error", JOptionPane.ERROR_MESSAGE);
+
+                        case "This Product Name Already Exists" ->
+                                JOptionPane.showMessageDialog(null, "Product Name Already Exists",
+                                        "Invalid Name", JOptionPane.ERROR_MESSAGE);
+
+                        case "Quantity Must be a Positive Integer" ->
+                                JOptionPane.showMessageDialog(null, "Quantity must be a Positive Integer",
+                                        "Error", JOptionPane.ERROR_MESSAGE);
+
+                        case "Price Must be a Two Decimal Number" ->
+                                JOptionPane.showMessageDialog(null, "Price must be a Positive Number " +
+                                        "with Two Decimal Places", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
             } else {
                 itemSelected = e.getActionCommand();
-                currentItem.setText("Product Selected: " + itemSelected);
-                currentItem.setFont(new Font(currentItem.getFont().getName(),
-                        Font.BOLD, fontSizeToUse(currentItem)));
+                currentItemLabel.setText("Product Selected: " + itemSelected);
+                currentItemLabel.setFont(new Font(currentItemLabel.getFont().getName(),
+                        Font.PLAIN, fontSizeToUse(currentItemLabel)));
+                int xOffset = 240 - currentItemLabel.getText().length();
+                currentItemLabel.setBounds(xOffset, 200, 400, 30);
+
                 printWriter.println("Item Selected");
                 printWriter.println(storeSelected);
                 printWriter.println(itemSelected);
@@ -269,8 +303,7 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
         splitPane.setLeftComponent(leftPanel);
         splitPane.setRightComponent(rightPanel);
 
-        //rightPanel
-        //rightPanel.setLayout(new GridLayout(storeItemNames.length + 1, 1, 20, 20));
+        // rightPanel
         rightPanel.setLayout(null);
 
         if (storeItemNames.length == 0) {
@@ -284,18 +317,12 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
         rightPanel.add(selectProduct);
 
         ButtonGroup buttonGroup = new ButtonGroup();
-//        for (int i = 0; i < storeItemNames.length; i++) {
-//            radioButton = new JRadioButton(storeItemNames[i]);
-//            buttonGroup.add(radioButton);
-//            rightPanel.add(radioButton);
-//            radioButton.addActionListener(actionListener);
-//        }
 
         for (int i = 0; i < storeItemNames.length; i++) { // Add to radioButton group
             radioButton = new JRadioButton(storeItemNames[i]);
             buttonGroup.add(radioButton);
             radioButton.setBounds(10, 150 + (50 * i), 200, 30);
-            radioButton.setFont(new Font (radioButton.getFont().getName(), Font.PLAIN, 18));
+            radioButton.setFont(new Font(radioButton.getFont().getName(), Font.PLAIN, 18));
             rightPanel.add(radioButton);
             radioButton.addActionListener(actionListener);
         }
@@ -303,80 +330,84 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
         //leftPanel
         //Main title: does not change
         leftPanel.setLayout(null);
-        currentItem = new JLabel("Select a Product");
-        currentItem.setBounds(200, 10, 400, 40);
-        currentItem.setFont(new Font(currentItem.getFont().getName(),
-                Font.BOLD, fontSizeToUse(currentItem)));
-        leftPanel.add(currentItem);
+        mainLabel = new JLabel("Store Products");
+        mainLabel.setBounds(180, -10, 400, 120);
+        mainLabel.setFont(new Font(mainLabel.getFont().getName(),
+                Font.BOLD, fontSizeToUse(mainLabel)));
+        leftPanel.add(mainLabel);
+
+        currentItemLabel = new JLabel("Select a product");
+        currentItemLabel.setBounds(280, 200, 400, 30);
+        currentItemLabel.setFont(new Font(currentItemLabel.getFont().getName(),
+                Font.PLAIN, fontSizeToUse(currentItemLabel)));
+        leftPanel.add(currentItemLabel);
 
         //Add products
         productName = new JLabel("Product Name: ");
-        productName.setBounds(50, 200, 200, 40);
+        productName.setBounds(60, 275, 200, 40);
         int fontSize = fontSizeToUse(productName);
         String fontName = productName.getFont().getName();
         productName.setFont(new Font(fontName, Font.PLAIN, fontSize));
         leftPanel.add(productName);
 
         productDescription = new JLabel("Description: ");
-        productDescription.setBounds(50, 250, 200, 40);
+        productDescription.setBounds(60, 325, 200, 40);
         productDescription.setFont(new Font(fontName, Font.PLAIN, fontSize));
         leftPanel.add(productDescription);
 
         productQuantity = new JLabel("Quantity: ");
-        productQuantity.setBounds(50, 300, 200, 40);
+        productQuantity.setBounds(60, 375, 200, 40);
         productQuantity.setFont(new Font(fontName, Font.PLAIN, fontSize));
         leftPanel.add(productQuantity);
 
         productPrice = new JLabel("Price: ");
-        productPrice.setBounds(50, 350, 200, 40);
+        productPrice.setBounds(60, 425, 200, 40);
         productPrice.setFont(new Font(fontName, Font.PLAIN, fontSize));
         leftPanel.add(productPrice);
 
         nameInput = new JTextField(100);
-        nameInput.setBounds(250, 200, 200, 40);
+        nameInput.setBounds(260, 275, 200, 40);
         leftPanel.add(nameInput);
 
         descriptionInput = new JTextField(100);
-        descriptionInput.setBounds(250, 250, 200, 40);
+        descriptionInput.setBounds(260, 325, 200, 40);
         leftPanel.add(descriptionInput);
 
         quantityInput = new JTextField(100);
-        quantityInput.setBounds(250, 300, 200, 40);
+        quantityInput.setBounds(260, 375, 200, 40);
         leftPanel.add(quantityInput);
 
         priceInput = new JTextField(100);
-        priceInput.setBounds(250, 350, 200, 40);
+        priceInput.setBounds(260, 425, 200, 40);
         leftPanel.add(priceInput);
 
-        addProductButton = new JButton("Add Product");
-        addProductButton.addActionListener(actionListener);
-        addProductButton.setBounds(150, 400, 180, 80);
-        leftPanel.add(addProductButton);
 
         //Buttons to modify the selected Product
         editProductButton = new JButton("Edit Selected Item");
         editProductButton.addActionListener(actionListener);
-        editProductButton.setBounds(500, 200, 180, 80);
+        editProductButton.setBounds(510, 275, 180, 50);
         leftPanel.add(editProductButton);
 
         deleteProductButton = new JButton("Delete Selected Item");
         deleteProductButton.addActionListener(actionListener);
-        deleteProductButton.setBounds(500, 300, 180, 80);
+        deleteProductButton.setBounds(510, 345, 180, 50);
         leftPanel.add(deleteProductButton);
 
+        addProductButton = new JButton("Add Product");
+        addProductButton.addActionListener(actionListener);
+        addProductButton.setBounds(510, 415, 180, 50);
+        leftPanel.add(addProductButton);
 
         //Buttons on bottom of left panel
-
         exportFileButton = new JButton("Export Product File");
         exportFileButton.addActionListener(actionListener);
-        exportFileButton.setBounds(200, 650, 180, 80);
+        exportFileButton.setBounds(140, 660, 200, 60);
         leftPanel.add(exportFileButton);
 
         returnToDashButton = new JButton("Return to Dashboard");
         returnToDashButton.addActionListener(actionListener);
-        returnToDashButton.setBounds(400, 650, 180, 80);
+        returnToDashButton.setBounds(420, 660, 200, 60);
         leftPanel.add(returnToDashButton);
-
 
         //Finalize frame
         manageCatalogueFrame.add(splitPane);
@@ -403,24 +434,15 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
         });
         manageCatalogueFrame.setVisible(true);
     }
-
-    //FOUND THIS ONLINE (will change)
-    public int fontSizeToUse(JLabel label) {
-        Font currentFont = label.getFont();
-        String textInLabel = label.getText();
-        int stringWidth = label.getFontMetrics(currentFont).stringWidth(textInLabel);
-        int componentWidth = label.getWidth();
+    public int fontSizeToUse(JLabel component) {
+        Font fontOfLabel = component.getFont();
+        String textInLabel = component.getText();
+        int stringWidth = component.getFontMetrics(fontOfLabel).stringWidth(textInLabel);
+        int componentWidth = component.getWidth();
         double widthRatio = (double) componentWidth / (double) stringWidth;
-        int newFontSize = (int) (currentFont.getSize() * widthRatio);
-        int componentHeight = label.getHeight();
-        int fontSizeToUse = Math.min(newFontSize, componentHeight);
+        int newFontSize = (int) (fontOfLabel.getSize() * widthRatio);
+        int componentHeight = component.getHeight();
 
-        return fontSizeToUse - 3;
+        return Math.min(newFontSize, componentHeight);
     }
 }
-
-
-//needs to be able to edit the selected product
-//both of these need to check if the product name already exists.
-
-//Export and import the product file

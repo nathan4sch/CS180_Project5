@@ -6,7 +6,7 @@ import java.net.Socket;
 import java.util.*;
 
 /**
- * Interface that allows users to manage their account. Users can either change their password or delete their account
+ * Interface that allows users to view their purchase history and export a file of their purchase history.
  *
  * @version 27/11/2022
  */
@@ -105,8 +105,6 @@ public class PurchaseHistoryFrame extends JComponent implements Runnable {
                     if (success.equals("Success")) {
                         JOptionPane.showMessageDialog(null, "File Exported!", "Success",
                                 JOptionPane.INFORMATION_MESSAGE);
-                        SwingUtilities.invokeLater(new LoginFrame(socket));
-                        purchaseHistoryFrame.dispose();
                     } else {
                         JOptionPane.showMessageDialog(null, "Export Failed!", "Error",
                                 JOptionPane.ERROR_MESSAGE);
@@ -198,14 +196,14 @@ public class PurchaseHistoryFrame extends JComponent implements Runnable {
         }
     }
 
-    public int fontSizeToUse(JLabel label) {
-        Font currentFont = label.getFont();
-        String textInLabel = label.getText();
-        int stringWidth = label.getFontMetrics(currentFont).stringWidth(textInLabel);
-        int componentWidth = label.getWidth();
+    public int fontSizeToUse(JLabel component) {
+        Font fontOfLabel = component.getFont();
+        String textInLabel = component.getText();
+        int stringWidth = component.getFontMetrics(fontOfLabel).stringWidth(textInLabel);
+        int componentWidth = component.getWidth();
         double widthRatio = (double) componentWidth / (double) stringWidth;
-        int newFontSize = (int) (currentFont.getSize() * widthRatio);
-        int componentHeight = label.getHeight();
+        int newFontSize = (int) (fontOfLabel.getSize() * widthRatio);
+        int componentHeight = component.getHeight();
 
         return Math.min(newFontSize, componentHeight);
     }

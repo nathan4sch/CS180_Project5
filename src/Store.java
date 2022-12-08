@@ -47,7 +47,7 @@ public class Store {
     /**
      * Writes new item to FMItems.csv
      *
-     * @param name    Name of item to be written
+     * @param name        Name of item to be written
      * @param description Item description to be written
      * @param quantity    Quantity of items to be written
      * @param price       Price of item to be written
@@ -67,7 +67,8 @@ public class Store {
 
     /**
      * Deletes Item from FMItems.csv and the stores item list
-     * @param itemToDelete    Item object that was selected by the user
+     *
+     * @param itemToDelete Item object that was selected by the user
      **/
     public synchronized void deleteItem(Item itemToDelete) {
         //Remove the item from the store's item list
@@ -95,7 +96,13 @@ public class Store {
 
     }
 
-    public Item getSpecificItem (String itemName) {
+    /**
+     * Gets item specified by its name and returns the Item
+     *
+     * @param itemName Name of item to search for
+     * @return Item object by index
+     */
+    public Item getSpecificItem(String itemName) {
         for (int i = 0; i < items.size(); i++) {
             if (items.get(i).getName().equals(itemName)) {
                 return items.get(i);
@@ -104,35 +111,61 @@ public class Store {
         return null;
     }
 
+    /**
+     * Gets the storeName of Store object
+     *
+     * @return String store name
+     */
     public String getStoreName() {
         return storeName;
     }
+
+    /**
+     * Gets the owner email of Store object
+     *
+     * @return String owner email
+     */
     public String getOwner() {
         return owner;
     }
 
+    /**
+     * Gets the items of Store object
+     *
+     * @return Item ArrayList
+     */
     public ArrayList<Item> getItems() {
         return items;
     }
+
+    /**
+     * Updates FMStores.csv & FMStats.csv whenever an item is successfully sold
+     *
+     * @param buyer      Email of buyer
+     * @param store      Name of Store item is from
+     * @param itemName   Name of item sold
+     * @param amountSold Quantity of items sold
+     * @param price      The price of the item sold
+     */
     public static void saveSale(String buyer, String store, String itemName, int amountSold, double price) {
         try {
             // Read FMStores to find the correct store to add sale information to
             BufferedReader bfrOne = new BufferedReader(new FileReader("FMStores.csv"));
-            String line = bfrOne.readLine();
             ArrayList<String> storeFile = new ArrayList<>();
-            while (line != null) {
+            String line;
+            while ((line = bfrOne.readLine()) != null) {
                 String[] splitLine = line.split(",");
                 // Detects if this is the store we need
                 if (splitLine[0].equals(store)) {
                     // Creates sale section if it doesn't already exist, else adds new sale to end of sale section
-                    if (splitLine.length == 2) {
-                        line += String.format(",%s!%s!%d!%.2f", buyer, itemName, amountSold, price);
+                    if (splitLine[2].equals("x")) {
+                        line = line.substring(0, line.length() - 1);
+                        line += String.format("%s!%s!%d!%.2f", buyer, itemName, amountSold, price);
                     } else {
                         line += String.format("~%s!%s!%d!%.2f", buyer, itemName, amountSold, price);
                     }
                 }
                 storeFile.add(line);
-                line = bfrOne.readLine();
             }
             bfrOne.close();
 
@@ -222,7 +255,8 @@ public class Store {
      *
      * @param storeName Name of store to search for
      * @param type      Type of statistic to show
-     **/
+     * @return String ArrayList of the statistics
+     * */
     public static ArrayList<String> showStats(String storeName, String type) {
         // type should be either buyer or item
         ArrayList<String> stats = new ArrayList<>();
@@ -250,7 +284,8 @@ public class Store {
      *
      * @param storeName Name of store to search for
      * @param type      Type of statistic to show
-     **/
+     * @return String ArrayList of statistics, sorted
+     * */
     public static ArrayList<String> showSortedStats(String storeName, String type) {
         ArrayList<String> unsorted = showStats(storeName, type);
         ArrayList<Integer> amounts = new ArrayList<>();

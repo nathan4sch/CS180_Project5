@@ -38,10 +38,11 @@ public class CartFrame extends JComponent implements Runnable {
     JLabel cartOptions;
 
     /**
-     *  The constructor of CartFrame
+     * The constructor of CartFrame
      *
-     * @param socket The socket that connect this local machine with the server
+     * @param socket    The socket that connect this local machine with the server
      * @param userCarts String Array of all cart items of current user
+     * @param userEmail Email of current user
      */
     public CartFrame(Socket socket, ArrayList<String> userCarts, String userEmail) {
         this.socket = socket;
@@ -74,8 +75,8 @@ public class CartFrame extends JComponent implements Runnable {
                         JOptionPane.showMessageDialog(null, "Cart is Empty - Cart Action", "Error",
                                 JOptionPane.ERROR_MESSAGE);
                     } else {
-                        JOptionPane.showMessageDialog(null, "Item NOT Removed", "Error",
-                                JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Item NOT Removed: Please Reload the Frame"
+                                , "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -83,7 +84,62 @@ public class CartFrame extends JComponent implements Runnable {
                             JOptionPane.ERROR_MESSAGE);
                 }
             } else if (source == checkoutButton) {
+                printWriter.println("Checkout");
+                printWriter.flush();
 
+                String serverResponse;
+                try {
+                    serverResponse = bufferedReader.readLine();
+                    switch (serverResponse) {
+                        case "Success" -> {  // All items checked out successfully
+                            JOptionPane.showMessageDialog(null,
+                                    "Checkout Successful", "Checkout", JOptionPane.INFORMATION_MESSAGE);
+                            SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
+                            cartFrame.dispose();
+                        }
+                        case "Partial Success" -> {  // some items checked out
+                            String[] checkoutSuccesses = new String[Integer.parseInt(bufferedReader.readLine())]; // number of success read
+                            String[] checkoutFailures = new String[Integer.parseInt(bufferedReader.readLine())]; // number of failures read
+                            for (int i = 0; i < checkoutSuccesses.length; i++) { // gathers descriptive data from server to display to user
+                                checkoutSuccesses[i] = bufferedReader.readLine();
+                            } // checkout failures have format of [Item,quantity requested,reason for error]
+                            for (int i = 0; i < checkoutFailures.length; i++) {
+                                checkoutFailures[i] = bufferedReader.readLine();
+                            }
+                            String[] splitCheckoutSuccess = checkoutSuccesses[0].split(",");
+                            String[] splitCheckoutFailure = checkoutFailures[0].split(",");
+                            // appropriately formatting strings to be used in JOptionPane below
+                            String formattedCheckoutSuccess = "1. " + splitCheckoutSuccess[0] + "; Quantity: " + splitCheckoutSuccess[1];
+                            String formattedCheckoutFailure = "1. " + splitCheckoutFailure[0] + "; Quantity: " +
+                                    splitCheckoutFailure[1] + "; Reason for Checkout Failure: " + splitCheckoutFailure[2];
+                            for (int i = 1; i < checkoutSuccesses.length; i++) {
+                                splitCheckoutSuccess = checkoutSuccesses[i].split(",");
+                                formattedCheckoutSuccess = formattedCheckoutSuccess + "\n" + (i + 1) + ". " +
+                                        splitCheckoutSuccess[0] + "; Quantity: " + splitCheckoutSuccess[1];
+                            }
+                            for (int i = 1; i < checkoutFailures.length; i++) {
+                                splitCheckoutFailure = checkoutFailures[i].split(",");
+                                formattedCheckoutFailure = formattedCheckoutFailure + "\n" + (i + 1) + ". " +
+                                        splitCheckoutFailure[0] + "; Quantity: " + splitCheckoutFailure[1] +
+                                        "; Reason For Checkout Failure: " + splitCheckoutFailure[2];
+                            }
+                            JOptionPane.showMessageDialog(null, "SUCCESSFULLY CHECKED OUT ITEMS: \n" +
+                                    formattedCheckoutSuccess + "\nUNSUCCESSFULLY CHECKED OUT ITEMS: \n"
+                                    + formattedCheckoutFailure, "Partial Checkout", JOptionPane.WARNING_MESSAGE);
+                            SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
+                            cartFrame.dispose();
+                        }
+                        case "Failure" -> {
+                            System.out.println("test failure");
+                            JOptionPane.showMessageDialog(null, "Unable to Checkout Items",
+                                    "Checkout Failure", JOptionPane.ERROR_MESSAGE);
+                            SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
+                            cartFrame.dispose();
+                        }
+                    }
+                } catch (Exception exc) {
+                    exc.printStackTrace();
+                }
             } else {
                 try {
                     itemSelected = e.getActionCommand();
@@ -130,7 +186,7 @@ public class CartFrame extends JComponent implements Runnable {
         selectItem = new JLabel("Item Name : Quantity : Total Cost      ");
         selectItem.setBounds(50, 155, 350, 60);
         selectItem.setFont(new Font(selectItem.getFont().getName(),
-                Font.BOLD, fontSizeToUse(selectItem)));
+                Font.BOLD, fontSizeToUse(selectItem) - 1));
         leftPanel.add(selectItem);
 
         // Cart Items
@@ -141,8 +197,8 @@ public class CartFrame extends JComponent implements Runnable {
             ArrayList<String> quantityList = new ArrayList<>();
             ArrayList<String> priceList = new ArrayList<>();
 
-            for (int i = 0; i < userCarts.size(); i++) { // Get item name
-                String[] fields = userCarts.get(i).split("!");
+            for (String userCart : userCarts) { // Get item name
+                String[] fields = userCart.split("!");
                 itemNameList.add(fields[1]);
                 quantityList.add(fields[2]);
                 priceList.add(fields[3]);
@@ -221,16 +277,15 @@ public class CartFrame extends JComponent implements Runnable {
         cartFrame.setVisible(true);
     }
 
-    public int fontSizeToUse(JLabel label) {
-        Font currentFont = label.getFont();
-        String textInLabel = label.getText();
-        int stringWidth = label.getFontMetrics(currentFont).stringWidth(textInLabel);
-        int componentWidth = label.getWidth();
+    public int fontSizeToUse(JLabel component) {
+        Font fontOfLabel = component.getFont();
+        String textInLabel = component.getText();
+        int stringWidth = component.getFontMetrics(fontOfLabel).stringWidth(textInLabel);
+        int componentWidth = component.getWidth();
         double widthRatio = (double) componentWidth / (double) stringWidth;
-        int newFontSize = (int) (currentFont.getSize() * widthRatio);
-        int componentHeight = label.getHeight();
-        int fontSizeToUse = Math.min(newFontSize, componentHeight);
+        int newFontSize = (int) (fontOfLabel.getSize() * widthRatio);
+        int componentHeight = component.getHeight();
 
-        return fontSizeToUse;
+        return Math.min(newFontSize, componentHeight);
     }
 }

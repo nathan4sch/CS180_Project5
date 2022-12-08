@@ -1,6 +1,3 @@
-//import org.bouncycastle.jcajce.provider.symmetric.SEED;
-
-import javax.swing.*;
 import java.io.*;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
@@ -10,7 +7,7 @@ import java.util.*;
 /**
  * Server class
  * <p>
- * Handles all the information sent to client
+ * Handles all the information sent to send to client
  *
  * @version 24/11/2022
  */
@@ -55,79 +52,88 @@ public class Server implements Runnable {
             PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             while (true) {
-                String nextFrame = bufferedReader.readLine();
-                switch (nextFrame) {
-                    case "SignIn" -> {
-                        String emailInput = bufferedReader.readLine();
-                        String passwordInput = bufferedReader.readLine();
+                synchronized (SYNC) {
+                    String nextFrame = bufferedReader.readLine();
+                    switch (nextFrame) {
+                        case "SignIn" -> {
+                            String emailInput = bufferedReader.readLine();
+                            String passwordInput = bufferedReader.readLine();
 
-                        currentUser = signInAccount(emailInput, passwordInput);
+                            currentUser = signInAccount(emailInput, passwordInput);
 
-                        if (currentUser == null) {
-                            printWriter.println("Failure");
-                            printWriter.flush();
-                        } else {
-                            //set the csv to say the user in logged in
-                            BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
-                            ArrayList<String> lines = new ArrayList<>();
-                            String line;
-                            while ((line = bfr.readLine()) != null) {
-                                String[] splitLine = line.split(",");
-                                if (splitLine[0].equals(emailInput)) {
-                                    splitLine[5] = "LoggedIn";
+                            if (currentUser == null) {
+                                printWriter.println("Failure");
+                                printWriter.flush();
+                            } else {
+                                //set the csv to say the user in logged in
+                                BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
+                                ArrayList<String> lines = new ArrayList<>();
+                                String line;
+                                while ((line = bfr.readLine()) != null) {
+                                    String[] splitLine = line.split(",");
+                                    if (splitLine[0].equals(emailInput)) {
+                                        splitLine[5] = "LoggedIn";
+                                    }
+                                    line = String.format("%s,%s,%s,%s,%s,%s", splitLine[0], splitLine[1],
+                                            splitLine[2], splitLine[3], splitLine[4], splitLine[5]);
+                                    lines.add(line);
                                 }
-                                line = String.format("%s,%s,%s,%s,%s,%s", splitLine[0], splitLine[1],
-                                        splitLine[2], splitLine[3], splitLine[4], splitLine[5]);
-                                lines.add(line);
+                                bfr.close();
+                                PrintWriter credentialsPrint = new PrintWriter(new FileOutputStream("FMCredentials.csv", false));
+                                for (int i = 0; i < lines.size(); i++) {
+                                    credentialsPrint.println(lines.get(i));
+                                }
+                                credentialsPrint.close();
+                                printWriter.println("Success");
+                                if (currentUser instanceof Buyer) {
+                                    printWriter.println("Buyer");
+                                } else if (currentUser instanceof Seller) {
+                                    printWriter.println("Seller");
+                                }
+                                printWriter.flush();
                             }
-                            bfr.close();
-                            PrintWriter credentialsPrint = new PrintWriter(new FileOutputStream("FMCredentials.csv", false));
-                            for (int i = 0; i < lines.size(); i++) {
-                                credentialsPrint.println(lines.get(i));
-                            }
-                            credentialsPrint.close();
-                            printWriter.println("Success");
-                            if (currentUser instanceof Buyer) {
-                                printWriter.println("Buyer");
-                            } else if (currentUser instanceof Seller) {
-                                printWriter.println("Seller");
-                            }
-                            printWriter.flush();
                         }
-                    }
-                    case "Create Account" -> {
-                        String emailInput = bufferedReader.readLine();
-                        String passwordInput = bufferedReader.readLine();
-                        String roleInput = bufferedReader.readLine();
+                        case "Create Account" -> {
+                            String emailInput = bufferedReader.readLine();
+                            String passwordInput = bufferedReader.readLine();
+                            String roleInput = bufferedReader.readLine();
 
-                        currentUser = createAccount(emailInput, passwordInput, roleInput);
-                        if (currentUser == null) {
-                            printWriter.println("Failure");
-                            printWriter.flush();
-                        } else {
-                            printWriter.println("Success");
-                            printWriter.flush();
+                            if (emailInput.length() < 6 || passwordInput.length() < 6) {
+                                printWriter.println("Input Short");
+                                printWriter.flush();
+                            } else if (emailInput.contains(",") || passwordInput.contains(",")) {
+                                printWriter.println("Invalid Characters");
+                                printWriter.flush();
+                            } else if (!emailInput.contains("@")) {
+                                printWriter.println("Invalid Email");
+                                printWriter.flush();
+                            } else {
+                                currentUser = createAccount(emailInput, passwordInput, roleInput);
+
+                                if (currentUser == null) {
+                                    printWriter.println("Failure");
+                                    printWriter.flush();
+                                } else {
+                                    printWriter.println("Success");
+                                    printWriter.flush();
+                                }
+                            }
                         }
-                    }
-                    case "Initial Table" -> {
-                        ArrayList<Item> itemList = getItems();
-                        printWriter.println(itemList.size());
-                        printWriter.flush();
-                        for (int i = 0; i < itemList.size(); i++) {
-                            printWriter.println(itemList.get(i).getStore());
-                            printWriter.println(itemList.get(i).getName());
-                            printWriter.println(itemList.get(i).getPrice());
+                        case "Initial Table" -> {
+                            ArrayList<Item> itemList = getItems();
+                            printWriter.println(itemList.size());
                             printWriter.flush();
+                            for (int i = 0; i < itemList.size(); i++) {
+                                printWriter.println(itemList.get(i).getStore());
+                                printWriter.println(itemList.get(i).getName());
+                                printWriter.println(itemList.get(i).getPrice());
+                                printWriter.flush();
+                            }
                         }
-                    }
-                    case "View Cart" -> {
-                        synchronized (SYNC) {
+                        case "View Cart" -> {
                             try {
                                 String email = ((Buyer) currentUser).getEmail();
-                                ArrayList<String> buyerCartList = ((Buyer) currentUser).getCart();
-                                buyerCartList = ((Buyer) currentUser).showItemsInCart(email);
-                                System.out.println(((Buyer) currentUser).getEmail());
-                                System.out.println(buyerCartList);
+                                ArrayList<String> buyerCartList = ((Buyer) currentUser).showItemsInCart(email);
 
                                 if (!buyerCartList.get(0).equals("x")) {
                                     String[] buyerCart = new String[buyerCartList.size()];
@@ -151,9 +157,189 @@ public class Server implements Runnable {
                                 printWriter.flush();
                             }
                         }
-                    }
-                    case "Remove Cart Item" -> {
-                        synchronized (SYNC) {
+                        case "Checkout" -> {
+                            ArrayList<String> successfulItems = new ArrayList<>(); // full cart item copied to array list in case of success
+                            ArrayList<String> unsuccessfulItems = new ArrayList<>(); // only name, quantity, and error info
+                            ArrayList<String> cart = ((Buyer) currentUser).getCart();
+                            itemList = getItems();
+
+                            boolean itemFound; // boolean used to check if item still exists in items
+                            for (int i = 0; i < cart.size(); i++) {
+                                itemFound = false;
+                                String[] splitCart = cart.get(i).split("!");
+                                for (int j = 0; j < itemList.size(); j++) {
+                                    if (splitCart[1].equals(itemList.get(j).getName())) { // every item in cart against item list
+                                        itemFound = true;
+                                        // if not enough in stock, add to unsuccessful items list
+                                        if (itemList.get(j).getQuantity() < Integer.parseInt(splitCart[2])) {
+                                            unsuccessfulItems.add(itemList.get(j).getName() + "," + splitCart[2] +
+                                                    ",Not enough in stock to fulfill order");
+                                        } else if (!Double.toString(itemList.get(j).getPrice()).equals(splitCart[3])) {
+                                            unsuccessfulItems.add(splitCart[1] + "," + splitCart[2] + ",Item No longer exists");
+                                        } else {
+                                            successfulItems.add(cart.get(i));
+                                        }
+                                    }
+                                }
+                                if (!itemFound) {
+                                    unsuccessfulItems.add(splitCart[1] + "," + splitCart[2] + ",Item No longer exists");
+                                }
+                            }
+
+                            //Writes Successful checkouts to purchase history and removes all items from cart
+                            try {
+                                BufferedReader reader = new BufferedReader(new FileReader("FMCredentials.csv"));
+                                ArrayList<String> fmCredentials = new ArrayList<>();
+                                String line = reader.readLine();
+                                String[] userSplit = null; // saves current user data for ease of access
+                                while (line != null) {
+                                    String[] splitLine = line.split(",");
+                                    if (!((Buyer) currentUser).getEmail().equals(splitLine[0])) {
+                                        fmCredentials.add(line);
+                                    } else {
+                                        userSplit = line.split(",");
+                                    }
+                                    line = reader.readLine();
+                                }
+                                reader.close();
+
+                                PrintWriter credWriter = new PrintWriter(new FileWriter("FMCredentials.csv"));
+
+                                assert userSplit != null;
+                                String formattedSuccess;
+                                if (!(userSplit[3].equals("x"))) {
+                                    formattedSuccess = userSplit[3];
+                                    for (int i = 0; i < successfulItems.size(); i++) {
+                                        formattedSuccess = formattedSuccess + "~" + successfulItems.get(i);
+                                    }
+                                } else {
+                                    if (successfulItems.size() == 0) {
+                                        formattedSuccess = "x";
+                                    } else {
+                                        formattedSuccess = successfulItems.get(0);
+                                    }
+                                    for (int i = 1; i < successfulItems.size(); i++) {
+                                        formattedSuccess = formattedSuccess + "~" + successfulItems.get(i);
+                                    }
+                                }
+                                //email,password,buyer/seller,history,empty cart,login status
+                                credWriter.println(userSplit[0] + "," + userSplit[1] + "," + userSplit[2] + "," + formattedSuccess + ",x," + userSplit[5]);
+                                for (int i = 0; i < fmCredentials.size(); i++) {
+                                    credWriter.println(fmCredentials.get(i));
+                                }
+                                credWriter.close();
+                            } catch (Exception exc) {
+                                exc.printStackTrace();
+                            }
+
+                            //rewrite FMItems to reflect changes in stock
+                            try {
+                                BufferedReader reader = new BufferedReader(new FileReader("FMItems.csv"));
+                                ArrayList<String> fmItemsUnchanged = new ArrayList<>(); // saves unchanged data
+                                ArrayList<String> fmItemsChanged = new ArrayList<>();
+                                String line = reader.readLine();
+                                while (line != null) { // checks lines against every successfully checked out item
+                                    String[] splitLine = line.split(",");
+                                    boolean found = false; // only becomes true if item is line is one of the items changed
+                                    for (int i = 0; i < successfulItems.size(); i++) {
+                                        String[] splitItem = successfulItems.get(i).split("!");
+                                        if (splitItem[1].equals(splitLine[1])) {
+                                            fmItemsChanged.add(splitLine[0] + "," + splitLine[1] + "," + splitLine[2] + "," + // adds changed data to list of changed data
+                                                    (Integer.parseInt(splitLine[3]) - Integer.parseInt(splitItem[2]))
+                                                    + "," + splitLine[4]);
+                                            found = true;
+                                        }
+                                    }
+                                    if (!found) { // If item is not found in list of successful items, it is added to unchanged list
+                                        fmItemsUnchanged.add(line);
+                                    }
+                                    line = reader.readLine();
+                                }
+                                reader.close();
+
+                                PrintWriter itemWriter = new PrintWriter(new FileWriter("FMItems.csv", false));
+
+                                for (int i = 0; i < fmItemsChanged.size(); i++) {
+                                    itemWriter.println(fmItemsChanged.get(i));
+                                }
+                                for (int i = 0; i < fmItemsUnchanged.size(); i++) {
+                                    itemWriter.println(fmItemsUnchanged.get(i));
+                                }
+                                itemWriter.close();
+                            } catch (Exception exc) {
+                                exc.printStackTrace();
+                            }
+
+                            //writes to fmStats
+                            for (int i = 0; i < successfulItems.size(); i++) {
+                                String buyer = ((Buyer) currentUser).getEmail();
+                                String[] purchaseInfo = successfulItems.get(i).split("!");
+                                String itemName = purchaseInfo[1];
+                                int quantity = Integer.parseInt(purchaseInfo[2]);
+                                Item item = null;
+
+                                try {
+                                    BufferedReader bfr = new BufferedReader(new FileReader("FMItems.csv"));
+                                    String line;
+                                    while ((line = bfr.readLine()) != null) {
+                                        String[] splitLine = line.split(",");
+                                        if (splitLine[1].equals(itemName)) {
+                                            item = new Item(splitLine[0], splitLine[1], splitLine[2],
+                                                    Integer.parseInt(splitLine[3]), Double.parseDouble(splitLine[4]));
+                                        }
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                saveSale(buyer, item, quantity);
+                            }
+
+                            // Write to FMStores.csv
+                            String buyerEmail = ((Buyer) currentUser).getEmail();
+                            ArrayList<String> storeNames = new ArrayList<>();
+                            ArrayList<String> itemNames = new ArrayList<>();
+                            ArrayList<Integer> amountSold = new ArrayList<>();
+                            ArrayList<Double> prices = new ArrayList<>();
+
+                            // Set variables
+                            for (int i = 0; i < successfulItems.size(); i++) {
+                                String[] fields = successfulItems.get(i).split("!");
+                                storeNames.add(fields[0]);
+                                itemNames.add(fields[1]);
+                                amountSold.add(Integer.valueOf(fields[2]));
+                                prices.add(Double.valueOf(fields[3]));
+                            }
+
+                            for (int i = 0; i < successfulItems.size(); i++) { // Write to FMStores.csv
+                                addSalesToStore(buyerEmail, storeNames.get(i), itemNames.get(i),
+                                        amountSold.get(i), prices.get(i));
+                            }
+
+                            //Communicates to client
+                            if (unsuccessfulItems.isEmpty()) {
+                                printWriter.println("Success");
+                                printWriter.flush();
+                            } else if (successfulItems.isEmpty()) {
+                                printWriter.println("Failure");
+                                printWriter.flush();
+                            } else {
+                                printWriter.println("Partial Success");
+                                printWriter.println(successfulItems.size());
+                                printWriter.println(unsuccessfulItems.size());
+                                printWriter.flush();
+
+                                for (int i = 0; i < successfulItems.size(); i++) {
+                                    String[] splitSuccess = successfulItems.get(i).split("!");
+                                    printWriter.println(splitSuccess[1] + "," + splitSuccess[2]);
+                                    printWriter.flush();
+                                }
+                                for (int i = 0; i < unsuccessfulItems.size(); i++) {
+                                    printWriter.println(unsuccessfulItems.get(i));
+                                    printWriter.flush();
+                                }
+                            }
+                        }
+                        case "Remove Cart Item" -> {
                             try {
                                 String itemName = bufferedReader.readLine();
                                 String success = ((Buyer) currentUser).removeItemFromCart(itemName, ((Buyer) currentUser).getEmail());
@@ -170,89 +356,88 @@ public class Server implements Runnable {
                                 ex.printStackTrace();
                             }
                         }
-                    }
-                    case "Search By Name" -> {
-                        String searchedText = bufferedReader.readLine();
-                        ArrayList<Item> itemList = getItems();
-                        ArrayList<Item> matches = new ArrayList<>();
-                        for (int i = 0; i < itemList.size(); i++) {
-                            if (itemList.get(i).getName().contains(searchedText)) {
-                                matches.add(itemList.get(i));
-                            }
-                        }
-                        printWriter.println(matches.size());
-                        printWriter.flush();
-                        for (int i = 0; i < matches.size(); i++) {
-                            printWriter.println(matches.get(i).getStore());
-                            printWriter.println(matches.get(i).getName());
-                            printWriter.println(matches.get(i).getPrice());
-                            printWriter.flush();
-                        }
-                    }
-                    case "Search By Store" -> {
-                        String searchedText = bufferedReader.readLine();
-                        ArrayList<Item> itemList = getItems();
-                        ArrayList<Item> matches = new ArrayList<>();
-                        for (int i = 0; i < itemList.size(); i++) {
-                            if (itemList.get(i).getStore().contains(searchedText)) {
-                                matches.add(itemList.get(i));
-                            }
-                        }
-                        printWriter.println(matches.size());
-                        printWriter.flush();
-                        for (int i = 0; i < matches.size(); i++) {
-                            printWriter.println(matches.get(i).getStore());
-                            printWriter.println(matches.get(i).getName());
-                            printWriter.println(matches.get(i).getPrice());
-                            printWriter.flush();
-                        }
-                    }
-                    case "Search By Description" -> {
-                        String searchedText = bufferedReader.readLine();
-                        ArrayList<Item> itemList = getItems();
-                        ArrayList<Item> matches = new ArrayList<>();
-                        for (int i = 0; i < itemList.size(); i++) {
-                            if (itemList.get(i).getDescription().contains(searchedText)) {
-                                matches.add(itemList.get(i));
-                            }
-                        }
-                        printWriter.println(matches.size());
-                        printWriter.flush();
-                        for (int i = 0; i < matches.size(); i++) {
-                            printWriter.println(matches.get(i).getStore());
-                            printWriter.println(matches.get(i).getName());
-                            printWriter.println(matches.get(i).getPrice());
-                            printWriter.flush();
-                        }
-                    }
-                    case "Sort By Price" -> {
-                        ArrayList<Item> itemList = getItems();
-                        ArrayList<Item> sortedItemList = new ArrayList<>();
-                        ArrayList<Double> prices = new ArrayList<>();
-                        for (int i = 0; i < itemList.size(); i++) {
-                            if (!(prices.contains(itemList.get(i).getPrice()))) {
-                                prices.add(itemList.get(i).getPrice());
-                            }
-                        }
-                        Collections.sort(prices);
-                        for (int i = 0; i < prices.size(); i++) {
-                            for (int j = 0; j < itemList.size(); j++) {
-                                if (prices.get(i) == itemList.get(j).getPrice()) {
-                                    sortedItemList.add(itemList.get(j));
-                                    itemList.remove(j);
-                                    j--;
+                        case "Search By Name" -> {
+                            String searchedText = bufferedReader.readLine();
+                            ArrayList<Item> itemList = getItems();
+                            ArrayList<Item> matches = new ArrayList<>();
+                            for (int i = 0; i < itemList.size(); i++) {
+                                if (itemList.get(i).getName().contains(searchedText)) {
+                                    matches.add(itemList.get(i));
                                 }
                             }
-                        }
-                        printWriter.println(sortedItemList.size());
-                        printWriter.flush();
-                        for (int i = 0; i < sortedItemList.size(); i++) {
-                            printWriter.println(sortedItemList.get(i).getStore());
-                            printWriter.println(sortedItemList.get(i).getName());
-                            printWriter.println(sortedItemList.get(i).getPrice());
+                            printWriter.println(matches.size());
                             printWriter.flush();
+                            for (int i = 0; i < matches.size(); i++) {
+                                printWriter.println(matches.get(i).getStore());
+                                printWriter.println(matches.get(i).getName());
+                                printWriter.println(matches.get(i).getPrice());
+                                printWriter.flush();
+                            }
                         }
-                        //code below sorts in reverse order
+                        case "Search By Store" -> {
+                            String searchedText = bufferedReader.readLine();
+                            ArrayList<Item> itemList = getItems();
+                            ArrayList<Item> matches = new ArrayList<>();
+                            for (int i = 0; i < itemList.size(); i++) {
+                                if (itemList.get(i).getStore().contains(searchedText)) {
+                                    matches.add(itemList.get(i));
+                                }
+                            }
+                            printWriter.println(matches.size());
+                            printWriter.flush();
+                            for (int i = 0; i < matches.size(); i++) {
+                                printWriter.println(matches.get(i).getStore());
+                                printWriter.println(matches.get(i).getName());
+                                printWriter.println(matches.get(i).getPrice());
+                                printWriter.flush();
+                            }
+                        }
+                        case "Search By Description" -> {
+                            String searchedText = bufferedReader.readLine();
+                            ArrayList<Item> itemList = getItems();
+                            ArrayList<Item> matches = new ArrayList<>();
+                            for (int i = 0; i < itemList.size(); i++) {
+                                if (itemList.get(i).getDescription().contains(searchedText)) {
+                                    matches.add(itemList.get(i));
+                                }
+                            }
+                            printWriter.println(matches.size());
+                            printWriter.flush();
+                            for (int i = 0; i < matches.size(); i++) {
+                                printWriter.println(matches.get(i).getStore());
+                                printWriter.println(matches.get(i).getName());
+                                printWriter.println(matches.get(i).getPrice());
+                                printWriter.flush();
+                            }
+                        }
+                        case "Sort By Price" -> {
+                            ArrayList<Item> itemList = getItems();
+                            ArrayList<Item> sortedItemList = new ArrayList<>();
+                            ArrayList<Double> prices = new ArrayList<>();
+                            for (int i = 0; i < itemList.size(); i++) {
+                                if (!(prices.contains(itemList.get(i).getPrice()))) {
+                                    prices.add(itemList.get(i).getPrice());
+                                }
+                            }
+                            Collections.sort(prices);
+                            for (int i = 0; i < prices.size(); i++) {
+                                for (int j = 0; j < itemList.size(); j++) {
+                                    if (prices.get(i) == itemList.get(j).getPrice()) {
+                                        sortedItemList.add(itemList.get(j));
+                                        itemList.remove(j);
+                                        j--;
+                                    }
+                                }
+                            }
+                            printWriter.println(sortedItemList.size());
+                            printWriter.flush();
+                            for (int i = 0; i < sortedItemList.size(); i++) {
+                                printWriter.println(sortedItemList.get(i).getStore());
+                                printWriter.println(sortedItemList.get(i).getName());
+                                printWriter.println(sortedItemList.get(i).getPrice());
+                                printWriter.flush();
+                            }
+                            //code below sorts in reverse order
                         /*
                         for (int i = sortedItemList.size(); i > 0; i--) {
                             printWriter.println(sortedItemList.get(i - 1).getStore());
@@ -260,36 +445,35 @@ public class Server implements Runnable {
                             printWriter.println(sortedItemList.get(i - 1).getPrice());
                             printWriter.flush();
                         } */
-
-                    }
-                    case "Sort By Quantity" -> {
-                        ArrayList<Item> itemList = getItems();
-                        ArrayList<Item> sortedItemList = new ArrayList<>();
-                        ArrayList<Integer> quantities = new ArrayList<>();
-                        for (int i = 0; i < itemList.size(); i++) {
-                            if (!(quantities.contains(itemList.get(i).getQuantity()))) {
-                                quantities.add(itemList.get(i).getQuantity());
-                            }
                         }
-                        Collections.sort(quantities);
-                        for (int i = 0; i < quantities.size(); i++) {
-                            for (int j = 0; j < itemList.size(); j++) {
-                                if (quantities.get(i) == itemList.get(j).getQuantity()) {
-                                    sortedItemList.add(itemList.get(j));
-                                    itemList.remove(j);
-                                    j--;
+                        case "Sort By Quantity" -> {
+                            ArrayList<Item> itemList = getItems();
+                            ArrayList<Item> sortedItemList = new ArrayList<>();
+                            ArrayList<Integer> quantities = new ArrayList<>();
+                            for (int i = 0; i < itemList.size(); i++) {
+                                if (!(quantities.contains(itemList.get(i).getQuantity()))) {
+                                    quantities.add(itemList.get(i).getQuantity());
                                 }
                             }
-                        }
-                        printWriter.println(sortedItemList.size());
-                        printWriter.flush();
-                        for (int i = 0; i < sortedItemList.size(); i++) {
-                            printWriter.println(sortedItemList.get(i).getStore());
-                            printWriter.println(sortedItemList.get(i).getName());
-                            printWriter.println(sortedItemList.get(i).getPrice());
+                            Collections.sort(quantities);
+                            for (int i = 0; i < quantities.size(); i++) {
+                                for (int j = 0; j < itemList.size(); j++) {
+                                    if (quantities.get(i) == itemList.get(j).getQuantity()) {
+                                        sortedItemList.add(itemList.get(j));
+                                        itemList.remove(j);
+                                        j--;
+                                    }
+                                }
+                            }
+                            printWriter.println(sortedItemList.size());
                             printWriter.flush();
-                        }
-                        //code below sorts in the reverse order
+                            for (int i = 0; i < sortedItemList.size(); i++) {
+                                printWriter.println(sortedItemList.get(i).getStore());
+                                printWriter.println(sortedItemList.get(i).getName());
+                                printWriter.println(sortedItemList.get(i).getPrice());
+                                printWriter.flush();
+                            }
+                            //code below sorts in the reverse order
                         /*
                         for (int i = sortedItemList.size(); i > 0; i--) {
                             printWriter.println(sortedItemList.get(i - 1).getStore());
@@ -297,58 +481,54 @@ public class Server implements Runnable {
                             printWriter.println(sortedItemList.get(i - 1).getPrice());
                             printWriter.flush();
                         }*/
-                    }
-                    case "Add Item To Cart" -> {
-                        String nameOfItem = "";
-                        int userQuantity = -1;
-                        boolean itemInCart = false;
-                        synchronized (SYNC) {
+                        }
+                        case "Add Item To Cart" -> {
+                            String nameOfItem;
+                            int userQuantity;
+                            boolean itemInCart = false;
+
                             nameOfItem = bufferedReader.readLine();
                             userQuantity = Integer.parseInt(bufferedReader.readLine());
                             itemList = getItems();
-                        }
 
-                        BufferedReader cartReader = new BufferedReader(new FileReader("FMCredentials.csv"));
-                        try {
-                            String currentCred = "";
+                            BufferedReader cartReader = new BufferedReader(new FileReader("FMCredentials.csv"));
+                            try {
+                                String currentCred = "";
 
-                            String line;
-                            while ((line = cartReader.readLine()) != null) {
-                                String[] lineSplit = line.split(",");
-                                if (lineSplit[0].equals(((Buyer) currentUser).getEmail())) {
-                                    currentCred = line;
+                                String line;
+                                while ((line = cartReader.readLine()) != null) {
+                                    String[] lineSplit = line.split(",");
+                                    if (lineSplit[0].equals(((Buyer) currentUser).getEmail())) {
+                                        currentCred = line;
+                                    }
                                 }
-                            }
-                            cartReader.close();
+                                cartReader.close();
 
-                            String[] lineData = currentCred.split(",");
-                            String[] cartData = lineData[4].split("~");
-                            for (int i = 0; i < cartData.length; i++) {
-                                String[] cartFields = cartData[i].split("!");
-                                if (cartFields[1].equals(nameOfItem)) {
-                                    itemInCart = true;
+                                String[] lineData = currentCred.split(",");
+                                String[] cartData = lineData[4].split("~");
+                                for (int i = 0; i < cartData.length; i++) {
+                                    String[] cartFields = cartData[i].split("!");
+                                    if (cartFields[1].equals(nameOfItem)) {
+                                        itemInCart = true;
+                                    }
                                 }
+                            } catch (Exception ex) {
+
                             }
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
-                        synchronized (SYNC) {
-                            if (itemInCart == false) {
+
+                            if (!itemInCart) {
                                 boolean found = false;
                                 for (int i = 0; i < itemList.size(); i++) {
                                     if (nameOfItem.equals(itemList.get(i).getName())) {
                                         if (itemList.get(i).getQuantity() >= userQuantity) {
                                             ((Buyer) currentUser).addToCart(itemList.get(i), String.valueOf(userQuantity));
                                             printWriter.println("Success");
-                                            printWriter.flush();
-                                            found = true;
-                                            break;
                                         } else {
                                             printWriter.println("Quantity error");
-                                            printWriter.flush();
-                                            found = true;
-                                            break;
                                         }
+                                        printWriter.flush();
+                                        found = true;
+                                        break;
                                     }
                                 }
                                 if (!found) {
@@ -360,42 +540,41 @@ public class Server implements Runnable {
                                 printWriter.flush();
                             }
                         }
-                    }
-                    case "More Details" -> {
-                        String selectedItem = bufferedReader.readLine();
-                        itemList = getItems();
-                        boolean found = false;
-                        for (int i = 0; i < itemList.size(); i++) {
-                            if (selectedItem.equals(itemList.get(i).getName())) {
-                                printWriter.println("Success");
-                                printWriter.println(itemList.get(i).getStore());
-                                printWriter.println(itemList.get(i).getDescription());
-                                printWriter.println(itemList.get(i).getPrice());
-                                printWriter.println(itemList.get(i).getQuantity());
+                        case "More Details" -> {
+                            String selectedItem = bufferedReader.readLine();
+                            itemList = getItems();
+                            boolean found = false;
+
+                            for (int i = 0; i < itemList.size(); i++) {
+                                if (selectedItem.equals(itemList.get(i).getName())) {
+                                    printWriter.println("Success");
+                                    printWriter.println(itemList.get(i).getStore());
+                                    printWriter.println(itemList.get(i).getDescription());
+                                    printWriter.println(itemList.get(i).getPrice());
+                                    printWriter.println(itemList.get(i).getQuantity());
+                                    printWriter.flush();
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                printWriter.println("Failure");
                                 printWriter.flush();
-                                found = true;
-                                break;
                             }
                         }
-                        if (!found) {
-                            printWriter.println("Failure");
-                            printWriter.flush();
+                        case "View History" -> {
+                            ArrayList<String> historyList = ((Buyer) currentUser).
+                                    returnPurchaseHistory(((Buyer) currentUser).getEmail());
+                            String line = parseList(historyList);
+                            if (line != null) {
+                                printWriter.println(line);
+                                printWriter.flush();
+                            } else {
+                                printWriter.println("Error");
+                                printWriter.flush();
+                            }
                         }
-                    }
-                    case "View History" -> {
-                        ArrayList<String> historyList = ((Buyer) currentUser).
-                                returnPurchaseHistory(((Buyer) currentUser).getEmail());
-                        String line = parseList(historyList);
-                        if (line != null) {
-                            printWriter.println(line);
-                            printWriter.flush();
-                        } else {
-                            printWriter.println("Error");
-                            printWriter.flush();
-                        }
-                    }
-                    case "Export History" -> {
-                        synchronized (SYNC) {
+                        case "Export History" -> {
                             String exported = ((Buyer) currentUser).exportPurchaseHistory(((Buyer) currentUser).getEmail());
                             if (exported.equals("Exported")) {
                                 printWriter.println("Success");
@@ -405,471 +584,520 @@ public class Server implements Runnable {
                                 printWriter.flush();
                             }
                         }
-                    }
-                    case "BSF - Show Buyer Statistics" -> {
-                        ArrayList<String> buyerStatList = ((Buyer) currentUser).
-                                storesFromBuyerProducts(((Buyer) currentUser).getEmail());
-                        String line = parseList(buyerStatList);
-                        if (line != null) {
-                            printWriter.println(line);
-                            printWriter.flush();
-                        } else {
-                            printWriter.println("Error");
-                            printWriter.flush();
-                        }
-                    }
-                    case "BSF - Sort Buyer Statistics" -> {
-                        ArrayList<String> sortedBuyerStatList = ((Buyer) currentUser).
-                                sortStoresFromBuyerProducts(((Buyer) currentUser).getEmail());
-                        String line = parseList(sortedBuyerStatList);
-                        if (line != null) {
-                            printWriter.println(line);
-                            printWriter.flush();
-                        } else {
-                            printWriter.println("Error");
-                            printWriter.flush();
-                        }
-                    }
-                    case "BSF - Show Store Statistics" -> {
-                        ArrayList<String> storeStatList = ((Buyer) currentUser).storesFromProductsSold();
-                        String line = parseList(storeStatList);
-                        if (line != null) {
-                            printWriter.println(line);
-                            printWriter.flush();
-                        } else {
-                            printWriter.println("Error");
-                            printWriter.flush();
-                        }
-                    }
-                    case "BSF - Sort Store Statistics" -> {
-                        ArrayList<String> sortedStoreStatList = ((Buyer) currentUser).sortStoresProductsSold();
-                        String line = parseList(sortedStoreStatList);
-                        if (line != null) {
-                            printWriter.println(line);
-                            printWriter.flush();
-                        } else {
-                            printWriter.println("Error");
-                            printWriter.flush();
-                        }
-                    }
-                    case "Manage Store" -> {
-                        Store[] userStoreList = ((Seller) currentUser).getStore();
-                        String[] userStoreNames = new String[userStoreList.length];
-                        for (int i = 0; i < userStoreList.length; i++) {
-                            userStoreNames[i] = userStoreList[i].getStoreName();
-                        }
-                        printWriter.println(Arrays.toString(userStoreNames));
-                        printWriter.flush();
-                    }
-                    case "Create Store" -> {
-                        String storeName = bufferedReader.readLine();
-                        String successOrFailure = validStoreName(storeName);
-                        if (storeName.equals("")) {
-                            successOrFailure = "Failure";
-                        }
-                        if (successOrFailure.equals("Failure")) {
-                            printWriter.println("Failure");
-                            printWriter.flush();
-                        } else if (successOrFailure.equals("Success")) {
-                            ((Seller) currentUser).createStore(new Store(((Seller) currentUser).getEmail(), storeName));
-                            printWriter.println("Success");
-                            printWriter.flush();
-                        }
-                    }
-                    case "Delete Store" -> {
-                        String deleteStoreName = bufferedReader.readLine();
-                        ((Seller) currentUser).deleteStore(deleteStoreName);
-                        Store[] userStoreList = ((Seller) currentUser).getStore();
-                        String[] userStoreNames = new String[userStoreList.length];
-                        for (int i = 0; i < userStoreList.length; i++) {
-                            userStoreNames[i] = userStoreList[i].getStoreName();
-                        }
-                        printWriter.println(Arrays.toString(userStoreNames));
-                        printWriter.flush();
-                    }
-                    case "Modify Product" -> {
-                        String currentStoreString = bufferedReader.readLine();
-                        Store[] userStoreList = ((Seller) currentUser).getStore();
-                        Store currentStore = null;
-                        for (int i = 0; i < userStoreList.length; i++) {
-                            if (userStoreList[i].getStoreName().equals(currentStoreString)) {
-                                currentStore = userStoreList[i];
+                        case "BSF - Show Buyer Statistics" -> {
+                            ArrayList<String> buyerStatList = ((Buyer) currentUser).
+                                    storesFromBuyerProducts(((Buyer) currentUser).getEmail());
+                            String line = parseList(buyerStatList);
+                            if (line != null) {
+                                printWriter.println(line);
+                                printWriter.flush();
+                            } else {
+                                printWriter.println("Error");
+                                printWriter.flush();
                             }
                         }
-                        ArrayList<Item> storeItems = Objects.requireNonNull(currentStore).getItems();
-                        if (storeItems.size() == 0) {
-                            printWriter.println("[No items]");
-                            printWriter.flush();
-                        } else {
-                            String[] itemNames = new String[storeItems.size()];
-                            for (int i = 0; i < storeItems.size(); i++) {
-                                itemNames[i] = storeItems.get(i).getName();
+                        case "BSF - Sort Buyer Statistics" -> {
+                            ArrayList<String> sortedBuyerStatList = ((Buyer) currentUser).
+                                    sortStoresFromBuyerProducts(((Buyer) currentUser).getEmail());
+                            String line = parseList(sortedBuyerStatList);
+                            if (line != null) {
+                                printWriter.println(line);
+                                printWriter.flush();
+                            } else {
+                                printWriter.println("Error");
+                                printWriter.flush();
                             }
-                            printWriter.println(Arrays.toString(itemNames));
+                        }
+                        case "BSF - Show Store Statistics" -> {
+                            ArrayList<String> storeStatList = ((Buyer) currentUser).storesFromProductsSold();
+                            String line = parseList(storeStatList);
+                            if (line != null) {
+                                printWriter.println(line);
+                                printWriter.flush();
+                            } else {
+                                printWriter.println("Error");
+                                printWriter.flush();
+                            }
+                        }
+                        case "BSF - Sort Store Statistics" -> {
+                            ArrayList<String> sortedStoreStatList = ((Buyer) currentUser).sortStoresProductsSold();
+                            String line = parseList(sortedStoreStatList);
+                            if (line != null) {
+                                printWriter.println(line);
+                                printWriter.flush();
+                            } else {
+                                printWriter.println("Error");
+                                printWriter.flush();
+                            }
+                        }
+                        case "Manage Store" -> {
+                            Store[] userStoreList = ((Seller) currentUser).getStore();
+                            String[] userStoreNames = new String[userStoreList.length];
+                            for (int i = 0; i < userStoreList.length; i++) {
+                                userStoreNames[i] = userStoreList[i].getStoreName();
+                            }
+                            printWriter.println(Arrays.toString(userStoreNames));
                             printWriter.flush();
                         }
-                    }
-                    case "Add Product" -> {
-                        String currentStoreString = bufferedReader.readLine();
-                        String name = bufferedReader.readLine();
-                        String description = bufferedReader.readLine();
-                        String quantity = bufferedReader.readLine();
-                        String price = bufferedReader.readLine();
+                        case "Create Store" -> {
+                            String storeName = bufferedReader.readLine();
+                            String successOrFailure = validStoreName(storeName);
 
-                        //finds current store
-                        Store currentStore = ((Seller) currentUser).getSpecificStore(currentStoreString);
+                            if (storeName.equals("")) {
+                                successOrFailure = "Failure";
+                            } else if (storeName.contains(",")) {
+                                successOrFailure = "Invalid Format";
+                            }
 
-                        //ensure each text field has text
-                        if (name.equals("") || description.equals("") || quantity.equals("") || price.equals("")) {
-                            printWriter.println("Missing Input");
-                            printWriter.flush();
-                        } else if (validItemName(name).equals("Failure")) {                //check valid name
-                            printWriter.println("Product Name Already Exists");
-                            printWriter.flush();
-                        } else if (validItemQuantity(quantity).equals("Failure")) {       //check valid quantity
-                            printWriter.println("Invalid Quantity");
-                            printWriter.flush();
-                        } else if (validItemPrice(price).equals("Failure")) {             //check valid price
-                            printWriter.println("Invalid Price");
-                            printWriter.flush();
-                        } else {
-                            currentStore.addItem(name, description, Integer.parseInt(quantity), Double.parseDouble(price));
-
-                            printWriter.println("Success");
+                            switch (successOrFailure) {
+                                case "Failure" -> {
+                                    printWriter.println("Failure");
+                                    printWriter.flush();
+                                }
+                                case "Invalid Format" -> {
+                                    printWriter.println("Invalid Format");
+                                    printWriter.flush();
+                                }
+                                case "Success" -> {
+                                    ((Seller) currentUser).createStore(new Store(((Seller) currentUser).getEmail(), storeName));
+                                    printWriter.println("Success");
+                                    printWriter.flush();
+                                }
+                            }
+                        }
+                        case "Delete Store" -> {
+                            String deleteStoreName = bufferedReader.readLine();
+                            ((Seller) currentUser).deleteStore(deleteStoreName);
+                            Store[] userStoreList = ((Seller) currentUser).getStore();
+                            String[] userStoreNames = new String[userStoreList.length];
+                            for (int i = 0; i < userStoreList.length; i++) {
+                                userStoreNames[i] = userStoreList[i].getStoreName();
+                            }
+                            printWriter.println(Arrays.toString(userStoreNames));
                             printWriter.flush();
                         }
-                    }
-                    case "Delete Item" -> {
-                        String currentStoreString = bufferedReader.readLine();
-                        String itemNameString = bufferedReader.readLine();
+                        case "Modify Product" -> {
+                            String currentStoreString = bufferedReader.readLine();
+                            Store[] userStoreList = ((Seller) currentUser).getStore();
+                            Store currentStore = null;
+                            for (int i = 0; i < userStoreList.length; i++) {
+                                if (userStoreList[i].getStoreName().equals(currentStoreString)) {
+                                    currentStore = userStoreList[i];
+                                }
+                            }
+                            ArrayList<Item> storeItems = Objects.requireNonNull(currentStore).getItems();
+                            if (storeItems.size() == 0) {
+                                printWriter.println("[No items]");
+                                printWriter.flush();
+                            } else {
+                                String[] itemNames = new String[storeItems.size()];
+                                for (int i = 0; i < storeItems.size(); i++) {
+                                    itemNames[i] = storeItems.get(i).getName();
+                                }
+                                printWriter.println(Arrays.toString(itemNames));
+                                printWriter.flush();
+                            }
+                        }
+                        case "Add Product" -> {
+                            String currentStoreString = bufferedReader.readLine();
+                            String name = bufferedReader.readLine();
+                            String description = bufferedReader.readLine();
+                            String quantity = bufferedReader.readLine();
+                            String price = bufferedReader.readLine();
 
-                        if (itemNameString.equals("")) {
-                            printWriter.println("Failure");
-                            printWriter.flush();
-                        } else {
+                            boolean validNameFormat = false;
+                            boolean validDescFormat = false;
+
+                            if (!name.contains(",")) {
+                                validNameFormat = true;
+                            }
+                            if (!description.contains(",")) {
+                                validDescFormat = true;
+                            }
+
+                            //finds current store
                             Store currentStore = ((Seller) currentUser).getSpecificStore(currentStoreString);
-                            Item itemToDelete = currentStore.getSpecificItem(itemNameString);
 
-                            currentStore.deleteItem(itemToDelete);
-                            printWriter.println("Success");
-                            printWriter.flush();
-                        }
-                    }
-                    case "Edit Credentials" -> {
-                        String passwordInput = bufferedReader.readLine();
-
-                        if (passwordInput.equals("")) {
-                            printWriter.println("No Changed Fields");
-                            printWriter.flush();
-                        } else {
-                            if (changePassword(passwordInput, (currentUser)).equals("Success")) {
-                                printWriter.println("Success");
-                                printWriter.flush();
-                            }
-                        }
-                    }
-                    case "Delete Account" -> {
-                        String userEmail = bufferedReader.readLine();
-                        BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
-                        String line;
-                        while ((line = bfr.readLine()) != null) {
-                            String[] splitLine = line.split(",");
-                            if (splitLine[0].equals(userEmail)) {
-                                Seller currentUser = new Seller(splitLine[0], splitLine[1]);
-                                currentUser.deleteAccount();
-                                printWriter.println("Success");
-                                printWriter.flush();
-                            }
-                        }
-                    }
-                    case "Reset Login Status" -> {
-                        String userEmail = bufferedReader.readLine();
-                        resetLoggedInStatus(userEmail);
-                        printWriter.println("Success");
-                        printWriter.flush();
-                    }
-                    case "Edit Product" -> {
-                        String currentStoreString = bufferedReader.readLine();
-                        String itemNameString = bufferedReader.readLine();
-
-                        String nameInput = bufferedReader.readLine();
-                        String descriptionInput = bufferedReader.readLine();
-                        String quantityInput = bufferedReader.readLine();
-                        String priceInput = bufferedReader.readLine();
-
-                        Store currentStore = ((Seller) currentUser).getSpecificStore(currentStoreString);
-                        Item itemToChange = currentStore.getSpecificItem(itemNameString);
-                        String oldName = itemToChange.getName();
-                        String oldPrice = String.format("%.2f", itemToChange.getPrice());
-
-                        if (itemNameString.equals("")) {
-                            printWriter.println("No Item Selected");
-                            printWriter.flush();
-                        } else {
-                            //Find field changed and what the new input is
-                            int numberOfChangedFields = 0;
-                            String newText = "";
-                            String nameOfFieldChanged = "";
-                            if (!nameInput.equals(itemToChange.getName())) {
-                                numberOfChangedFields++;
-                                newText = nameInput;
-                                nameOfFieldChanged = "name";
-                            }
-                            if (!descriptionInput.equals(itemToChange.getDescription())) {
-                                numberOfChangedFields++;
-                                newText = descriptionInput;
-                                nameOfFieldChanged = "description";
-                            }
-                            if (!quantityInput.equals(Integer.toString(itemToChange.getQuantity()))) {
-                                numberOfChangedFields++;
-                                newText = quantityInput;
-                                nameOfFieldChanged = "quantity";
-                            }
-
-                            String actualPrice = String.format("%.2f", itemToChange.getPrice());
-                            if (!priceInput.equals(actualPrice) &&
-                                    !priceInput.equals(actualPrice.substring(0, actualPrice.indexOf("."))) &&
-                                    !priceInput.equals(actualPrice.substring(0, actualPrice.indexOf(".") + 2))) {
-                                numberOfChangedFields++;
-                                newText = priceInput;
-                                nameOfFieldChanged = "price";
-                            }
-
-                            //Prints all the possible errors
-                            if (numberOfChangedFields == 0) {
+                            //ensure each text field has text
+                            if (name.equals("") || description.equals("") || quantity.equals("") || price.equals("")) {
                                 printWriter.println("Missing Input");
                                 printWriter.flush();
-                            } else if (numberOfChangedFields != 1) {
-                                printWriter.println("Changed More Than One Field");
+                            } else if (validItemName(name).equals("Failure")) {             //check if name already exists
+                                printWriter.println("Product Name Already Exists");
                                 printWriter.flush();
-                            } else if (nameOfFieldChanged.equals("name")) {
-                                if (validItemName(newText).equals("Failure")) {
-                                    printWriter.println("This Product Name Already Exists");
-                                    printWriter.flush();
-                                } else if (itemToChange.changeField(nameOfFieldChanged, newText)) {
-                                    //reflect the new name change in all the user carts
-                                    try {
-                                        BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
-                                        ArrayList<String> lines = new ArrayList<>();
-                                        String line;
-                                        while ((line = bfr.readLine()) != null) {
-                                            String output = "";
-                                            String newCartLine = "";
-                                            String[] splitLine = line.split(",");
-                                            if (splitLine[4].equals("x")) {
-                                                lines.add(line);
-                                            } else {
-                                                String[] cartItems = splitLine[4].split("~");
-                                                for (int i = 0; i < cartItems.length; i++) {
-                                                    String[] item = cartItems[i].split("!");
-                                                    if (item[1].equals(oldName)) {
-                                                        item[1] = newText;
-                                                    }
-                                                    for (int j = 0; j < 4; j++) {
-                                                        if (j != 0) {
-                                                            newCartLine += "!";
-                                                        }
-                                                        newCartLine += item[j];
-                                                        if (j == 3) {
-                                                            newCartLine += "~";
-                                                        }
-                                                    }
-                                                }
-                                                newCartLine = newCartLine.substring(0, newCartLine.length() - 1);
-                                                //rebuild credentials line
-                                                for (int i = 0; i < 6; i++) {
-                                                    if (i != 0) {
-                                                        output += ",";
-                                                    }
-                                                    if (i == 4) {
-                                                        output += newCartLine;
-                                                    } else {
-                                                        output += splitLine[i];
-                                                    }
-                                                }
-                                                lines.add(output);
-                                            }
-                                        }
-                                        bfr.close();
-                                        PrintWriter pw = new PrintWriter(new FileWriter("FMCredentials.csv"));
-                                        for (int i = 0; i < lines.size(); i++) {
-                                            pw.println(lines.get(i));
-                                        }
-                                        pw.close();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-
-                                    printWriter.println("Name Change Success");
-                                    printWriter.flush();
-                                }
-                            } else if (nameOfFieldChanged.equals("quantity")) {
-                                if (validItemQuantity(newText).equals("Failure")) {
-                                    printWriter.println("Quantity Must be a Positive Integer");
-                                    printWriter.flush();
-                                } else if (itemToChange.changeField(nameOfFieldChanged, newText)) {
-                                    printWriter.println("Success");
-                                    printWriter.flush();
-                                }
-                            } else if (nameOfFieldChanged.equals("price")) {
-                                if (validItemPrice(newText).equals("Failure")) {
-                                    printWriter.println("Price Must be a Two Decimal Number");
-                                    printWriter.flush();
-                                } else if (itemToChange.changeField(nameOfFieldChanged, newText)) {
-                                    //reflect the new price change in all the user carts
-                                    try {
-                                        BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
-                                        ArrayList<String> lines = new ArrayList<>();
-                                        String line;
-                                        while ((line = bfr.readLine()) != null) {
-                                            String output = "";
-                                            String newCartLine = "";
-                                            String[] splitLine = line.split(",");
-                                            if (splitLine[4].equals("x")) {
-                                                lines.add(line);
-                                            } else {
-                                                String[] cartItems = splitLine[4].split("~");
-                                                for (int i = 0; i < cartItems.length; i++) {
-                                                    String[] item = cartItems[i].split("!");
-                                                    if (item[3].equals(oldPrice) && item[1].equals(oldName)) {
-                                                        item[3] = String.format("%.2f", Double.parseDouble(newText));
-                                                    }
-                                                    for (int j = 0; j < 4; j++) {
-                                                        if (j != 0) {
-                                                            newCartLine += "!";
-                                                        }
-                                                        newCartLine += item[j];
-                                                        if (j == 3) {
-                                                            newCartLine += "~";
-                                                        }
-                                                    }
-                                                }
-                                                newCartLine = newCartLine.substring(0, newCartLine.length() - 1);
-                                                //rebuild credentials line
-                                                for (int i = 0; i < 6; i++) {
-                                                    if (i != 0) {
-                                                        output += ",";
-                                                    }
-                                                    if (i == 4) {
-                                                        output += newCartLine;
-                                                    } else {
-                                                        output += splitLine[i];
-                                                    }
-                                                }
-                                                lines.add(output);
-                                            }
-                                        }
-                                        bfr.close();
-                                        PrintWriter pw = new PrintWriter(new FileWriter("FMCredentials.csv"));
-                                        for (int i = 0; i < lines.size(); i++) {
-                                            pw.println(lines.get(i));
-                                        }
-                                        pw.close();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                    printWriter.println("Success");
-                                    printWriter.flush();
-                                }
+                            } else if (validItemQuantity(quantity).equals("Failure")) {     //check valid quantity
+                                printWriter.println("Invalid Quantity");
+                                printWriter.flush();
+                            } else if (validItemPrice(price).equals("Failure")) {           //check valid price
+                                printWriter.println("Invalid Price");
+                                printWriter.flush();
+                            } else if (!validNameFormat){
+                                printWriter.println("Invalid Name Format");                 //check name format
+                                printWriter.flush();
+                            } else if (!validDescFormat){
+                                printWriter.println("Invalid Description Format");          //check desc format
+                                printWriter.flush();
                             } else {
-                                if (itemToChange.changeField(nameOfFieldChanged, newText)) {
+                                currentStore.addItem(name, description, Integer.parseInt(quantity), Double.parseDouble(price));
+
+                                printWriter.println("Success");
+                                printWriter.flush();
+                            }
+                        }
+                        case "Delete Item" -> {
+                            String currentStoreString = bufferedReader.readLine();
+                            String itemNameString = bufferedReader.readLine();
+
+                            if (itemNameString.equals("")) {
+                                printWriter.println("Failure");
+                                printWriter.flush();
+                            } else {
+                                Store currentStore = ((Seller) currentUser).getSpecificStore(currentStoreString);
+                                Item itemToDelete = currentStore.getSpecificItem(itemNameString);
+
+                                currentStore.deleteItem(itemToDelete);
+                                printWriter.println("Success");
+                                printWriter.flush();
+                            }
+                        }
+                        case "Edit Credentials" -> {
+                            String passwordInput = bufferedReader.readLine();
+
+                            if (passwordInput.equals("")) {
+                                printWriter.println("No Changed Fields");
+                                printWriter.flush();
+                            } else if (passwordInput.contains(",")) {
+                                printWriter.println("Invalid Format");
+                                printWriter.flush();
+                            } else if (passwordInput.length() < 7) {
+                                printWriter.println("Invalid Length");
+                                printWriter.flush();
+                            } else {
+                                if (changePassword(passwordInput, (currentUser)).equals("Success")) {
                                     printWriter.println("Success");
                                     printWriter.flush();
                                 }
                             }
                         }
-                    }
-                    case "Item Selected" -> {
-                        String storeSelectedString = bufferedReader.readLine();
-                        String itemSelectedString = bufferedReader.readLine();
-
-                        Store currentStore = ((Seller) currentUser).getSpecificStore(storeSelectedString);
-                        Item itemToChange = currentStore.getSpecificItem(itemSelectedString);
-
-                        printWriter.println(itemToChange.getName());
-                        printWriter.println(itemToChange.getDescription());
-                        printWriter.println(itemToChange.getQuantity());
-                        printWriter.println(itemToChange.getPrice());
-                        printWriter.flush();
-
-                    }
-                    case "Export Product File" -> {
-                        String storeName = bufferedReader.readLine();
-                        printWriter.println(exportPublishedItems(storeName));
-                        printWriter.flush();
-                    }
-                    case "Import Product File" -> {
-                        String filename = bufferedReader.readLine();
-
-                        Store[] currentUserStores = ((Seller) currentUser).getStore();
-
-                        int numberOfProductAdded = ((Seller) currentUser).importItems(filename, currentUserStores);
-                        if (numberOfProductAdded == -1 || numberOfProductAdded == 0) {
-                            printWriter.println("Failure");
-                            printWriter.flush();
-                        } else {
-                            printWriter.println("Success");
-                            printWriter.println(numberOfProductAdded);
-                            printWriter.flush();
-                        }
-                    }
-                    case "Seller Sales List" -> {
-                        String storeSelectedString = bufferedReader.readLine();
-                        Store currentStore = ((Seller) currentUser).getSpecificStore(storeSelectedString);
-
-                        String salesData = currentStore.showSales();
-                        if (salesData == null) {
-                            printWriter.println("Failure");
-                            printWriter.flush();
-                        } else {
-                            printWriter.println(salesData);
-                            printWriter.flush();
-                        }
-                    }
-                    case "Seller Statistics" -> {
-                        String statisticToView = bufferedReader.readLine();
-                        String storeSelectedString = bufferedReader.readLine();
-
-                        String buyerOrItem;
-                        Store currentStore = ((Seller) currentUser).getSpecificStore(storeSelectedString);
-                        ArrayList<String> stats;
-                        if (statisticToView.equals("Sorted Buyer Statistics") || statisticToView.equals("Buyer Statistics")) {
-                            buyerOrItem = "buyer";
-                        } else {
-                            buyerOrItem = "item";
-                        }
-                        if (statisticToView.equals("Sorted Buyer Statistics") || statisticToView.equals("Sorted Item Statistics")) {
-                            stats = Store.showSortedStats(currentStore.getStoreName(), buyerOrItem);
-                        } else {
-                            stats = Store.showStats(currentStore.getStoreName(), buyerOrItem);
-                        }
-
-                        if (stats.toString().equals("[]")) {
-                            printWriter.println("Failure");
-                            printWriter.flush();
-                        } else {
-                            String output = stats.toString();
-                            printWriter.println(output);
-                            printWriter.println(buyerOrItem);
-                            printWriter.flush();
-                        }
-                    }
-                    case "View Current Carts" -> {
-                        ArrayList<String> cartInformation = Seller.viewCustomerShoppingCart();
-                        if (cartInformation == null) {
-                            printWriter.println("Failure");
-                            printWriter.flush();
-                        } else {
-                            String output = "";
-                            for (int i = 0; i < cartInformation.size(); i++) {
-                                if (i != 0) {
-                                    output = output + "~" + cartInformation.get(i);
-                                } else {
-                                    output = output + cartInformation.get(i);
+                        case "Delete Account" -> {
+                            String userEmail = bufferedReader.readLine();
+                            BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
+                            String line;
+                            while ((line = bfr.readLine()) != null) {
+                                String[] splitLine = line.split(",");
+                                if (splitLine[0].equals(userEmail)) {
+                                    Seller currentUser = new Seller(splitLine[0], splitLine[1]);
+                                    currentUser.deleteAccount();
+                                    printWriter.println("Success");
+                                    printWriter.flush();
                                 }
                             }
-                            printWriter.println(output);
+                        }
+                        case "Reset Login Status" -> {
+                            String userEmail = bufferedReader.readLine();
+                            resetLoggedInStatus(userEmail);
+                            printWriter.println("Success");
                             printWriter.flush();
+                        }
+                        case "Edit Product" -> {
+                            String currentStoreString = bufferedReader.readLine();
+                            String itemNameString = bufferedReader.readLine();
+
+                            String nameInput = bufferedReader.readLine();
+                            String descriptionInput = bufferedReader.readLine();
+                            String quantityInput = bufferedReader.readLine();
+                            String priceInput = bufferedReader.readLine();
+
+                            Store currentStore = ((Seller) currentUser).getSpecificStore(currentStoreString);
+                            Item itemToChange = currentStore.getSpecificItem(itemNameString);
+
+                            boolean validNameFormat = false;
+                            boolean validDescFormat = false;
+
+                            if (!nameInput.contains(",")) {
+                                validNameFormat = true;
+                            }
+                            if (!descriptionInput.contains(",")) {
+                                validDescFormat = true;
+                            }
+
+                            if (itemNameString.equals("")) {
+                                printWriter.println("No Item Selected");
+                                printWriter.flush();
+                            } else if (!validNameFormat){
+                                printWriter.println("Invalid Name Format");
+                                printWriter.flush();
+                            } else if (!validDescFormat){
+                                printWriter.println("Invalid Description Format");
+                                printWriter.flush();
+                            } else {
+                                //Find field changed and what the new input is
+                                String oldName = itemToChange.getName();
+                                String oldPrice = String.format("%.2f", itemToChange.getPrice());
+                                
+                                int numberOfChangedFields = 0;
+                                String newText = "";
+                                String nameOfFieldChanged = "";
+                                if (!nameInput.equals(itemToChange.getName())) {
+                                    numberOfChangedFields++;
+                                    newText = nameInput;
+                                    nameOfFieldChanged = "name";
+                                }
+                                if (!descriptionInput.equals(itemToChange.getDescription())) {
+                                    numberOfChangedFields++;
+                                    newText = descriptionInput;
+                                    nameOfFieldChanged = "description";
+                                }
+                                if (!quantityInput.equals(Integer.toString(itemToChange.getQuantity()))) {
+                                    numberOfChangedFields++;
+                                    newText = quantityInput;
+                                    nameOfFieldChanged = "quantity";
+                                }
+
+                                String actualPrice = String.format("%.2f", itemToChange.getPrice());
+                                if (!priceInput.equals(actualPrice) &&
+                                        !priceInput.equals(actualPrice.substring(0, actualPrice.indexOf("."))) &&
+                                        !priceInput.equals(actualPrice.substring(0, actualPrice.indexOf(".") + 2))) {
+                                    numberOfChangedFields++;
+                                    newText = priceInput;
+                                    nameOfFieldChanged = "price";
+                                }
+
+                                //Prints all the possible errors
+                                if (numberOfChangedFields == 0) {
+                                    printWriter.println("Missing Input");
+                                    printWriter.flush();
+                                } else if (numberOfChangedFields != 1) {
+                                    printWriter.println("Changed More Than One Field");
+                                    printWriter.flush();
+                                } else if (nameOfFieldChanged.equals("name")) {
+                                    if (validItemName(newText).equals("Failure")) {
+                                        printWriter.println("This Product Name Already Exists");
+                                        printWriter.flush();
+                                    } else if (itemToChange.changeField(nameOfFieldChanged, newText)) {
+                                        //reflect the new name change in all the user carts
+                                        try {
+                                            BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
+                                            ArrayList<String> lines = new ArrayList<>();
+                                            String line;
+                                            while ((line = bfr.readLine()) != null) {
+                                                String output = "";
+                                                String newCartLine = "";
+                                                String[] splitLine = line.split(",");
+                                                if (splitLine[4].equals("x")) {
+                                                    lines.add(line);
+                                                } else {
+                                                    String[] cartItems = splitLine[4].split("~");
+                                                    for (int i = 0; i < cartItems.length; i++) {
+                                                        String[] item = cartItems[i].split("!");
+                                                        if (item[1].equals(oldName)) {
+                                                            item[1] = newText;
+                                                        }
+                                                        for (int j = 0; j < 4; j++) {
+                                                            if (j != 0) {
+                                                                newCartLine += "!";
+                                                            }
+                                                            newCartLine += item[j];
+                                                            if (j == 3) {
+                                                                newCartLine += "~";
+                                                            }
+                                                        }
+                                                    }
+                                                    newCartLine = newCartLine.substring(0, newCartLine.length() - 1);
+                                                    //rebuild credentials line
+                                                    for (int i = 0; i < 6; i++) {
+                                                        if (i != 0) {
+                                                            output += ",";
+                                                        }
+                                                        if (i == 4) {
+                                                            output += newCartLine;
+                                                        } else {
+                                                            output += splitLine[i];
+                                                        }
+                                                    }
+                                                    lines.add(output);
+                                                }
+                                            }
+                                            bfr.close();
+                                            PrintWriter pw = new PrintWriter(new FileWriter("FMCredentials.csv"));
+                                            for (int i = 0; i < lines.size(); i++) {
+                                                pw.println(lines.get(i));
+                                            }
+                                            pw.close();
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+
+                                        printWriter.println("Name Change Success");
+                                        printWriter.flush();
+                                    }
+                                } else if (nameOfFieldChanged.equals("quantity")) {
+                                    if (validItemQuantity(newText).equals("Failure")) {
+                                        printWriter.println("Quantity Must be a Positive Integer");
+                                        printWriter.flush();
+                                    } else if (itemToChange.changeField(nameOfFieldChanged, newText)) {
+                                        printWriter.println("Success");
+                                        printWriter.flush();
+                                    }
+                                } else if (nameOfFieldChanged.equals("price")) {
+                                    if (validItemPrice(newText).equals("Failure")) {
+                                        printWriter.println("Price Must be a Two Decimal Number");
+                                        printWriter.flush();
+                                    } else if (itemToChange.changeField(nameOfFieldChanged, newText)) {
+                                        //reflect the new price change in all the user carts
+                                        try {
+                                            BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
+                                            ArrayList<String> lines = new ArrayList<>();
+                                            String line;
+                                            while ((line = bfr.readLine()) != null) {
+                                                String output = "";
+                                                String newCartLine = "";
+                                                String[] splitLine = line.split(",");
+                                                if (splitLine[4].equals("x")) {
+                                                    lines.add(line);
+                                                } else {
+                                                    String[] cartItems = splitLine[4].split("~");
+                                                    for (int i = 0; i < cartItems.length; i++) {
+                                                        String[] item = cartItems[i].split("!");
+                                                        if (item[3].equals(oldPrice) && item[1].equals(oldName)) {
+                                                            item[3] = String.format("%.2f", Double.parseDouble(newText));
+                                                        }
+                                                        for (int j = 0; j < 4; j++) {
+                                                            if (j != 0) {
+                                                                newCartLine += "!";
+                                                            }
+                                                            newCartLine += item[j];
+                                                            if (j == 3) {
+                                                                newCartLine += "~";
+                                                            }
+                                                        }
+                                                    }
+                                                    newCartLine = newCartLine.substring(0, newCartLine.length() - 1);
+                                                    //rebuild credentials line
+                                                    for (int i = 0; i < 6; i++) {
+                                                        if (i != 0) {
+                                                            output += ",";
+                                                        }
+                                                        if (i == 4) {
+                                                            output += newCartLine;
+                                                        } else {
+                                                            output += splitLine[i];
+                                                        }
+                                                    }
+                                                    lines.add(output);
+                                                }
+                                            }
+                                            bfr.close();
+                                            PrintWriter pw = new PrintWriter(new FileWriter("FMCredentials.csv"));
+                                            for (int i = 0; i < lines.size(); i++) {
+                                                pw.println(lines.get(i));
+                                            }
+                                            pw.close();
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                        printWriter.println("Success");
+                                        printWriter.flush();
+                                    }
+                                } else {
+                                    if (itemToChange.changeField(nameOfFieldChanged, newText)) {
+                                        printWriter.println("Success");
+                                        printWriter.flush();
+                                    }
+                                }
+                            }
+                        }
+                        case "Item Selected" -> {
+                            String storeSelectedString = bufferedReader.readLine();
+                            String itemSelectedString = bufferedReader.readLine();
+
+                            Store currentStore = ((Seller) currentUser).getSpecificStore(storeSelectedString);
+                            Item itemToChange = currentStore.getSpecificItem(itemSelectedString);
+
+                            printWriter.println(itemToChange.getName());
+                            printWriter.println(itemToChange.getDescription());
+                            printWriter.println(itemToChange.getQuantity());
+                            printWriter.println(itemToChange.getPrice());
+                            printWriter.flush();
+                        }
+                        case "Export Product File" -> {
+                            String storeName = bufferedReader.readLine();
+                            printWriter.println(exportPublishedItems(storeName));
+                            printWriter.flush();
+                        }
+                        case "Import Product File" -> {
+                            String filename = bufferedReader.readLine();
+
+                            Store[] currentUserStores = ((Seller) currentUser).getStore();
+
+                            int numberOfProductAdded = ((Seller) currentUser).importItems(filename, currentUserStores);
+                            if (numberOfProductAdded == -1 || numberOfProductAdded == 0) {
+                                printWriter.println("Failure");
+                                printWriter.flush();
+                            } else {
+                                printWriter.println("Success");
+                                printWriter.println(numberOfProductAdded);
+                                printWriter.flush();
+                            }
+                        }
+                        case "Seller Sales List" -> {
+                            String storeSelectedString = bufferedReader.readLine();
+                            Store currentStore = ((Seller) currentUser).getSpecificStore(storeSelectedString);
+
+                            String salesData = currentStore.showSales();
+                            if (salesData == null) {
+                                printWriter.println("Failure");
+                                printWriter.flush();
+                            } else {
+                                printWriter.println(salesData);
+                                printWriter.flush();
+                            }
+                        }
+                        case "Seller Statistics" -> {
+                            String statisticToView = bufferedReader.readLine();
+                            String storeSelectedString = bufferedReader.readLine();
+
+                            String buyerOrItem;
+                            Store currentStore = ((Seller) currentUser).getSpecificStore(storeSelectedString);
+                            ArrayList<String> stats;
+                            if (statisticToView.equals("Sorted Buyer Statistics") || statisticToView.equals("Buyer Statistics")) {
+                                buyerOrItem = "buyer";
+                            } else {
+                                buyerOrItem = "item";
+                            }
+                            if (statisticToView.equals("Sorted Buyer Statistics") || statisticToView.equals("Sorted Item Statistics")) {
+                                stats = Store.showSortedStats(currentStore.getStoreName(), buyerOrItem);
+                            } else {
+                                stats = Store.showStats(currentStore.getStoreName(), buyerOrItem);
+                            }
+
+                            if (Objects.requireNonNull(stats).toString().equals("[]")) {
+                                printWriter.println("Failure");
+                                printWriter.flush();
+                            } else {
+                                String output = stats.toString();
+                                printWriter.println(output);
+                                printWriter.println(buyerOrItem);
+                                printWriter.flush();
+                            }
+                        }
+                        case "View Current Carts" -> {
+                            ArrayList<String> cartInformation = Seller.viewCustomerShoppingCart();
+                            if (cartInformation == null) {
+                                printWriter.println("Failure");
+                                printWriter.flush();
+                            } else {
+                                String output = "";
+                                for (int i = 0; i < cartInformation.size(); i++) {
+                                    if (i != 0) {
+                                        output = output + "~" + cartInformation.get(i);
+                                    } else {
+                                        output = output + cartInformation.get(i);
+                                    }
+                                }
+                                printWriter.println(output);
+                                printWriter.flush();
+                            }
                         }
                     }
                 }
@@ -1212,6 +1440,7 @@ public class Server implements Runnable {
      * Purpose: exports a file containing the stores items
      *
      * @param storeName The name of the store that should have its items exported to a file
+     * @return String "Success" if items are successfully exported; "Failure" if not
      */
     public synchronized String exportPublishedItems(String storeName) {
         try {
@@ -1252,6 +1481,11 @@ public class Server implements Runnable {
         return "Failure";
     }
 
+    /**
+     * Reads through FMItems.csv and returns ArrayList of Items
+     *
+     * @return Item ArrayList
+     */
     public synchronized ArrayList<Item> getItems() {
         ArrayList<Item> items = new ArrayList<>();
         try {
@@ -1260,12 +1494,108 @@ public class Server implements Runnable {
             String line = bfr.readLine();
             while (line != null) {
                 String[] splitLine = line.split(",");
-                items.add(new Item(splitLine[0], splitLine[1], splitLine[2], Integer.parseInt(splitLine[3]), Double.parseDouble(splitLine[4])));
+                items.add(new Item(splitLine[0], splitLine[1], splitLine[2],
+                        Integer.parseInt(splitLine[3]), Double.parseDouble(splitLine[4])));
                 line = bfr.readLine();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return items;
+    }
+
+    /**
+     * Writes to FMStats.csv after buyer successfully checks out items
+     *
+     * @param buyer      Email of buyer
+     * @param item       Item object
+     * @param amountSold Amount of items Sold
+     */
+    public synchronized static void saveSale(String buyer, Item item, int amountSold) {
+        //Write to FMStats.csv
+        try {
+            // Read file holding statistics and update buyer and item numbers if already present
+            File fmStats = new File("FMStats.csv");
+            BufferedReader bfrTwo = new BufferedReader(new FileReader(fmStats));
+            ArrayList<String> statsFile = new ArrayList<>();
+            boolean buyerFound = false;
+            boolean currentItemFound = false;
+            String statsLine;
+            while ((statsLine = bfrTwo.readLine()) != null) {
+                String[] splitLine = statsLine.split(",");
+                if (splitLine[0].equals(item.getStore())) {
+                    if (buyer.equals(splitLine[1])) {
+                        buyerFound = true;
+                        splitLine[2] = Integer.toString((Integer.parseInt(splitLine[2]) + amountSold));
+                    } else if (item.getName().equals(splitLine[1])) {
+                        currentItemFound = true;
+                        splitLine[2] = Integer.toString((Integer.parseInt(splitLine[2]) + amountSold));
+                    }
+                }
+                statsFile.add(String.format("%s,%s,%s,%s", splitLine[0], splitLine[1], splitLine[2], splitLine[3]));
+            }
+            /*
+             File will have buyer statistics above item statistics, and this will make sure
+             new buyers are printed at top of file
+            */
+            if (!buyerFound) {
+                statsFile.add(0, String.format("%s,%s,%s,buyer", item.getStore(), buyer, amountSold));
+            }
+            if (!currentItemFound) {
+                statsFile.add(String.format("%s,%s,%s,item", item.getStore(), item.getName(), amountSold));
+            }
+            bfrTwo.close();
+            // Print updated statistics back to the file
+            PrintWriter pwTwo = new PrintWriter(new FileOutputStream("FMStats.csv", false));
+            for (int i = 0; i < statsFile.size(); i++) {
+                pwTwo.println(statsFile.get(i));
+            }
+            pwTwo.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Writes to FMStores.csv after buyer successfully checks out an item.
+     *
+     * @param buyerEmail Email of buyer
+     * @param store      Name of Store item is from
+     * @param itemName   Name of item sold
+     * @param amountSold Quantity of items sold
+     * @param price      The price of the item sold
+     */
+    public synchronized static void addSalesToStore(String buyerEmail, String store, String itemName,
+                                                    int amountSold, double price) {
+        try {
+            // Read FMStores to find the correct store to add sale information to
+            BufferedReader bfrOne = new BufferedReader(new FileReader("FMStores.csv"));
+            ArrayList<String> storeFile = new ArrayList<>();
+            String line;
+            while ((line = bfrOne.readLine()) != null) {
+                String[] splitLine = line.split(",");
+                // Detects if this is the store we need
+                if (splitLine[0].equals(store)) {
+                    // Creates sale section if it doesn't already exist, else adds new sale to end of sale section
+                    if (splitLine[2].equals("x")) {
+                        line = line.substring(0, line.length() - 1);
+                        line += String.format("%s!%s!%d!%.2f", buyerEmail, itemName, amountSold, price);
+                    } else {
+                        line += String.format("~%s!%s!%d!%.2f", buyerEmail, itemName, amountSold, price);
+                    }
+                }
+                storeFile.add(line);
+            }
+            bfrOne.close();
+
+            // Prints FMStores file with added sale
+            PrintWriter pwOne = new PrintWriter(new FileOutputStream("FMStores.csv", false));
+            for (int i = 0; i < storeFile.size(); i++) {
+                pwOne.println(storeFile.get(i));
+            }
+            pwOne.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 }

@@ -1,8 +1,5 @@
 import java.io.*;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 
 /**
  * Buyers class - contains all methods the buyers may use
@@ -110,6 +107,7 @@ public class Buyer {
             BufferedReader reader = new BufferedReader(new FileReader(file));
             ArrayList<String> storedCSVData = new ArrayList<>();
             String cartRemove = "";
+            cart = showItemsInCart(email);
 
             String line;
             while ((line = reader.readLine()) != null) { // read through csv
@@ -122,11 +120,13 @@ public class Buyer {
                             String[] fields = cartSplit[i].split("!");
                             if (fields[1].equals(itemToRemove)) {
                                 cartRemove = cartSplit[i];
-                                cart.remove(cart.indexOf(cartRemove));
-                                System.out.println(cart.toString());
-                                if (cart.toString().equals("[]")) {
-                                    cart.add("x");
-                                    System.out.println(cart);
+                                if (cart.contains(cartRemove)) {
+                                    cart.remove(cart.indexOf(cartRemove));
+                                    if (cart.toString().equals("[]")) {
+                                        cart.add("x");
+                                    }
+                                } else {
+                                    cartRemove = "";
                                 }
                                 break;
                             }
@@ -159,9 +159,12 @@ public class Buyer {
                     }
                     if (currentCart.equals("")) {
                         currentCart = "x";
+                    } else {
+                        currentCart = currentCart.substring(0, currentCart.length() - 1);
                     }
+
                     String addLine = splitLine[0] + "," + splitLine[1] + "," + splitLine[2] + ","
-                            + splitLine[3] + "," + currentCart + ",x";
+                            + splitLine[3] + "," + currentCart + ",LoggedIn";
 
                     output.add(addLine);
                 }
@@ -240,7 +243,6 @@ public class Buyer {
         return "Not Exported";
     }
 
-
     /**
      * Statistics storesFromBuyerProducts
      *
@@ -255,7 +257,8 @@ public class Buyer {
 
             boolean containsUser = false;
             for (int i = 0; i < stores.size(); i++) { // check if stores has buyer email
-                if (stores.get(i).contains(buyerEmail)) {
+                String[] storeSplit = stores.get(i).split(",");
+                if (storeSplit[2].contains(buyerEmail)) {
                     containsUser = true;
                     relevantStores.add(stores.get(i));
                 }
@@ -536,7 +539,6 @@ public class Buyer {
         try {
             BufferedReader cartReader = new BufferedReader(new FileReader("FMCredentials.csv"));
             ArrayList<String> fmCredentials = new ArrayList<>();
-            String itemName = item.getName();
 
             // Add existing items to ArrayList;
             String line;
@@ -554,10 +556,10 @@ public class Buyer {
                 if (splitLine[0].equals(email)) {
                     String shoppingCart = splitLine[4];
                     if (shoppingCart.equals("x")) {
-                        shoppingCart = formatted + "~";
+                        shoppingCart = formatted;
                         cart.set(0, formatted);
                     } else {
-                        shoppingCart += formatted + "~";
+                        shoppingCart += "~" + formatted;
                         cart.add(formatted);
                     }
                     pw.printf("%s,%s,%s,%s,%s,%s\n", splitLine[0], splitLine[1], splitLine[2],
