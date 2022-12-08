@@ -120,9 +120,13 @@ public class Buyer {
                             String[] fields = cartSplit[i].split("!");
                             if (fields[1].equals(itemToRemove)) {
                                 cartRemove = cartSplit[i];
-                                cart.remove(cart.indexOf(cartRemove));
-                                if (cart.toString().equals("[]")) {
-                                    cart.add("x");
+                                if (cart.contains(cartRemove)) {
+                                    cart.remove(cart.indexOf(cartRemove));
+                                    if (cart.toString().equals("[]")) {
+                                        cart.add("x");
+                                    }
+                                } else {
+                                    cartRemove = "";
                                 }
                                 break;
                             }
