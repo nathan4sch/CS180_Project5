@@ -120,16 +120,27 @@ public class MainSellerFrame extends JComponent implements Runnable {
                 printWriter.println("Edit Credentials");
                 printWriter.println(passwordInput);
                 printWriter.flush();
+
                 try {
                     String successOrFailure = bufferedReader.readLine();
 
-                    if (successOrFailure.equals("No Changed Fields")) {
-                        JOptionPane.showMessageDialog(null, "Input a New Password",
+                    switch (successOrFailure) {
+                        case "No Changed Fields" -> JOptionPane.showMessageDialog(null, "Input a New Password",
                                 "Error", JOptionPane.ERROR_MESSAGE);
-                    } else if (successOrFailure.equals("Success")) {
-                        JOptionPane.showMessageDialog(null, "Password Changed",
-                                "Success", JOptionPane.INFORMATION_MESSAGE);
-                        newPassword.setText("");
+
+                        case "Success" -> {
+                            JOptionPane.showMessageDialog(null, "Password Changed",
+                                    "Success", JOptionPane.INFORMATION_MESSAGE);
+                            newPassword.setText("");
+                        }
+                        case "Invalid Format" -> JOptionPane.showMessageDialog(null,
+                                "Invalid Format: Passwords cannot contain commas",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+
+                        case "Invalid Length" ->
+                                JOptionPane.showMessageDialog(null,
+                                        "Passwords must be at least 6 characters long",
+                                        "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -165,12 +176,15 @@ public class MainSellerFrame extends JComponent implements Runnable {
                     printWriter.flush();
 
                     String successOrFailure = bufferedReader.readLine();
-                    if (successOrFailure.equals("Success")) {
-                        JOptionPane.showMessageDialog(null, "Store Created", "Success",
-                                JOptionPane.INFORMATION_MESSAGE);
-                    } else if (successOrFailure.equals("Failure")) {
-                        JOptionPane.showMessageDialog(null, "Store Name Already Exists",
+                    switch (successOrFailure) {
+                        case "Success" -> JOptionPane.showMessageDialog(null,
+                                "Store Created", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+                        case "Failure" -> JOptionPane.showMessageDialog(null, "Store Name Already Exists",
                                 "Create Store Failure", JOptionPane.ERROR_MESSAGE);
+
+                        case "Invalid Format" -> JOptionPane.showMessageDialog(null, "Invalid Format: " +
+                                        "Store name cannot have a comma", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                     inputStoreName.setText("");
                 } catch (IOException ex) {

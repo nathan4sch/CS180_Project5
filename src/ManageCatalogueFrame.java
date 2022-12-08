@@ -122,6 +122,14 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
                                         "Positive and have Two Decimal Places", "Error",
                                 JOptionPane.ERROR_MESSAGE);
 
+                        case "Invalid Name Format" -> JOptionPane.showMessageDialog(null, "Invalid Name Format: " +
+                                        "Item name cannot have a comma ",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+
+                        case "Invalid Description Format" -> JOptionPane.showMessageDialog(null, "Invalid Description Format: " +
+                                        "Item description cannot have a comma ",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+
                         case "Success" -> {
                             String[] newStoreItemNames = new String[storeItemNames.length + 1];
                             for (int i = 0; i < storeItemNames.length; i++) {
@@ -223,6 +231,14 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
                                 "Error", JOptionPane.ERROR_MESSAGE);
 
                         case "Missing Input" -> JOptionPane.showMessageDialog(null, "Change One of the Input Fields",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+
+                        case "Invalid Name Format" -> JOptionPane.showMessageDialog(null, "Invalid Name Format: " +
+                                        "Item name cannot have a ',' ",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+
+                        case "Invalid Description Format" -> JOptionPane.showMessageDialog(null, "Invalid Description Format: " +
+                                        "Item description cannot have a ',' ",
                                 "Error", JOptionPane.ERROR_MESSAGE);
 
                         case "Changed More Than One Field" ->

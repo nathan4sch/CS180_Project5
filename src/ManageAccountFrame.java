@@ -50,16 +50,27 @@ public class ManageAccountFrame extends JComponent implements Runnable {
                 printWriter.println("Edit Credentials");
                 printWriter.println(passwordInput);
                 printWriter.flush();
+
                 try {
                     String successOrFailure = bufferedReader.readLine();
 
-                    if (successOrFailure.equals("No Changed Fields")) {
-                        JOptionPane.showMessageDialog(null, "Input a New Password",
+                    switch (successOrFailure) {
+                        case "No Changed Fields" -> JOptionPane.showMessageDialog(null, "Input a New Password",
                                 "Error", JOptionPane.ERROR_MESSAGE);
-                    } else if (successOrFailure.equals("Success")) {
-                        JOptionPane.showMessageDialog(null, "Password Changed",
-                                "Success", JOptionPane.INFORMATION_MESSAGE);
-                        newPassword.setText("");
+
+                        case "Success" -> {
+                            JOptionPane.showMessageDialog(null, "Password Changed",
+                                    "Success", JOptionPane.INFORMATION_MESSAGE);
+                            newPassword.setText("");
+                        }
+                        case "Invalid Format" -> JOptionPane.showMessageDialog(null,
+                                "Invalid Format: Passwords cannot contain commas",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+
+                        case "Invalid Length" ->
+                                JOptionPane.showMessageDialog(null,
+                                        "Passwords must be at least 6 characters long",
+                                        "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
