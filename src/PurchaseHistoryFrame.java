@@ -38,6 +38,13 @@ public class PurchaseHistoryFrame extends JComponent implements Runnable {
     }
 
     ActionListener actionListener = new ActionListener() {
+        /**
+         * @param e Invoked when any of the button in the frame is selected.
+         *          returnToDashButton - user is redirected back to MainBuyerFrame.java
+         *          exportFileButton - exports a file containing the purchase history of the current user.
+         *                              The file format is "userEmailPurchaseHistory.csv".
+         *          viewHistoryButton - shows a panel containing a list of all the items purchased by the current user.
+         */
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
             if (source == returnToDashButton) {
@@ -196,6 +203,7 @@ public class PurchaseHistoryFrame extends JComponent implements Runnable {
         }
     }
 
+
     public int fontSizeToUse(JLabel component) {
         Font fontOfLabel = component.getFont();
         String textInLabel = component.getText();
@@ -212,8 +220,8 @@ public class PurchaseHistoryFrame extends JComponent implements Runnable {
      * Sets currentlyVisible panel to false
      */
     public void resetVisible() {
-        for (int i = 0; i < currentlyVisible.size(); i++) {
-            currentlyVisible.get(i).setVisible(false);
+        for (JComponent jComponent : currentlyVisible) {
+            jComponent.setVisible(false);
         }
     }
 }
