@@ -56,7 +56,8 @@ public class CartFrame extends JComponent implements Runnable {
          *          returnToDashButton - user is redirected back to MainBuyerFrame.java
          *          removeItemButton - removes the selected item from cart.
          *          checkoutButton - checks out all items and adds them to the current user's purchase history.
-         *                          If all items are successfully checked out users will be redirected back to MainBuyerFrame.java.
+         *                          If all items are successfully checked out users will be redirected back to
+         *                          MainBuyerFrame.java.
          */
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
@@ -73,17 +74,19 @@ public class CartFrame extends JComponent implements Runnable {
 
                     String success = bufferedReader.readLine();
                     if (success.equals("Success")) {
-                        JOptionPane.showMessageDialog(null, "Item successfully removed from cart", "Cart",
+                        JOptionPane.showMessageDialog(null, "Item successfully removed from " +
+                                        "cart", "Cart",
                                 JOptionPane.INFORMATION_MESSAGE);
 
                         SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
                         cartFrame.dispose();
                     } else if (success.equals("Cart Empty")) {
-                        JOptionPane.showMessageDialog(null, "Cart is Empty - Cart Action", "Error",
+                        JOptionPane.showMessageDialog(null, "Cart is Empty - " +
+                                        "Cart Action", "Error",
                                 JOptionPane.ERROR_MESSAGE);
                     } else {
-                        JOptionPane.showMessageDialog(null, "Item NOT Removed: Please Reload the Frame"
-                                , "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Item NOT Removed: " +
+                                "Please Reload the Frame", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -105,9 +108,12 @@ public class CartFrame extends JComponent implements Runnable {
                             cartFrame.dispose();
                         }
                         case "Partial Success" -> {  // some items checked out
-                            String[] checkoutSuccesses = new String[Integer.parseInt(bufferedReader.readLine())]; // number of success read
-                            String[] checkoutFailures = new String[Integer.parseInt(bufferedReader.readLine())]; // number of failures read
-                            for (int i = 0; i < checkoutSuccesses.length; i++) { // gathers descriptive data from server to display to user
+                            // number of success read
+                            String[] checkoutSuccesses = new String[Integer.parseInt(bufferedReader.readLine())];
+                            // number of failures read
+                            String[] checkoutFailures = new String[Integer.parseInt(bufferedReader.readLine())];
+                            // gathers descriptive data from server to display to user
+                            for (int i = 0; i < checkoutSuccesses.length; i++) {
                                 checkoutSuccesses[i] = bufferedReader.readLine();
                             } // checkout failures have format of [Item,quantity requested,reason for error]
                             for (int i = 0; i < checkoutFailures.length; i++) {
@@ -116,9 +122,11 @@ public class CartFrame extends JComponent implements Runnable {
                             String[] splitCheckoutSuccess = checkoutSuccesses[0].split(",");
                             String[] splitCheckoutFailure = checkoutFailures[0].split(",");
                             // appropriately formatting strings to be used in JOptionPane below
-                            String formattedCheckoutSuccess = "1. " + splitCheckoutSuccess[0] + "; Quantity: " + splitCheckoutSuccess[1];
+                            String formattedCheckoutSuccess = "1. " + splitCheckoutSuccess[0] + "; Quantity: " +
+                                    splitCheckoutSuccess[1];
                             String formattedCheckoutFailure = "1. " + splitCheckoutFailure[0] + "; Quantity: " +
-                                    splitCheckoutFailure[1] + "; Reason for Checkout Failure: " + splitCheckoutFailure[2];
+                                    splitCheckoutFailure[1] + "; Reason for Checkout Failure: " +
+                                    splitCheckoutFailure[2];
                             for (int i = 1; i < checkoutSuccesses.length; i++) {
                                 splitCheckoutSuccess = checkoutSuccesses[i].split(",");
                                 formattedCheckoutSuccess = formattedCheckoutSuccess + "\n" + (i + 1) + ". " +
@@ -130,9 +138,10 @@ public class CartFrame extends JComponent implements Runnable {
                                         splitCheckoutFailure[0] + "; Quantity: " + splitCheckoutFailure[1] +
                                         "; Reason For Checkout Failure: " + splitCheckoutFailure[2];
                             }
-                            JOptionPane.showMessageDialog(null, "SUCCESSFULLY CHECKED OUT ITEMS: \n" +
-                                    formattedCheckoutSuccess + "\nUNSUCCESSFULLY CHECKED OUT ITEMS: \n"
-                                    + formattedCheckoutFailure, "Partial Checkout", JOptionPane.WARNING_MESSAGE);
+                            JOptionPane.showMessageDialog(null, "SUCCESSFULLY " +
+                                            "CHECKED OUT ITEMS: \n" + formattedCheckoutSuccess + "\nUNSUCCESSFULLY " +
+                                            "CHECKED OUT ITEMS: \n" + formattedCheckoutFailure, "Partial Checkout",
+                                    JOptionPane.WARNING_MESSAGE);
                             SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
                             cartFrame.dispose();
                         }

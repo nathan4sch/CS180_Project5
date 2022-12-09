@@ -167,7 +167,8 @@ public class PurchaseHistoryFrame extends JComponent implements Runnable {
         mainPanel.add(purchaseHistoryLabel);
         purchaseHistoryLabel.setVisible(false);
 
-        purchaseHistoryGUI = new JComponent[]{purchaseHistoryLabel, viewHistoryButton, exportHistoryButton, returnToDashButton};
+        purchaseHistoryGUI = new JComponent[]{purchaseHistoryLabel, viewHistoryButton,
+                exportHistoryButton, returnToDashButton};
 
         //Finalize frame
         purchaseHistoryFrame.add(mainPanel);

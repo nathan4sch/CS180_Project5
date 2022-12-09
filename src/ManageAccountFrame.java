@@ -61,8 +61,8 @@ public class ManageAccountFrame extends JComponent implements Runnable {
                     String successOrFailure = bufferedReader.readLine();
 
                     switch (successOrFailure) {
-                        case "No Changed Fields" -> JOptionPane.showMessageDialog(null, "Input a New Password",
-                                "Error", JOptionPane.ERROR_MESSAGE);
+                        case "No Changed Fields" -> JOptionPane.showMessageDialog(null,
+                                "Input a New Password", "Error", JOptionPane.ERROR_MESSAGE);
 
                         case "Success" -> {
                             JOptionPane.showMessageDialog(null, "Password Changed",
@@ -158,7 +158,8 @@ public class ManageAccountFrame extends JComponent implements Runnable {
         mainPanel.add(deleteAccountButton);
         deleteAccountButton.setVisible(false);
 
-        manageAccountGUI = new JComponent[]{manageAccountMainLabel, editAccountButton, deleteAccountButton, newPassword, passwordLabel, returnToDashButton};
+        manageAccountGUI = new JComponent[]{manageAccountMainLabel, editAccountButton, deleteAccountButton,
+                newPassword, passwordLabel, returnToDashButton};
 
         //Finalize frame
         accountFrame.add(mainPanel);

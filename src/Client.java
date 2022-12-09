@@ -4,7 +4,7 @@ import java.net.*;
 
 /**
  * Client class
- * 
+ * <p>
  * Allows the user to access the FurnitureMarketplace
  *
  * @version 24/11/2022
