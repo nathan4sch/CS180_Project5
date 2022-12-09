@@ -645,7 +645,7 @@ public class Server implements Runnable {
 
                             if (storeName.equals("")) {
                                 successOrFailure = "Failure";
-                            } else if (storeName.contains(",")) {
+                            } else if (storeName.contains(",") || (storeName.contains("!"))) {
                                 successOrFailure = "Invalid Format";
                             }
 

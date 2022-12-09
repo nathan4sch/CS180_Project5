@@ -216,6 +216,7 @@ Steps:
    "Modify Products" option.
 <li> The Seller selects the desired product from the list of
    products in the store.
+<li> The Seller changes one of the fields: name, description, quantity, or price
 <li> The Seller selects the "Edit Selected Item" option.
 </ol>
 
