@@ -52,8 +52,8 @@ public class Server implements Runnable {
             PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             while (true) {
+                String nextFrame = bufferedReader.readLine();
                 synchronized (SYNC) {
-                    String nextFrame = bufferedReader.readLine();
                     switch (nextFrame) {
                         case "SignIn" -> {
                             String emailInput = bufferedReader.readLine();
@@ -174,7 +174,7 @@ public class Server implements Runnable {
                                         if (itemList.get(j).getQuantity() < Integer.parseInt(splitCart[2])) {
                                             unsuccessfulItems.add(itemList.get(j).getName() + "," + splitCart[2] +
                                                     ",Not enough in stock to fulfill order");
-                                        } else if (!Double.toString(itemList.get(j).getPrice()).equals(splitCart[3])) {
+                                        } else if (!String.format("%.2f", itemList.get(j).getPrice()).equals(splitCart[3])) {
                                             unsuccessfulItems.add(splitCart[1] + "," + splitCart[2] + ",Item No longer exists");
                                         } else {
                                             successfulItems.add(cart.get(i));
@@ -731,10 +731,10 @@ public class Server implements Runnable {
                             } else if (validItemPrice(price).equals("Failure")) {           //check valid price
                                 printWriter.println("Invalid Price");
                                 printWriter.flush();
-                            } else if (!validNameFormat){
+                            } else if (!validNameFormat) {
                                 printWriter.println("Invalid Name Format");                 //check name format
                                 printWriter.flush();
-                            } else if (!validDescFormat){
+                            } else if (!validDescFormat) {
                                 printWriter.println("Invalid Description Format");          //check desc format
                                 printWriter.flush();
                             } else {
@@ -824,17 +824,17 @@ public class Server implements Runnable {
                             if (itemNameString.equals("")) {
                                 printWriter.println("No Item Selected");
                                 printWriter.flush();
-                            } else if (!validNameFormat){
+                            } else if (!validNameFormat) {
                                 printWriter.println("Invalid Name Format");
                                 printWriter.flush();
-                            } else if (!validDescFormat){
+                            } else if (!validDescFormat) {
                                 printWriter.println("Invalid Description Format");
                                 printWriter.flush();
                             } else {
                                 //Find field changed and what the new input is
                                 String oldName = itemToChange.getName();
                                 String oldPrice = String.format("%.2f", itemToChange.getPrice());
-                                
+
                                 int numberOfChangedFields = 0;
                                 String newText = "";
                                 String nameOfFieldChanged = "";
