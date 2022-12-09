@@ -50,6 +50,8 @@ public class Server implements Runnable {
             PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             File credentials = new File("../CS180_Project5/FMCredentials.csv");
+            File store = new File("../CS180_Project5/FMStores.csv");
+            File fmStats = new File("FMStats.csv");
             File items = new File("../CS180_Project5/FMItems.csv");
             while (true) {
                 String nextFrame = bufferedReader.readLine();
