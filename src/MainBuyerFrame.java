@@ -72,6 +72,18 @@ public class MainBuyerFrame extends JComponent implements Runnable {
     }
 
     ActionListener popupItemListener = new ActionListener() {
+        /**
+         * @param e Invoked when any of the button in the frame is selected.
+         *          addToCart - prompts the user to input the quantity of item to add to cart.
+         *                      If the quantity is less than or equal the amount available,
+         *                      The item will be successfully added to cart
+         *          moreDetails - shows more details of the selected item, including the description and quantity available
+         *          sortByPrice - sorts the dashboard by price from least expensive to most
+         *          sortByQuantity - sorts the dashboard by quantity from the least amount of items to most
+         *          searchByName - shows all items in the dashboard that match the entered name
+         *          searchByStore - shows all items in the dashboard that match the entered store name
+         *          searchByDescription - shows all items in the dashboard that match the entered description
+         */
         public void actionPerformed(ActionEvent e) {
             JMenuItem choice = (JMenuItem) e.getSource();
 
@@ -234,6 +246,17 @@ public class MainBuyerFrame extends JComponent implements Runnable {
     };
 
     ActionListener actionListener = new ActionListener() {
+        /**
+         * @param e Invoked when any of the button in the frame is selected.
+         *          viewCartButton - redirects the user to CartFrame.java if the user currently has items in their cart,
+         *                          otherwise an error panel will pop up.
+         *          searchButton - updates the dashboard to show all items searched for
+         *          manageAccountButton - redirects the user to ManageAccountFrame.java
+         *          reviewHistoryButton - redirects the user to PurchaseHistoryFrame.java
+         *          refreshButton - refreshes the dashboard to reflect changes made by Sellers
+         *          statisticsButton - redirects the user to BuyerStatisticsFrame.java
+         *          logoutButton - Logs the current user out, closes the socket, and redirects the user to LoginFrame.java
+         */
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
 
@@ -407,9 +430,9 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         });
         searchButton.setComponentPopupMenu(searchPopupMenu);
         leftPanel.add(searchButton);
-        
+
         refreshButton = new JButton("Refresh Dashboard");
-        refreshButton.setBounds(550,630,200,60);
+        refreshButton.setBounds(550, 630, 200, 60);
         refreshButton.addActionListener(actionListener);
         leftPanel.add(refreshButton);
 
@@ -554,6 +577,12 @@ public class MainBuyerFrame extends JComponent implements Runnable {
         }
     }
 
+    /**
+     * Calculates a scalable font size for JLabels in the GUI
+     *
+     * @param component The JLabel to get the font size of
+     * @return an int to be used for the font size
+     */
     public int fontSizeToUse(JLabel component) {
         Font fontOfLabel = component.getFont();
         String textInLabel = component.getText();
