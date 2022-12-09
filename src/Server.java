@@ -1,6 +1,4 @@
 import java.io.*;
-import java.lang.reflect.Array;
-import java.math.BigDecimal;
 import java.net.*;
 import java.util.*;
 
@@ -51,6 +49,8 @@ public class Server implements Runnable {
         try {
             PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            File credentials = new File("../CS180_Project5/FMCredentials.csv");
+            File items = new File("../CS180_Project5/FMItems.csv");
             while (true) {
                 String nextFrame = bufferedReader.readLine();
                 synchronized (SYNC) {
@@ -66,7 +66,7 @@ public class Server implements Runnable {
                                 printWriter.flush();
                             } else {
                                 //set the csv to say the user in logged in
-                                BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
+                                BufferedReader bfr = new BufferedReader(new FileReader(credentials));
                                 ArrayList<String> lines = new ArrayList<>();
                                 String line;
                                 while ((line = bfr.readLine()) != null) {
@@ -79,7 +79,7 @@ public class Server implements Runnable {
                                     lines.add(line);
                                 }
                                 bfr.close();
-                                PrintWriter credentialsPrint = new PrintWriter(new FileOutputStream("FMCredentials.csv", false));
+                                PrintWriter credentialsPrint = new PrintWriter(new FileOutputStream(credentials, false));
                                 for (int i = 0; i < lines.size(); i++) {
                                     credentialsPrint.println(lines.get(i));
                                 }
@@ -188,14 +188,14 @@ public class Server implements Runnable {
 
                             //Writes Successful checkouts to purchase history and removes all items from cart
                             try {
-                                BufferedReader reader = new BufferedReader(new FileReader("FMCredentials.csv"));
-                                ArrayList<String> fmCredentials = new ArrayList<>();
+                                BufferedReader reader = new BufferedReader(new FileReader(credentials));
+                                ArrayList<String> fmCredentialList = new ArrayList<>();
                                 String line = reader.readLine();
                                 String[] userSplit = null; // saves current user data for ease of access
                                 while (line != null) {
                                     String[] splitLine = line.split(",");
                                     if (!((Buyer) currentUser).getEmail().equals(splitLine[0])) {
-                                        fmCredentials.add(line);
+                                        fmCredentialList.add(line);
                                     } else {
                                         userSplit = line.split(",");
                                     }
@@ -203,7 +203,7 @@ public class Server implements Runnable {
                                 }
                                 reader.close();
 
-                                PrintWriter credWriter = new PrintWriter(new FileWriter("FMCredentials.csv"));
+                                PrintWriter credWriter = new PrintWriter(new FileWriter(credentials));
 
                                 assert userSplit != null;
                                 String formattedSuccess;
@@ -224,8 +224,8 @@ public class Server implements Runnable {
                                 }
                                 //email,password,buyer/seller,history,empty cart,login status
                                 credWriter.println(userSplit[0] + "," + userSplit[1] + "," + userSplit[2] + "," + formattedSuccess + ",x," + userSplit[5]);
-                                for (int i = 0; i < fmCredentials.size(); i++) {
-                                    credWriter.println(fmCredentials.get(i));
+                                for (int i = 0; i < fmCredentialList.size(); i++) {
+                                    credWriter.println(fmCredentialList.get(i));
                                 }
                                 credWriter.close();
                             } catch (Exception exc) {
@@ -234,7 +234,7 @@ public class Server implements Runnable {
 
                             //rewrite FMItems to reflect changes in stock
                             try {
-                                BufferedReader reader = new BufferedReader(new FileReader("FMItems.csv"));
+                                BufferedReader reader = new BufferedReader(new FileReader(items));
                                 ArrayList<String> fmItemsUnchanged = new ArrayList<>(); // saves unchanged data
                                 ArrayList<String> fmItemsChanged = new ArrayList<>();
                                 String line = reader.readLine();
@@ -257,7 +257,7 @@ public class Server implements Runnable {
                                 }
                                 reader.close();
 
-                                PrintWriter itemWriter = new PrintWriter(new FileWriter("FMItems.csv", false));
+                                PrintWriter itemWriter = new PrintWriter(new FileWriter(items, false));
 
                                 for (int i = 0; i < fmItemsChanged.size(); i++) {
                                     itemWriter.println(fmItemsChanged.get(i));
@@ -279,7 +279,7 @@ public class Server implements Runnable {
                                 Item item = null;
 
                                 try {
-                                    BufferedReader bfr = new BufferedReader(new FileReader("FMItems.csv"));
+                                    BufferedReader bfr = new BufferedReader(new FileReader(items));
                                     String line;
                                     while ((line = bfr.readLine()) != null) {
                                         String[] splitLine = line.split(",");
@@ -491,7 +491,7 @@ public class Server implements Runnable {
                             userQuantity = Integer.parseInt(bufferedReader.readLine());
                             itemList = getItems();
 
-                            BufferedReader cartReader = new BufferedReader(new FileReader("FMCredentials.csv"));
+                            BufferedReader cartReader = new BufferedReader(new FileReader(credentials));
                             try {
                                 String currentCred = "";
 
@@ -781,7 +781,7 @@ public class Server implements Runnable {
                         }
                         case "Delete Account" -> {
                             String userEmail = bufferedReader.readLine();
-                            BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
+                            BufferedReader bfr = new BufferedReader(new FileReader(credentials));
                             String line;
                             while ((line = bfr.readLine()) != null) {
                                 String[] splitLine = line.split(",");
@@ -877,7 +877,7 @@ public class Server implements Runnable {
                                     } else if (itemToChange.changeField(nameOfFieldChanged, newText)) {
                                         //reflect the new name change in all the user carts
                                         try {
-                                            BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
+                                            BufferedReader bfr = new BufferedReader(new FileReader(credentials));
                                             ArrayList<String> lines = new ArrayList<>();
                                             String line;
                                             while ((line = bfr.readLine()) != null) {
@@ -919,7 +919,7 @@ public class Server implements Runnable {
                                                 }
                                             }
                                             bfr.close();
-                                            PrintWriter pw = new PrintWriter(new FileWriter("FMCredentials.csv"));
+                                            PrintWriter pw = new PrintWriter(new FileWriter(credentials));
                                             for (int i = 0; i < lines.size(); i++) {
                                                 pw.println(lines.get(i));
                                             }
@@ -946,7 +946,7 @@ public class Server implements Runnable {
                                     } else if (itemToChange.changeField(nameOfFieldChanged, newText)) {
                                         //reflect the new price change in all the user carts
                                         try {
-                                            BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
+                                            BufferedReader bfr = new BufferedReader(new FileReader(credentials));
                                             ArrayList<String> lines = new ArrayList<>();
                                             String line;
                                             while ((line = bfr.readLine()) != null) {
@@ -988,7 +988,7 @@ public class Server implements Runnable {
                                                 }
                                             }
                                             bfr.close();
-                                            PrintWriter pw = new PrintWriter(new FileWriter("FMCredentials.csv"));
+                                            PrintWriter pw = new PrintWriter(new FileWriter(credentials));
                                             for (int i = 0; i < lines.size(); i++) {
                                                 pw.println(lines.get(i));
                                             }
@@ -1059,23 +1059,23 @@ public class Server implements Runnable {
 
                             String buyerOrItem;
                             Store currentStore = ((Seller) currentUser).getSpecificStore(storeSelectedString);
-                            ArrayList<String> stats;
+                            ArrayList<String> statList;
                             if (statisticToView.equals("Sorted Buyer Statistics") || statisticToView.equals("Buyer Statistics")) {
                                 buyerOrItem = "buyer";
                             } else {
                                 buyerOrItem = "item";
                             }
                             if (statisticToView.equals("Sorted Buyer Statistics") || statisticToView.equals("Sorted Item Statistics")) {
-                                stats = Store.showSortedStats(currentStore.getStoreName(), buyerOrItem);
+                                statList = Store.showSortedStats(currentStore.getStoreName(), buyerOrItem);
                             } else {
-                                stats = Store.showStats(currentStore.getStoreName(), buyerOrItem);
+                                statList = Store.showStats(currentStore.getStoreName(), buyerOrItem);
                             }
 
-                            if (Objects.requireNonNull(stats).toString().equals("[]")) {
+                            if (Objects.requireNonNull(statList).toString().equals("[]")) {
                                 printWriter.println("Failure");
                                 printWriter.flush();
                             } else {
-                                String output = stats.toString();
+                                String output = statList.toString();
                                 printWriter.println(output);
                                 printWriter.println(buyerOrItem);
                                 printWriter.flush();
@@ -1142,7 +1142,8 @@ public class Server implements Runnable {
      */
     public synchronized static String checkExistingCredentials(String email, String password, String purpose) {
         try {
-            BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
+            File credentials = new File("FMCredentials.csv");
+            BufferedReader bfr = new BufferedReader(new FileReader(credentials));
             String line;
             while ((line = bfr.readLine()) != null) {
                 String[] currentLine = line.split(",");
@@ -1178,7 +1179,8 @@ public class Server implements Runnable {
     public synchronized static ArrayList<String> buyerDataArray(String userEmail, String cartOrHist) {
         try {
             ArrayList<String> buyerData = new ArrayList<>();
-            BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
+            File credentials = new File("../CS180_Project5/FMCredentials.csv");
+            BufferedReader bfr = new BufferedReader(new FileReader(credentials));
             String line;
             while ((line = bfr.readLine()) != null) {
                 String[] currentLine = line.split(",");
@@ -1216,6 +1218,7 @@ public class Server implements Runnable {
      * @return a Buyer or Seller object based on the role
      */
     public synchronized static Object createAccount(String email, String password, String role) {
+        File credentials = new File("../CS180_Project5/FMCredentials.csv");
         if (checkExistingCredentials(email, password, "newAccount").equals("DuplicateEmail")) {
             return null;
         }
@@ -1228,7 +1231,7 @@ public class Server implements Runnable {
             currentSeller = new Seller(email, password);
         }
         try {                                   //writes the new user's account to the csv file
-            PrintWriter CredentialPrintWriter = new PrintWriter(new BufferedWriter(new FileWriter("FMCredentials.csv", true)));
+            PrintWriter CredentialPrintWriter = new PrintWriter(new BufferedWriter(new FileWriter(credentials, true)));
             CredentialPrintWriter.println(email + "," + password + "," + role.toLowerCase() + ",x,x,LoggedIn");
             CredentialPrintWriter.flush();
             CredentialPrintWriter.close();
@@ -1252,7 +1255,8 @@ public class Server implements Runnable {
      */
     public synchronized static String validStoreName(String storeName) {
         try {
-            BufferedReader bfr = new BufferedReader(new FileReader("FMStores.csv"));
+            File store = new File("../CS180_Project5/FMStores.csv");
+            BufferedReader bfr = new BufferedReader(new FileReader(store));
             String line;
             while ((line = bfr.readLine()) != null) {
                 String[] storeInfo = line.split(",");
@@ -1276,7 +1280,8 @@ public class Server implements Runnable {
      */
     public synchronized static String validItemName(String itemName) {
         try {
-            BufferedReader bfr = new BufferedReader(new FileReader("FMItems.csv"));
+            File items = new File("../CS180_Project5/FMItems.csv");
+            BufferedReader bfr = new BufferedReader(new FileReader(items));
             String line;
             while ((line = bfr.readLine()) != null) {
                 String[] itemInfo = line.split(",");
@@ -1413,7 +1418,8 @@ public class Server implements Runnable {
     public synchronized static void resetLoggedInStatus(String userEmail) {
         // set FMCredentials.csv where it says logged in to x
         try {
-            BufferedReader bfr = new BufferedReader(new FileReader("FMCredentials.csv"));
+            File credentials = new File("../CS180_Project5/FMCredentials.csv");
+            BufferedReader bfr = new BufferedReader(new FileReader(credentials));
             ArrayList<String> lines = new ArrayList<>();
             String line;
             while ((line = bfr.readLine()) != null) {
@@ -1426,7 +1432,7 @@ public class Server implements Runnable {
                 lines.add(line);
             }
             bfr.close();
-            PrintWriter credentialsPrint = new PrintWriter(new FileOutputStream("FMCredentials.csv", false));
+            PrintWriter credentialsPrint = new PrintWriter(new FileOutputStream(credentials, false));
             for (int i = 0; i < lines.size(); i++) {
                 credentialsPrint.println(lines.get(i));
             }
@@ -1444,7 +1450,8 @@ public class Server implements Runnable {
      */
     public synchronized String exportPublishedItems(String storeName) {
         try {
-            BufferedReader itemReader = new BufferedReader(new FileReader("FMItems.csv"));
+            File items = new File("../CS180_Project5/FMItems.csv");
+            BufferedReader itemReader = new BufferedReader(new FileReader(items));
             ArrayList<String> itemsInStore = new ArrayList<>();
 
             // creates array of all items
@@ -1487,21 +1494,22 @@ public class Server implements Runnable {
      * @return Item ArrayList
      */
     public synchronized ArrayList<Item> getItems() {
-        ArrayList<Item> items = new ArrayList<>();
+        ArrayList<Item> itemList = new ArrayList<>();
         try {
-            BufferedReader bfr = new BufferedReader(new FileReader("FMItems.csv"));
+            File items = new File("../CS180_Project5/FMItems.csv");
+            BufferedReader bfr = new BufferedReader(new FileReader(items));
 
             String line = bfr.readLine();
             while (line != null) {
                 String[] splitLine = line.split(",");
-                items.add(new Item(splitLine[0], splitLine[1], splitLine[2],
+                itemList.add(new Item(splitLine[0], splitLine[1], splitLine[2],
                         Integer.parseInt(splitLine[3]), Double.parseDouble(splitLine[4])));
                 line = bfr.readLine();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return items;
+        return itemList;
     }
 
     /**
@@ -1546,7 +1554,7 @@ public class Server implements Runnable {
             }
             bfrTwo.close();
             // Print updated statistics back to the file
-            PrintWriter pwTwo = new PrintWriter(new FileOutputStream("FMStats.csv", false));
+            PrintWriter pwTwo = new PrintWriter(new FileOutputStream(fmStats, false));
             for (int i = 0; i < statsFile.size(); i++) {
                 pwTwo.println(statsFile.get(i));
             }
@@ -1569,7 +1577,8 @@ public class Server implements Runnable {
                                                     int amountSold, double price) {
         try {
             // Read FMStores to find the correct store to add sale information to
-            BufferedReader bfrOne = new BufferedReader(new FileReader("FMStores.csv"));
+            File fmStore = new File("../CS180_Project5/FMStores.csv");
+            BufferedReader bfrOne = new BufferedReader(new FileReader(fmStore));
             ArrayList<String> storeFile = new ArrayList<>();
             String line;
             while ((line = bfrOne.readLine()) != null) {
@@ -1589,7 +1598,7 @@ public class Server implements Runnable {
             bfrOne.close();
 
             // Prints FMStores file with added sale
-            PrintWriter pwOne = new PrintWriter(new FileOutputStream("FMStores.csv", false));
+            PrintWriter pwOne = new PrintWriter(new FileOutputStream(fmStore, false));
             for (int i = 0; i < storeFile.size(); i++) {
                 pwOne.println(storeFile.get(i));
             }
