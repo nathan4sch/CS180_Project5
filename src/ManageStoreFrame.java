@@ -56,6 +56,20 @@ public class ManageStoreFrame extends JComponent implements Runnable {
     }
 
     ActionListener actionListener = new ActionListener() {
+        /**
+         * @param e Invoked when any of the button in the frame is selected.
+         *          returnToDashButton - user is redirected back to MainSellerFrame.java
+         *          deleteStoreButton - asks the current user to confirm to delete the selected store.
+         *          modifyProductsButton - redirects the current user to ManageCatalogueFrame.java based on the selected store.
+         *          importProductFile - imports a file of product information and adds the imported information to the corresponding stores.
+         *                              The file must be formatted properly, otherwise an error panel will be shown.
+         *          salesListButton - shows a panel of all sales of the selected store.
+         *          statisticsButton - shows a panel with a dropdown menu to select different store statistics.
+         *                              Buyer Statistics shows all customers that have purchased items from the selected store and the quantity of items bought.
+         *                              Sorted Buyer Statistics shows the Buyer Statistics panel sorted by the number of items purchased from most to least.
+         *                              Item Statistics shows all items sold by store and the number of sales for each item.
+         *                              Sorted Item Statistics shows the Item Statistics sorted by sales from most to least.
+         */
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
             if (source == returnToDashButton) {
@@ -108,7 +122,6 @@ public class ManageStoreFrame extends JComponent implements Runnable {
                     }
                 }
             } else if (source == importProductFile) {
-
                 JOptionPane.showMessageDialog(null, "Ensure each line in the imported file is " +
                                 "formatted correctly\nExample: storeName,itemName,description,quantity,price" +
                                 "\nWalmart,Table,strong wooden table in great condition,10,99.99",
@@ -392,6 +405,12 @@ public class ManageStoreFrame extends JComponent implements Runnable {
         manageStoreFrame.setVisible(true);
     }
 
+    /**
+     * Calculates a scalable font size for JLabels in the GUI
+     *
+     * @param component The JLabel to get the font size of
+     * @return an int to be used for the font size
+     */
     public int fontSizeToUse(JLabel component) {
         Font fontOfLabel = component.getFont();
         String textInLabel = component.getText();
