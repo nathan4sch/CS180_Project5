@@ -256,7 +256,7 @@ public class Store {
      * @param storeName Name of store to search for
      * @param type      Type of statistic to show
      * @return String ArrayList of the statistics
-     * */
+     */
     public static ArrayList<String> showStats(String storeName, String type) {
         // type should be either buyer or item
         ArrayList<String> stats = new ArrayList<>();
@@ -286,7 +286,7 @@ public class Store {
      * @param storeName Name of store to search for
      * @param type      Type of statistic to show
      * @return String ArrayList of statistics, sorted
-     * */
+     */
     public static ArrayList<String> showSortedStats(String storeName, String type) {
         ArrayList<String> unsorted = showStats(storeName, type);
         ArrayList<Integer> amounts = new ArrayList<>();

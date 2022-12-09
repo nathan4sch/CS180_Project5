@@ -86,19 +86,21 @@ public class LoginFrame extends JComponent implements Runnable {
                     printWriter.flush();
                     String successOrFailure = bufferedReader.readLine();
                     switch (successOrFailure) {
-                        case "Failure" -> JOptionPane.showMessageDialog(null, "This email already owns an account",
-                                "Create Account Failure", JOptionPane.ERROR_MESSAGE);
-
-                        case "Input Short" -> JOptionPane.showMessageDialog(null, "Email and Password must have " +
-                                        "at Least 6 Characters", "Create Account Failure",
+                        case "Failure" -> JOptionPane.showMessageDialog(null, "This email " +
+                                        "already owns an account", "Create Account Failure",
                                 JOptionPane.ERROR_MESSAGE);
 
-                        case "Invalid Characters" ->
-                                JOptionPane.showMessageDialog(null, "Email and Password can not have" +
-                                        " a comma", "Create Account Failure", JOptionPane.ERROR_MESSAGE);
+                        case "Input Short" -> JOptionPane.showMessageDialog(null, "Email and " +
+                                        "Password must have " + "at Least 6 Characters", "Create Account Failure",
+                                JOptionPane.ERROR_MESSAGE);
 
-                        case "Invalid Email" -> JOptionPane.showMessageDialog(null, "A Valid Email has an @ Sign",
-                                "Create Account Failure", JOptionPane.ERROR_MESSAGE);
+                        case "Invalid Characters" -> JOptionPane.showMessageDialog(null,
+                                "Email and Password can not have a comma", "Create Account Failure",
+                                JOptionPane.ERROR_MESSAGE);
+
+                        case "Invalid Email" -> JOptionPane.showMessageDialog(null, "A Valid " +
+                                        "Email has an @ Sign", "Create Account Failure",
+                                JOptionPane.ERROR_MESSAGE);
 
                         case "Success" -> {
                             JOptionPane.showMessageDialog(null, "Account Created", "Success",

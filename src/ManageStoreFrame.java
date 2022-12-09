@@ -8,7 +8,8 @@ import java.util.ArrayList;
 /**
  * Interface that allows users to manage their current stores.
  * Users can view a list of a selected store's sales, modify the products of the selected store,
- * view store statistics, delete their selected store, and import a product file with a list of products to be added to a store.
+ * view store statistics, delete their selected store, and import a product file with a list of products to be
+ * added to a store.
  *
  * @version 24/11/2022
  */
@@ -60,15 +61,19 @@ public class ManageStoreFrame extends JComponent implements Runnable {
          * @param e Invoked when any of the button in the frame is selected.
          *          returnToDashButton - user is redirected back to MainSellerFrame.java
          *          deleteStoreButton - asks the current user to confirm to delete the selected store.
-         *          modifyProductsButton - redirects the current user to ManageCatalogueFrame.java based on the selected store.
-         *          importProductFile - imports a file of product information and adds the imported information to the corresponding stores.
+         *          modifyProductsButton - redirects the current user to ManageCatalogueFrame.java based on the
+         *                                 selected store.
+         *          importProductFile - imports a file of product information and adds the imported information to the
+         *                              corresponding stores.
          *                              The file must be formatted properly, otherwise an error panel will be shown.
          *          salesListButton - shows a panel of all sales of the selected store.
          *          statisticsButton - shows a panel with a dropdown menu to select different store statistics.
-         *                              Buyer Statistics shows all customers that have purchased items from the selected store and the quantity of items bought.
-         *                              Sorted Buyer Statistics shows the Buyer Statistics panel sorted by the number of items purchased from most to least.
-         *                              Item Statistics shows all items sold by store and the number of sales for each item.
-         *                              Sorted Item Statistics shows the Item Statistics sorted by sales from most to least.
+         *                              Buyer Statistics shows all customers that have purchased items from the selected
+         *                              store and the quantity of items bought. Sorted Buyer Statistics shows the
+         *                              Buyer Statistics panel sorted by the number of items purchased from
+         *                              most to least. Item Statistics shows all items sold by store and the
+         *                              number of sales for each item.Sorted Item Statistics shows
+         *                              the Item Statistics sorted by sales from most to least.
          */
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
@@ -115,7 +120,8 @@ public class ManageStoreFrame extends JComponent implements Runnable {
                         String storeItemsString = bufferedReader.readLine();
                         storeItemsString = storeItemsString.substring(1, storeItemsString.length() - 1);
                         String[] storeItemNames = storeItemsString.split(", ");
-                        SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, storeItemNames, userEmail));
+                        SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected,
+                                storeItemNames, userEmail));
                         manageStoreFrame.dispose();
                     } catch (IOException ex) {
                         ex.printStackTrace();
@@ -169,9 +175,9 @@ public class ManageStoreFrame extends JComponent implements Runnable {
                             ArrayList<String> saleList = new ArrayList<>();
                             for (int i = 0; i < salesData.length; i++) {
                                 String[] individualSale = salesData[i].split("!");
-                                String output = String.format("(%s) Customer: %s   Product: %s   Quantity Bought: %s   " +
-                                                "Price Bought At: $%s", i + 1, individualSale[0], individualSale[1],
-                                        individualSale[2], individualSale[3]);
+                                String output = String.format("(%s) Customer: %s   Product: %s   " +
+                                                "Quantity Bought: %s   Price Bought At: $%s", i + 1,
+                                        individualSale[0], individualSale[1], individualSale[2], individualSale[3]);
                                 saleList.add(output);
                             }
 

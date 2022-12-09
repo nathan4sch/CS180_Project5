@@ -77,7 +77,8 @@ public class MainBuyerFrame extends JComponent implements Runnable {
          *          addToCart - prompts the user to input the quantity of item to add to cart.
          *                      If the quantity is less than or equal the amount available,
          *                      The item will be successfully added to cart
-         *          moreDetails - shows more details of the selected item, including the description and quantity available
+         *          moreDetails - shows more details of the selected item, including the description and
+         *          quantity available
          *          sortByPrice - sorts the dashboard by price from least expensive to most
          *          sortByQuantity - sorts the dashboard by quantity from the least amount of items to most
          *          searchByName - shows all items in the dashboard that match the entered name
@@ -92,14 +93,16 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                 int selectedRow = jTable.getSelectedRow();
                 if (selectedRow == -1) {
                     JOptionPane.showMessageDialog(null,
-                            "First select a row using the left click", "No Item Selected", JOptionPane.ERROR_MESSAGE);
+                            "First select a row using the left click", "No Item Selected",
+                            JOptionPane.ERROR_MESSAGE);
                     return;
                 }
                 String quantityAdded = null;
                 while (invalidChoice) {
                     quantityAdded = (JOptionPane.showInputDialog(null,
-                            "Please input the quantity of " + jTable.getValueAt(selectedRow, 1) + " that you would like to add to your cart",
-                            "Add Item To Cart", JOptionPane.QUESTION_MESSAGE));
+                            "Please input the quantity of " + jTable.getValueAt(selectedRow, 1) +
+                                    " that you would like to add to your cart", "Add Item To Cart",
+                            JOptionPane.QUESTION_MESSAGE));
                     if (quantityAdded == null) {
                         return;
                     }
@@ -107,7 +110,8 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                     try { // makes sure that user inputted an integer
                         int integerTest = Integer.parseInt(quantityAdded);
                     } catch (NumberFormatException nfe) {
-                        JOptionPane.showMessageDialog(null, "Input An Integer!", "Input Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Input An Integer!", "Input " +
+                                "Error", JOptionPane.ERROR_MESSAGE);
                         continue;
                     }
                     invalidChoice = false;
@@ -132,16 +136,19 @@ public class MainBuyerFrame extends JComponent implements Runnable {
                             "Error", JOptionPane.ERROR_MESSAGE);
                 } else if (serverResponse.equals("Quantity error")) {
                     JOptionPane.showMessageDialog(null,
-                            "Not enough in stock to match quantity requested", "Cart Error", JOptionPane.ERROR_MESSAGE);
+                            "Not enough in stock to match quantity requested", "Cart Error",
+                            JOptionPane.ERROR_MESSAGE);
                 } else if (serverResponse.equals("Item Not Found")) {
                     JOptionPane.showMessageDialog(null,
-                            "Item Not Found, Please Refresh Dashboard", "Cart Error", JOptionPane.ERROR_MESSAGE);
+                            "Item Not Found, Please Refresh Dashboard", "Cart Error",
+                            JOptionPane.ERROR_MESSAGE);
                 }
 
             } else if (choice == moreDetails) {
                 if (jTable.getSelectedRow() == -1) {
                     JOptionPane.showMessageDialog(null,
-                            "First select a row using the left click", "No Item Selected", JOptionPane.ERROR_MESSAGE);
+                            "First select a row using the left click", "No Item Selected",
+                            JOptionPane.ERROR_MESSAGE);
                     return;
                 }
                 printWriter.println("More Details");
@@ -255,7 +262,8 @@ public class MainBuyerFrame extends JComponent implements Runnable {
          *          reviewHistoryButton - redirects the user to PurchaseHistoryFrame.java
          *          refreshButton - refreshes the dashboard to reflect changes made by Sellers
          *          statisticsButton - redirects the user to BuyerStatisticsFrame.java
-         *          logoutButton - Logs the current user out, closes the socket, and redirects the user to LoginFrame.java
+         *          logoutButton - Logs the current user out, closes the socket, and redirects the user to
+         *          LoginFrame.java
          */
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();

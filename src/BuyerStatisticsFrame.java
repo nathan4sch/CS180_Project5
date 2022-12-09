@@ -56,10 +56,11 @@ public class BuyerStatisticsFrame extends JComponent implements Runnable {
          *          buyerSortStatButton - shows a sorted panel of all the stores the current user has bought
          *                                  from by quantity of items bought from most to least.
          *
-         *          Store Statistics: Buyers can also see a list of all stores with the amount of products sold by each store.
+         *          Store Statistics: Buyers can also see a list of all stores with the amount of products sold
+         *          by each store.
          *          storeShowStatButton - shows a panel of all the stores with the amount of items sold per store.
-         *          storeSortStatButton - shows a sorted a panel of all the stores with the amount of items sold per store
-         *                                  by quantity of items sold from most to least.
+         *          storeSortStatButton - shows a sorted a panel of all the stores with the amount of items sold
+         *          per store by quantity of items sold from most to least.
          */
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();

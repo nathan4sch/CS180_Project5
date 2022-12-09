@@ -63,7 +63,8 @@ public class MainSellerFrame extends JComponent implements Runnable {
          *          editAccountButton - changes the user's password if it is valid
          *          deleteAccountButton - deletes the user's account
          *          createStoreButton - creates a new store if input is valid
-         *          signOutButton - Logs the current user out, closes the socket, and redirects the user to LoginFrame.java
+         *          signOutButton - Logs the current user out, closes the socket, and redirects the user to
+         *          LoginFrame.java
          */
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
@@ -135,8 +136,8 @@ public class MainSellerFrame extends JComponent implements Runnable {
                     String successOrFailure = bufferedReader.readLine();
 
                     switch (successOrFailure) {
-                        case "No Changed Fields" -> JOptionPane.showMessageDialog(null, "Input a New Password",
-                                "Error", JOptionPane.ERROR_MESSAGE);
+                        case "No Changed Fields" -> JOptionPane.showMessageDialog(null,
+                                "Input a New Password", "Error", JOptionPane.ERROR_MESSAGE);
 
                         case "Success" -> {
                             JOptionPane.showMessageDialog(null, "Password Changed",
@@ -189,11 +190,13 @@ public class MainSellerFrame extends JComponent implements Runnable {
                         case "Success" -> JOptionPane.showMessageDialog(null,
                                 "Store Created", "Success", JOptionPane.INFORMATION_MESSAGE);
 
-                        case "Failure" -> JOptionPane.showMessageDialog(null, "Store Name Already Exists",
-                                "Create Store Failure", JOptionPane.ERROR_MESSAGE);
+                        case "Failure" -> JOptionPane.showMessageDialog(null,
+                                "Store Name Already Exists", "Create Store Failure",
+                                JOptionPane.ERROR_MESSAGE);
 
-                        case "Invalid Format" -> JOptionPane.showMessageDialog(null, "Invalid Format: " +
-                                "Store name cannot have a comma or exclamation point", "Error", JOptionPane.ERROR_MESSAGE);
+                        case "Invalid Format" -> JOptionPane.showMessageDialog(null,
+                                "Invalid Format: Store name cannot have a comma or exclamation point",
+                                "Error", JOptionPane.ERROR_MESSAGE);
                     }
                     inputStoreName.setText("");
                 } catch (IOException ex) {

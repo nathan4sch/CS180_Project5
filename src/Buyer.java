@@ -313,7 +313,8 @@ public class Buyer {
      * Statistics sortStoresFromBuyerProducts
      *
      * @param buyerEmail Email to search for when adding to array list
-     * @return Sorted Arraylist of stores by the products purchased by that particular customer sorted by products sold.
+     * @return Sorted Arraylist of stores by the products purchased by that particular customer sorted
+     * by products sold.
      */
     public ArrayList<String> sortStoresFromBuyerProducts(String buyerEmail) {
         try {
@@ -603,7 +604,8 @@ public class Buyer {
                 } else credentialList.add(line);
             }
             cartReader.close();
-            // String list holding info for each purchase in cart, boolean list to check if each purchase was accomplished
+            // String list holding info for each purchase in cart, boolean list to check if each
+            // purchase was accomplished
             String[] cartInfoList = cartInfo.split("~");
             boolean[] purchaseSuccessful = new boolean[cartInfoList.length];
 
@@ -620,7 +622,8 @@ public class Buyer {
                         // If in cart, check if amount being bought is still valid
                         if (Integer.parseInt(itemStuff[3]) >= Integer.parseInt(cartStuff[2])) {
                             // change quantity and confirm purchase if valid
-                            line = line.replaceFirst(itemStuff[3], Integer.toString(Integer.parseInt(itemStuff[3]) - Integer.parseInt(cartStuff[2])));
+                            line = line.replaceFirst(itemStuff[3], Integer.toString(Integer.parseInt(itemStuff[3]) -
+                                    Integer.parseInt(cartStuff[2])));
                             purchaseSuccessful[i] = true;
                         } else {
                             // if invalid return the invalid purchase attempt
