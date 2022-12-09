@@ -24,9 +24,9 @@ public class Seller {
 
         try {
             stores = new ArrayList<>();
-            File f = new File("FMStores.csv");
+            File fmStores = new File("../CS180_Project5/FMStores.csv");
             // Initialize store objects that this seller has created
-            BufferedReader bfr = new BufferedReader(new FileReader(f));
+            BufferedReader bfr = new BufferedReader(new FileReader(fmStores));
             String line = bfr.readLine();
             while (line != null) {
                 String[] splitLine = line.split(",");
@@ -49,7 +49,8 @@ public class Seller {
     public void createStore(Store store) {
         stores.add(store);
         try {
-            PrintWriter printStore = new PrintWriter(new FileOutputStream("FMStores.csv", true));
+            File fmStores = new File("../CS180_Project5/FMStores.csv");
+            PrintWriter printStore = new PrintWriter(new FileOutputStream(fmStores, true));
             printStore.println(store.getStoreName() + "," + store.getOwner() + ",x");
             printStore.flush();
             printStore.close();
@@ -76,7 +77,8 @@ public class Seller {
         ArrayList<String> itemsLines = new ArrayList<>();
         try {
             // First, remove store belonging to this owner from stores file
-            BufferedReader bfrOne = new BufferedReader(new FileReader("FMStores.csv"));
+            File fmStores = new File("../CS180_Project5/FMStores.csv");
+            BufferedReader bfrOne = new BufferedReader(new FileReader(fmStores));
             String line;
             while ((line = bfrOne.readLine()) != null) {
                 String[] splitLine = line.split(",");
@@ -85,7 +87,7 @@ public class Seller {
                 }
             }
             bfrOne.close();
-            PrintWriter pwOne = new PrintWriter(new FileOutputStream("FMStores.csv", false));
+            PrintWriter pwOne = new PrintWriter(new FileOutputStream(fmStores, false));
             for (int i = 0; i < storesLines.size(); i++) {
                 pwOne.println(storesLines.get(i));
             }
@@ -96,7 +98,8 @@ public class Seller {
         }
         try {
             // Second, remove all items belonging to this store from items file
-            BufferedReader bfrTwo = new BufferedReader(new FileReader("FMItems.csv"));
+            File fmItems = new File("../CS180_Project5/FMItems.csv");
+            BufferedReader bfrTwo = new BufferedReader(new FileReader(fmItems));
 
             String line;
             while ((line = bfrTwo.readLine()) != null) {
@@ -107,7 +110,7 @@ public class Seller {
                 }
             }
             bfrTwo.close();
-            PrintWriter pwTwo = new PrintWriter(new FileOutputStream("FMItems.csv", false));
+            PrintWriter pwTwo = new PrintWriter(new FileOutputStream(fmItems, false));
             for (int i = 0; i < itemsLines.size(); i++) {
                 pwTwo.println(itemsLines.get(i));
             }
@@ -130,7 +133,8 @@ public class Seller {
         ArrayList<String> credentialsLines = new ArrayList<>();
         try {
             // First remove user from credentials file
-            BufferedReader bfrOne = new BufferedReader(new FileReader("FMCredentials.csv"));
+            File credentials = new File("../CS180_Project5/FMCredentials.csv");
+            BufferedReader bfrOne = new BufferedReader(new FileReader(credentials));
             while ((line = bfrOne.readLine()) != null) {
                 // Only saves account to reprint to the file if they don't have the email belonging to this account
                 String[] splitLine = line.split(",");
@@ -165,7 +169,7 @@ public class Seller {
                 }
             }
             bfrOne.close();
-            PrintWriter pwOne = new PrintWriter(new FileOutputStream("FMCredentials.csv", false));
+            PrintWriter pwOne = new PrintWriter(new FileOutputStream(credentials, false));
             for (int i = 0; i < credentialsLines.size(); i++) {
                 pwOne.println(credentialsLines.get(i));
             }
@@ -175,7 +179,8 @@ public class Seller {
         }
         try {
             // Second, remove all stores belonging to this owner from stores file
-            BufferedReader bfrTwo = new BufferedReader(new FileReader("FMStores.csv"));
+            File fmStores = new File("../CS180_Project5/FMStores.csv");
+            BufferedReader bfrTwo = new BufferedReader(new FileReader(fmStores));
             line = bfrTwo.readLine();
             int counter = 0;
             while (line != null) {
@@ -191,7 +196,7 @@ public class Seller {
                 line = bfrTwo.readLine();
             }
             bfrTwo.close();
-            PrintWriter pwTwo = new PrintWriter(new FileOutputStream("FMStores.csv", false));
+            PrintWriter pwTwo = new PrintWriter(new FileOutputStream(fmStores, false));
             if (storesFile.length() != 0) {
                 pwTwo.println(storesFile);
             }
@@ -201,7 +206,8 @@ public class Seller {
         }
         try {
             // Third, remove all items belonging to this owner's stores from items file
-            BufferedReader bfrThree = new BufferedReader(new FileReader("FMItems.csv"));
+            File fmItems = new File("../CS180_Project5/FMItems.csv");
+            BufferedReader bfrThree = new BufferedReader(new FileReader(fmItems));
             String itemLine;
             while ((itemLine = bfrThree.readLine()) != null) {
                 boolean keep = true;
@@ -217,7 +223,7 @@ public class Seller {
                 }
             }
             bfrThree.close();
-            PrintWriter pwThree = new PrintWriter(new FileOutputStream("FMItems.csv", false));
+            PrintWriter pwThree = new PrintWriter(new FileOutputStream(fmItems, false));
             for (int i = 0; i < itemsFileOutput.size(); i++) {
                 pwThree.println(itemsFileOutput.get(i));
             }
@@ -272,7 +278,8 @@ public class Seller {
         try {
             ArrayList<String> output = new ArrayList<>();
             // Read through CSV file
-            BufferedReader fmReader = new BufferedReader(new FileReader("FMCredentials.csv"));
+            File fmCredentials = new File("../CS180_Project5/FMCredentials.csv");
+            BufferedReader fmReader = new BufferedReader(new FileReader(fmCredentials));
 
             ArrayList<String> credentials = new ArrayList<>();
 
