@@ -34,7 +34,7 @@ public class Item {
 
     /**
      * Gets the Item's store
-     * 
+     *
      * @return store
      **/
     public String getStore() {
@@ -86,7 +86,7 @@ public class Item {
      */
     public boolean changeField(String field, String newValue) {
         // Write quantity change to csv file
-        File f = new File("FMItems.csv");
+        File f = new File("../CS180_Project5/FMItems.csv");
         ArrayList<String> lines = new ArrayList<>();
         try {
             FileReader fr = new FileReader(f);
