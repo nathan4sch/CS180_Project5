@@ -123,11 +123,11 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
                                 JOptionPane.ERROR_MESSAGE);
 
                         case "Invalid Name Format" -> JOptionPane.showMessageDialog(null, "Invalid Name Format: " +
-                                        "Item name cannot have a comma ",
+                                        "Item name cannot have a comma or Exclamation Mark.",
                                 "Error", JOptionPane.ERROR_MESSAGE);
 
                         case "Invalid Description Format" -> JOptionPane.showMessageDialog(null, "Invalid Description Format: " +
-                                        "Item description cannot have a comma ",
+                                        "Item description cannot have a comma or Exclamation Mark.",
                                 "Error", JOptionPane.ERROR_MESSAGE);
 
                         case "Success" -> {
