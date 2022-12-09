@@ -51,6 +51,13 @@ public class CartFrame extends JComponent implements Runnable {
     }
 
     ActionListener actionListener = new ActionListener() {
+        /**
+         * @param e Invoked when any of the button in the frame is selected.
+         *          returnToDashButton - user is redirected back to MainBuyerFrame.java
+         *          removeItemButton - removes the selected item from cart.
+         *          checkoutButton - checks out all items and adds them to the current user's purchase history.
+         *                          If all items are successfully checked out users will be redirected back to MainBuyerFrame.java.
+         */
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
             if (source == returnToDashButton) {
@@ -277,6 +284,12 @@ public class CartFrame extends JComponent implements Runnable {
         cartFrame.setVisible(true);
     }
 
+    /**
+     * Calculates a scalable font size for JLabels in the GUI
+     *
+     * @param component The JLabel to get the font size of
+     * @return an int to be used for the font size
+     */
     public int fontSizeToUse(JLabel component) {
         Font fontOfLabel = component.getFont();
         String textInLabel = component.getText();

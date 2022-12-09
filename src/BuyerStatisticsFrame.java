@@ -47,6 +47,20 @@ public class BuyerStatisticsFrame extends JComponent implements Runnable {
     }
 
     ActionListener actionListener = new ActionListener() {
+        /**
+         * @param e Is invoked whenever a button in the frame is selected
+         *          returnToDashButton - user is redirected back to MainBuyerFrame.java
+         *
+         *          Buyer Statistics: Buyers can see a list of all stores from where their products were bought from.
+         *          buyerShowStatButton - shows a panel of all the stores the current user has bought from.
+         *          buyerSortStatButton - shows a sorted panel of all the stores the current user has bought
+         *                                  from by quantity of items bought from most to least.
+         *
+         *          Store Statistics: Buyers can also see a list of all stores with the amount of products sold by each store.
+         *          storeShowStatButton - shows a panel of all the stores with the amount of items sold per store.
+         *          storeSortStatButton - shows a sorted a panel of all the stores with the amount of items sold per store
+         *                                  by quantity of items sold from most to least.
+         */
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
             if (source == returnToDashButton) {
@@ -361,6 +375,12 @@ public class BuyerStatisticsFrame extends JComponent implements Runnable {
         buyerStatisticsFrame.setVisible(true);
     }
 
+    /**
+     * Calculates a scalable font size for JLabels in the GUI
+     *
+     * @param component The JLabel to get the font size of
+     * @return an int to be used for the font size
+     */
     public int fontSizeToUse(JLabel component) {
         Font fontOfLabel = component.getFont();
         String textInLabel = component.getText();

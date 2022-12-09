@@ -67,6 +67,15 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
     }
 
     ActionListener actionListener = new ActionListener() {
+        /**
+         * @param e Invoked when any of the button in the frame is selected.
+         *          returnToDashButton - user is redirected back to MainSellerFrame.java
+         *          exportFileButton - exports a file containing all the product information of the store.
+         *                              The file format is "storeName--Items.csv".
+         *          addProductButton - creates a new item based on the information entered in the text fields.
+         *          editProductButton - changes the selected items information to the new information entered in the text fields.
+         *          deleteProductButton - asks the current user to confirm to delete the selected item.
+         */
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
 
@@ -126,9 +135,10 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
                                         "Item name cannot have a comma or Exclamation Mark.",
                                 "Error", JOptionPane.ERROR_MESSAGE);
 
-                        case "Invalid Description Format" -> JOptionPane.showMessageDialog(null, "Invalid Description Format: " +
-                                        "Item description cannot have a comma or Exclamation Mark.",
-                                "Error", JOptionPane.ERROR_MESSAGE);
+                        case "Invalid Description Format" ->
+                                JOptionPane.showMessageDialog(null, "Invalid Description Format: " +
+                                                "Item description cannot have a comma or Exclamation Mark.",
+                                        "Error", JOptionPane.ERROR_MESSAGE);
 
                         case "Success" -> {
                             String[] newStoreItemNames = new String[storeItemNames.length + 1];
@@ -237,9 +247,10 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
                                         "Item name cannot have a ',' ",
                                 "Error", JOptionPane.ERROR_MESSAGE);
 
-                        case "Invalid Description Format" -> JOptionPane.showMessageDialog(null, "Invalid Description Format: " +
-                                        "Item description cannot have a ',' ",
-                                "Error", JOptionPane.ERROR_MESSAGE);
+                        case "Invalid Description Format" ->
+                                JOptionPane.showMessageDialog(null, "Invalid Description Format: " +
+                                                "Item description cannot have a ',' ",
+                                        "Error", JOptionPane.ERROR_MESSAGE);
 
                         case "Changed More Than One Field" ->
                                 JOptionPane.showMessageDialog(null, "Only Change One of the Input Fields",
@@ -434,6 +445,13 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
         });
         manageCatalogueFrame.setVisible(true);
     }
+
+    /**
+     * Calculates a scalable font size for JLabels in the GUI
+     *
+     * @param component The JLabel to get the font size of
+     * @return an int to be used for the font size
+     */
     public int fontSizeToUse(JLabel component) {
         Font fontOfLabel = component.getFont();
         String textInLabel = component.getText();

@@ -55,6 +55,16 @@ public class MainSellerFrame extends JComponent implements Runnable {
     }
 
     ActionListener actionListener = new ActionListener() {
+        /**
+         * @param e Invoked when any of the button in the frame is selected.
+         *          manageStoresButton - returns the user to the Create and Manage Stores dashboard.
+         *          viewCartButton - shows all items in the carts of buyers.
+         *          manageAccountButton - returns the user to the Manage Account Dashboard.
+         *          editAccountButton - changes the user's password if it is valid
+         *          deleteAccountButton - deletes the user's account
+         *          createStoreButton - creates a new store if input is valid
+         *          signOutButton - Logs the current user out, closes the socket, and redirects the user to LoginFrame.java
+         */
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
             //Main options from Right Panel
@@ -137,10 +147,9 @@ public class MainSellerFrame extends JComponent implements Runnable {
                                 "Invalid Format: Passwords cannot contain commas",
                                 "Error", JOptionPane.ERROR_MESSAGE);
 
-                        case "Invalid Length" ->
-                                JOptionPane.showMessageDialog(null,
-                                        "Passwords must be at least 6 characters long",
-                                        "Error", JOptionPane.ERROR_MESSAGE);
+                        case "Invalid Length" -> JOptionPane.showMessageDialog(null,
+                                "Passwords must be at least 6 characters long",
+                                "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -184,7 +193,7 @@ public class MainSellerFrame extends JComponent implements Runnable {
                                 "Create Store Failure", JOptionPane.ERROR_MESSAGE);
 
                         case "Invalid Format" -> JOptionPane.showMessageDialog(null, "Invalid Format: " +
-                                        "Store name cannot have a comma or exclamation point", "Error", JOptionPane.ERROR_MESSAGE);
+                                "Store name cannot have a comma or exclamation point", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                     inputStoreName.setText("");
                 } catch (IOException ex) {
@@ -336,7 +345,7 @@ public class MainSellerFrame extends JComponent implements Runnable {
         leftPanel.add(deleteAccountButton);
         deleteAccountButton.setVisible(false);
 
-        manageAccountGUI = new JComponent[]{manageAccountMainLabel, deleteAccountLabel ,editAccountButton,
+        manageAccountGUI = new JComponent[]{manageAccountMainLabel, deleteAccountLabel, editAccountButton,
                 deleteAccountButton, newPassword, passwordLabel};
 
         //Finalize frame
@@ -366,6 +375,12 @@ public class MainSellerFrame extends JComponent implements Runnable {
 
     }
 
+    /**
+     * Calculates a scalable font size for JLabels in the GUI
+     *
+     * @param component The JLabel to get the font size of
+     * @return an int to be used for the font size
+     */
     public int fontSizeToUse(JLabel component) {
         Font fontOfLabel = component.getFont();
         String textInLabel = component.getText();

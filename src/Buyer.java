@@ -48,7 +48,8 @@ public class Buyer {
     public ArrayList<String> returnPurchaseHistory(String email) {
         try {
             // Read through CSV file
-            BufferedReader purchasesReader = new BufferedReader(new FileReader("FMCredentials.csv"));
+            File credentials = new File("../CS180_Project5/FMCredentials.csv");
+            BufferedReader purchasesReader = new BufferedReader(new FileReader(credentials));
 
             ArrayList<String> FMCredentials = new ArrayList<>();
 
@@ -82,7 +83,6 @@ public class Buyer {
         return null;
     }
 
-
     /**
      * Sets the user's cart to new String ArrayList
      *
@@ -103,8 +103,8 @@ public class Buyer {
      */
     public String removeItemFromCart(String itemToRemove, String userEmail) {
         try {
-            File file = new File("FMCredentials.csv");
-            BufferedReader reader = new BufferedReader(new FileReader(file));
+            File credentials = new File("../CS180_Project5/FMCredentials.csv");
+            BufferedReader reader = new BufferedReader(new FileReader(credentials));
             ArrayList<String> storedCSVData = new ArrayList<>();
             String cartRemove = "";
             cart = showItemsInCart(email);
@@ -143,7 +143,7 @@ public class Buyer {
             }
 
             ArrayList<String> output = new ArrayList<>();
-            PrintWriter printWriter = new PrintWriter(new FileWriter("FMCredentials.csv", false));
+            PrintWriter printWriter = new PrintWriter(new FileWriter(credentials, false));
 
             for (int i = 0; i < storedCSVData.size(); i++) {
                 String[] splitLine = storedCSVData.get(i).split(",");
@@ -190,8 +190,8 @@ public class Buyer {
      */
     public String exportPurchaseHistory(String email) {
         try {
-
-            BufferedReader purchasesReader = new BufferedReader(new FileReader("FMCredentials.csv"));
+            File credentials = new File("../CS180_Project5/FMCredentials.csv");
+            BufferedReader purchasesReader = new BufferedReader(new FileReader(credentials));
 
             ArrayList<String> fmCredentials = new ArrayList<>();
 
@@ -433,7 +433,8 @@ public class Buyer {
      **/
     public ArrayList<String> showItemsInCart(String email) {
         try {
-            BufferedReader cartReader = new BufferedReader(new FileReader("FMCredentials.csv"));
+            File credentials = new File("../CS180_Project5/FMCredentials.csv");
+            BufferedReader cartReader = new BufferedReader(new FileReader(credentials));
 
             ArrayList<String> fmCredentials = new ArrayList<>();
 
@@ -469,7 +470,8 @@ public class Buyer {
     public ArrayList<String> parseStore() {
         try {
             // Read through CSV file
-            BufferedReader storeReader = new BufferedReader(new FileReader("FMStores.csv"));
+            File stores = new File("../CS180_Project5/FMStores.csv");
+            BufferedReader storeReader = new BufferedReader(new FileReader(stores));
 
             ArrayList<String> parsedList = new ArrayList<>();
 
@@ -537,7 +539,8 @@ public class Buyer {
         String formatted = String.format("%s!%s!%s!%.2f", item.getStore(),
                 item.getName(), quantityBuying, item.getPrice());
         try {
-            BufferedReader cartReader = new BufferedReader(new FileReader("FMCredentials.csv"));
+            File credentials = new File("../CS180_Project5/FMCredentials.csv");
+            BufferedReader cartReader = new BufferedReader(new FileReader(credentials));
             ArrayList<String> fmCredentials = new ArrayList<>();
 
             // Add existing items to ArrayList;
@@ -547,7 +550,7 @@ public class Buyer {
             }
             cartReader.close();
 
-            PrintWriter pw = new PrintWriter(new FileWriter("FMCredentials.csv"));
+            PrintWriter pw = new PrintWriter(new FileWriter(credentials));
 
             for (int i = 0; i < fmCredentials.size(); i++) {
                 String fmCredential = fmCredentials.get(i);
@@ -587,8 +590,9 @@ public class Buyer {
             String cartInfo = "";
             String historyInfo = "";
             String username = "";
-            ArrayList<String> credentials = new ArrayList<>();
-            BufferedReader cartReader = new BufferedReader(new FileReader("FMCredentials.csv"));
+            ArrayList<String> credentialList = new ArrayList<>();
+            File credentials = new File("../CS180_Project5/FMCredentials.csv");
+            BufferedReader cartReader = new BufferedReader(new FileReader(credentials));
             // Add existing items to ArrayList;
             String line;
             while ((line = cartReader.readLine()) != null) {
@@ -596,14 +600,15 @@ public class Buyer {
                     cartInfo = line.split(",")[5];
                     historyInfo = line.split(",")[4];
                     username = line.split(",")[1];
-                } else credentials.add(line);
+                } else credentialList.add(line);
             }
             cartReader.close();
             // String list holding info for each purchase in cart, boolean list to check if each purchase was accomplished
             String[] cartInfoList = cartInfo.split("~");
             boolean[] purchaseSuccessful = new boolean[cartInfoList.length];
 
-            BufferedReader itemReader = new BufferedReader(new FileReader("FMItems.csv"));
+            File items = new File("../CS180_Project5/FMItems.csv");
+            BufferedReader itemReader = new BufferedReader(new FileReader(items));
             ArrayList<String> fmItems = new ArrayList<>();
             // Add existing items to ArrayList;
             while ((line = itemReader.readLine()) != null) {
@@ -644,14 +649,14 @@ public class Buyer {
                 historyInfo = cartInfo;
             } else historyInfo = historyInfo + "~" + cartInfo;
             cartInfo = "x";
-            PrintWriter pwOne = new PrintWriter(new FileWriter("FMCredentials.csv", false));
-            for (String credential : credentials) {
+            PrintWriter pwOne = new PrintWriter(new FileWriter(credentials, false));
+            for (String credential : credentialList) {
                 pwOne.println(credential);
             }
             pwOne.printf("%s,%s,%s,buyer,%s,%s", email, username, password, historyInfo, cartInfo);
             pwOne.close();
 
-            PrintWriter pwTwo = new PrintWriter(new FileWriter("FMItems.csv", false));
+            PrintWriter pwTwo = new PrintWriter(new FileWriter(items, false));
             for (String fmItem : fmItems) {
                 pwTwo.println(fmItem);
             }
