@@ -35,6 +35,15 @@ public class LoginFrame extends JComponent implements Runnable {
     }
 
     ActionListener actionListener = new ActionListener() {
+        /**
+         * @param e Invoked when any of the button in the frame is selected.
+         *          signInButton - signs the user if the credentials match the information in FMCredentials.csv
+         *          createAccountButton - creates a new account for user
+         *                              Requires a valid email input which requires the email to have a "@" and
+         *                              requires the password to be at least 6 characters long.
+         *                              If the sign in credentials are correct, users will be redirected to either
+         *                              MainBuyerFrame or MainSellerFrame depending on the account type.
+         */
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == signInButton) {
                 userEmail = emailText.getText();
@@ -103,91 +112,91 @@ public class LoginFrame extends JComponent implements Runnable {
                             }
                         }
                     }
-                } catch(IOException ex){
-                        ex.printStackTrace();
-                    }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
                 }
             }
-        };
-
-        public void run() {
-            try {
-                bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                printWriter = new PrintWriter(socket.getOutputStream());
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            loginFrame = new JFrame("Account Frame");
-            JPanel panel = new JPanel(null);
-            panel.setSize(new Dimension(500, 300));
-
-            //Email
-            JLabel email = new JLabel("Email:");
-            email.setFont(new Font(email.getFont().getName(), Font.BOLD, 20));
-            email.setHorizontalAlignment(SwingConstants.CENTER);
-            email.setBounds(10, 40, 150, 50);
-            panel.add(email);
-            emailText = new JTextField(25);
-            emailText.setFont(new Font(emailText.getFont().getName(), Font.PLAIN, 20));
-            emailText.setBounds(185, 40, 250, 50);
-            panel.add(emailText);
-
-            //Password
-            JLabel password = new JLabel("Password:");
-            password.setFont(new Font(email.getFont().getName(), Font.BOLD, 20));
-            password.setBounds(55, 120, 150, 50);
-            panel.add(password);
-            passwordText = new JTextField(25);
-            passwordText.setFont(new Font(passwordText.getFont().getName(), Font.PLAIN, 20));
-            passwordText.setBounds(185, 120, 250, 50);
-            panel.add(passwordText);
-
-            //Buyer or Seller
-            JLabel userRole = new JLabel("Role:");
-            userRole.setFont(new Font(userRole.getFont().getName(), Font.BOLD, 15));
-            userRole.setHorizontalAlignment(JLabel.CENTER);
-            userRole.setBounds(250, 203, 50, 30);
-            panel.add(userRole);
-            userRoleSelection = new JComboBox<>();
-            userRoleSelection.setBounds(310, 205, 100, 30);
-            userRoleSelection.setFont(new Font(userRoleSelection.getFont().getName(), Font.BOLD, 13));
-            userRoleSelection.addItem("Buyer");
-            userRoleSelection.addItem("Seller");
-            panel.add(userRoleSelection);
-
-            //SignIn Button
-            signInButton = new JButton("SignIn");
-            signInButton.addActionListener(actionListener);
-            signInButton.setFont(new Font(signInButton.getFont().getName(), Font.BOLD, 17));
-            signInButton.setBounds(55, 275, 180, 50);
-            panel.add(signInButton);
-
-            //CreateAccount Button
-            createAccountButton = new JButton("Create Account");
-            createAccountButton.addActionListener(actionListener);
-            createAccountButton.setFont(new Font(createAccountButton.getFont().getName(), Font.BOLD, 17));
-            createAccountButton.setBounds(255, 275, 180, 50);
-            panel.add(createAccountButton);
-
-            //Finalize frame
-            loginFrame.add(panel);
-            loginFrame.setSize(500, 400);
-            loginFrame.setLocationRelativeTo(null);
-            loginFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
-            loginFrame.addWindowListener(new WindowAdapter() {
-                public void windowClosing(WindowEvent e) {
-                    try {
-                        bufferedReader.close();
-                        printWriter.close();
-                        socket.close();
-                        loginFrame.dispose();
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            });
-            loginFrame.setVisible(true);
         }
+    };
+
+    public void run() {
+        try {
+            bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            printWriter = new PrintWriter(socket.getOutputStream());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        loginFrame = new JFrame("Account Frame");
+        JPanel panel = new JPanel(null);
+        panel.setSize(new Dimension(500, 300));
+
+        //Email
+        JLabel email = new JLabel("Email:");
+        email.setFont(new Font(email.getFont().getName(), Font.BOLD, 20));
+        email.setHorizontalAlignment(SwingConstants.CENTER);
+        email.setBounds(10, 40, 150, 50);
+        panel.add(email);
+        emailText = new JTextField(25);
+        emailText.setFont(new Font(emailText.getFont().getName(), Font.PLAIN, 20));
+        emailText.setBounds(185, 40, 250, 50);
+        panel.add(emailText);
+
+        //Password
+        JLabel password = new JLabel("Password:");
+        password.setFont(new Font(email.getFont().getName(), Font.BOLD, 20));
+        password.setBounds(55, 120, 150, 50);
+        panel.add(password);
+        passwordText = new JTextField(25);
+        passwordText.setFont(new Font(passwordText.getFont().getName(), Font.PLAIN, 20));
+        passwordText.setBounds(185, 120, 250, 50);
+        panel.add(passwordText);
+
+        //Buyer or Seller
+        JLabel userRole = new JLabel("Role:");
+        userRole.setFont(new Font(userRole.getFont().getName(), Font.BOLD, 15));
+        userRole.setHorizontalAlignment(JLabel.CENTER);
+        userRole.setBounds(250, 203, 50, 30);
+        panel.add(userRole);
+        userRoleSelection = new JComboBox<>();
+        userRoleSelection.setBounds(310, 205, 100, 30);
+        userRoleSelection.setFont(new Font(userRoleSelection.getFont().getName(), Font.BOLD, 13));
+        userRoleSelection.addItem("Buyer");
+        userRoleSelection.addItem("Seller");
+        panel.add(userRoleSelection);
+
+        //SignIn Button
+        signInButton = new JButton("SignIn");
+        signInButton.addActionListener(actionListener);
+        signInButton.setFont(new Font(signInButton.getFont().getName(), Font.BOLD, 17));
+        signInButton.setBounds(55, 275, 180, 50);
+        panel.add(signInButton);
+
+        //CreateAccount Button
+        createAccountButton = new JButton("Create Account");
+        createAccountButton.addActionListener(actionListener);
+        createAccountButton.setFont(new Font(createAccountButton.getFont().getName(), Font.BOLD, 17));
+        createAccountButton.setBounds(255, 275, 180, 50);
+        panel.add(createAccountButton);
+
+        //Finalize frame
+        loginFrame.add(panel);
+        loginFrame.setSize(500, 400);
+        loginFrame.setLocationRelativeTo(null);
+        loginFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+        loginFrame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                try {
+                    bufferedReader.close();
+                    printWriter.close();
+                    socket.close();
+                    loginFrame.dispose();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+        loginFrame.setVisible(true);
     }
+}
