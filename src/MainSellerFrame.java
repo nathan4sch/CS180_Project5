@@ -184,7 +184,7 @@ public class MainSellerFrame extends JComponent implements Runnable {
                                 "Create Store Failure", JOptionPane.ERROR_MESSAGE);
 
                         case "Invalid Format" -> JOptionPane.showMessageDialog(null, "Invalid Format: " +
-                                        "Store name cannot have a comma", "Error", JOptionPane.ERROR_MESSAGE);
+                                        "Store name cannot have a comma or exclamation point", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                     inputStoreName.setText("");
                 } catch (IOException ex) {
