@@ -645,7 +645,7 @@ public class Server implements Runnable {
 
                             if (storeName.equals("")) {
                                 successOrFailure = "Failure";
-                            } else if (storeName.contains(",") || (storeName.contains("!"))) {
+                            } else if (storeName.contains(",") || storeName.contains("!")) {
                                 successOrFailure = "Invalid Format";
                             }
 
@@ -708,10 +708,10 @@ public class Server implements Runnable {
                             boolean validNameFormat = false;
                             boolean validDescFormat = false;
 
-                            if (!name.contains(",")) {
+                            if (!name.contains(",") && !name.contains("!")) {
                                 validNameFormat = true;
                             }
-                            if (!description.contains(",")) {
+                            if (!description.contains(",") && !description.contains("!")) {
                                 validDescFormat = true;
                             }
 
