@@ -8,7 +8,8 @@ import java.util.Objects;
 /**
  * Interface that users use to log in to their accounts
  *
- * @version 28/11/2022
+ * @author Nathan Schneider, Colin Wu, Ben Herrington, Andrei Deaconescu, Dakota Baldwin
+ * @version 12/10/2022
  */
 public class LoginFrame extends JComponent implements Runnable {
     Socket socket;

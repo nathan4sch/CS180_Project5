@@ -4,8 +4,8 @@ import java.util.ArrayList;
 /**
  * Item class, contains all relevant information for an item and print it when necessary
  *
- * @author Dakota Baldwin
- * @version 11/4/2022
+ * @author Nathan Schneider, Colin Wu, Ben Herrington, Andrei Deaconescu, Dakota Baldwin
+ * @version 12/10/2022
  */
 
 public class Item {

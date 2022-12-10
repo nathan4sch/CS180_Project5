@@ -4,8 +4,8 @@ import java.util.*;
 /**
  * Buyers class - contains all methods the buyers may use
  *
- * @author Colin Wu
- * @version 2022-3-11
+ * @author Nathan Schneider, Colin Wu, Ben Herrington, Andrei Deaconescu, Dakota Baldwin
+ * @version 12/10/2022
  */
 public class Buyer {
     private final String email; // Buyer email - This is the unique identifier (Cannot be changed)

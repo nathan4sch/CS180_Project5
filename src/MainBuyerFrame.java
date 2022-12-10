@@ -10,7 +10,8 @@ import java.util.*;
  * The interface in which users with Buyer accounts can access their information
  * Lists the marketplace where Buyers can purchase products
  *
- * @version 24/11/2022
+ * @author Nathan Schneider, Colin Wu, Ben Herrington, Andrei Deaconescu, Dakota Baldwin
+ * @version 12/10/2022
  */
 public class MainBuyerFrame extends JComponent implements Runnable {
     Socket socket;

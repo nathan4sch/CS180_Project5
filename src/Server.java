@@ -7,7 +7,8 @@ import java.util.*;
  * <p>
  * Handles all the information sent to send to client
  *
- * @version 24/11/2022
+ * @author Nathan Schneider, Colin Wu, Ben Herrington, Andrei Deaconescu, Dakota Baldwin
+ * @version 12/10/2022
  */
 public class Server implements Runnable {
     Socket socket;

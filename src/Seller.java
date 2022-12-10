@@ -4,8 +4,8 @@ import java.util.*;
 /**
  * The Seller class and all the variables and methods they may use.
  *
- * @author Colin Wu
- * @version 2022-3-11
+ * @author Nathan Schneider, Colin Wu, Ben Herrington, Andrei Deaconescu, Dakota Baldwin
+ * @version 12/10/2022
  */
 public class Seller {
     private final String email; // the user's email (cannot be changed)
