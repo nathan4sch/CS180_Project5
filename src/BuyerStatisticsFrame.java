@@ -343,12 +343,9 @@ public class BuyerStatisticsFrame extends JComponent implements Runnable {
                 Font.PLAIN, fontSizeToUse(mainStatLabel)));
         mainPanel.add(mainStatLabel);
 
-        buyerStatisticsGUI = new JComponent[]{mainStatLabel,
-                buyerStatLabel, buyerStatSubLabel,
-                storeStatLabel, storeStatSubLabel,
-                buyerShowStatButton, buyerSortStatButton,
-                storeShowStatButton, storeSortStatButton,
-                returnToDashButton};
+        buyerStatisticsGUI = new JComponent[]{mainStatLabel, buyerStatLabel, buyerStatSubLabel, storeStatLabel,
+            storeStatSubLabel, buyerShowStatButton, buyerSortStatButton, storeShowStatButton,
+            storeSortStatButton, returnToDashButton};
 
         //Finalize frame
         buyerStatisticsFrame.add(mainPanel);

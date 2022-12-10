@@ -191,7 +191,8 @@ public class Server implements Runnable {
                                     }
                                 }
                                 if (!itemFound) {
-                                    unsuccessfulItems.add(splitCart[1] + "," + splitCart[2] + ",Item No longer exists");
+                                    unsuccessfulItems.add(splitCart[1] + "," + splitCart[2] + ",Item No " +
+                                            "longer exists");
                                 }
                             }
 
@@ -718,7 +719,8 @@ public class Server implements Runnable {
                             Store currentStore = ((Seller) currentUser).getSpecificStore(currentStoreString);
 
                             //ensure each text field has text
-                            if (name.equals("") || description.equals("") || quantity.equals("") || price.equals("")) {
+                            if (name.equals("") || description.equals("") ||
+                                    quantity.equals("") || price.equals("")) {
                                 printWriter.println("Missing Input");
                                 printWriter.flush();
                             } else if (validItemName(name).equals("Failure")) {       //check if name already exists
@@ -1031,7 +1033,8 @@ public class Server implements Runnable {
 
                             Store[] currentUserStores = ((Seller) currentUser).getStore();
 
-                            int numberOfProductAdded = ((Seller) currentUser).importItems(filename, currentUserStores);
+                            int numberOfProductAdded = ((Seller) currentUser).importItems(filename,
+                                    currentUserStores);
                             if (numberOfProductAdded == -1 || numberOfProductAdded == 0) {
                                 printWriter.println("Failure");
                                 printWriter.flush();
@@ -1234,11 +1237,11 @@ public class Server implements Runnable {
             currentSeller = new Seller(email, password);
         }
         try {                                   //writes the new user's account to the csv file
-            PrintWriter CredentialPrintWriter = new PrintWriter(new BufferedWriter(new FileWriter(credentials,
+            PrintWriter credentialPrintWriter = new PrintWriter(new BufferedWriter(new FileWriter(credentials,
                     true)));
-            CredentialPrintWriter.println(email + "," + password + "," + role.toLowerCase() + ",x,x,LoggedIn");
-            CredentialPrintWriter.flush();
-            CredentialPrintWriter.close();
+            credentialPrintWriter.println(email + "," + password + "," + role.toLowerCase() + ",x,x,LoggedIn");
+            credentialPrintWriter.flush();
+            credentialPrintWriter.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1498,7 +1501,7 @@ public class Server implements Runnable {
      * @return Item ArrayList
      */
     public synchronized ArrayList<Item> getItems() {
-        ArrayList<Item> itemList = new ArrayList<>();
+        ArrayList<Item> itemArray = new ArrayList<>();
         try {
             File items = new File("../CS180_Project5/FMItems.csv");
             BufferedReader bfr = new BufferedReader(new FileReader(items));
@@ -1506,14 +1509,14 @@ public class Server implements Runnable {
             String line = bfr.readLine();
             while (line != null) {
                 String[] splitLine = line.split(",");
-                itemList.add(new Item(splitLine[0], splitLine[1], splitLine[2],
+                itemArray.add(new Item(splitLine[0], splitLine[1], splitLine[2],
                         Integer.parseInt(splitLine[3]), Double.parseDouble(splitLine[4])));
                 line = bfr.readLine();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return itemList;
+        return itemArray;
     }
 
     /**
