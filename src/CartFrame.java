@@ -9,7 +9,8 @@ import java.util.*;
  * Interface that allows users to see all their current items in cart, remove items from cart,
  * and checkout all items from their cart.
  *
- * @version 24/11/2022
+ * @author Nathan Schneider, Colin Wu, Ben Herrington, Andrei Deaconescu, Dakota Baldwin
+ * @version 12/10/20222
  */
 public class CartFrame extends JComponent implements Runnable {
     Socket socket;

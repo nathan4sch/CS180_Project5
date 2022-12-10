@@ -11,7 +11,8 @@ import java.util.ArrayList;
  * view store statistics, delete their selected store, and import a product file with a list of products to be
  * added to a store.
  *
- * @version 24/11/2022
+ * @author Nathan Schneider, Colin Wu, Ben Herrington, Andrei Deaconescu, Dakota Baldwin
+ * @version 12/10/2022
  */
 public class ManageStoreFrame extends JComponent implements Runnable {
 

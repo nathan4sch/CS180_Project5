@@ -10,7 +10,8 @@ import java.util.ArrayList;
  * Users can edit an existing product's information, create a new product, and deleted the selected product.
  * Users can also export a file with a list of all their products under the specific store
  *
- * @version 24/11/2022
+ * @author Nathan Schneider, Colin Wu, Ben Herrington, Andrei Deaconescu, Dakota Baldwin
+ * @version 12/10/2022
  */
 public class ManageCatalogueFrame extends JComponent implements Runnable {
     Socket socket;
