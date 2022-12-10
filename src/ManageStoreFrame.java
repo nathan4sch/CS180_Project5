@@ -8,7 +8,8 @@ import java.util.ArrayList;
 /**
  * Interface that allows users to manage their current stores.
  * Users can view a list of a selected store's sales, modify the products of the selected store,
- * view store statistics, delete their selected store, and import a product file with a list of products to be added to a store.
+ * view store statistics, delete their selected store, and import a product file with a list of products to be
+ * added to a store.
  *
  * @version 24/11/2022
  */
@@ -56,6 +57,24 @@ public class ManageStoreFrame extends JComponent implements Runnable {
     }
 
     ActionListener actionListener = new ActionListener() {
+        /**
+         * @param e Invoked when any of the button in the frame is selected.
+         *          returnToDashButton - user is redirected back to MainSellerFrame.java
+         *          deleteStoreButton - asks the current user to confirm to delete the selected store.
+         *          modifyProductsButton - redirects the current user to ManageCatalogueFrame.java based on the
+         *                                 selected store.
+         *          importProductFile - imports a file of product information and adds the imported information to the
+         *                              corresponding stores.
+         *                              The file must be formatted properly, otherwise an error panel will be shown.
+         *          salesListButton - shows a panel of all sales of the selected store.
+         *          statisticsButton - shows a panel with a dropdown menu to select different store statistics.
+         *                              Buyer Statistics shows all customers that have purchased items from the selected
+         *                              store and the quantity of items bought. Sorted Buyer Statistics shows the
+         *                              Buyer Statistics panel sorted by the number of items purchased from
+         *                              most to least. Item Statistics shows all items sold by store and the
+         *                              number of sales for each item.Sorted Item Statistics shows
+         *                              the Item Statistics sorted by sales from most to least.
+         */
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
             if (source == returnToDashButton) {
@@ -101,14 +120,14 @@ public class ManageStoreFrame extends JComponent implements Runnable {
                         String storeItemsString = bufferedReader.readLine();
                         storeItemsString = storeItemsString.substring(1, storeItemsString.length() - 1);
                         String[] storeItemNames = storeItemsString.split(", ");
-                        SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, storeItemNames, userEmail));
+                        SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected,
+                                storeItemNames, userEmail));
                         manageStoreFrame.dispose();
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
                 }
             } else if (source == importProductFile) {
-
                 JOptionPane.showMessageDialog(null, "Ensure each line in the imported file is " +
                                 "formatted correctly\nExample: storeName,itemName,description,quantity,price" +
                                 "\nWalmart,Table,strong wooden table in great condition,10,99.99",
@@ -156,9 +175,9 @@ public class ManageStoreFrame extends JComponent implements Runnable {
                             ArrayList<String> saleList = new ArrayList<>();
                             for (int i = 0; i < salesData.length; i++) {
                                 String[] individualSale = salesData[i].split("!");
-                                String output = String.format("(%s) Customer: %s   Product: %s   Quantity Bought: %s   " +
-                                                "Price Bought At: $%s", i + 1, individualSale[0], individualSale[1],
-                                        individualSale[2], individualSale[3]);
+                                String output = String.format("(%s) Customer: %s   Product: %s   " +
+                                                "Quantity Bought: %s   Price Bought At: $%s", i + 1,
+                                        individualSale[0], individualSale[1], individualSale[2], individualSale[3]);
                                 saleList.add(output);
                             }
 
@@ -176,8 +195,9 @@ public class ManageStoreFrame extends JComponent implements Runnable {
                             JOptionPane.showMessageDialog(null, scrollPane, "Sales List",
                                     JOptionPane.PLAIN_MESSAGE);
                         }
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(null, "No Sales",
+                                "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
 
@@ -391,14 +411,20 @@ public class ManageStoreFrame extends JComponent implements Runnable {
         manageStoreFrame.setVisible(true);
     }
 
-    public int fontSizeToUse(JLabel label) {
-        Font currentFont = label.getFont();
-        String textInLabel = label.getText();
-        int stringWidth = label.getFontMetrics(currentFont).stringWidth(textInLabel);
-        int componentWidth = label.getWidth();
+    /**
+     * Calculates a scalable font size for JLabels in the GUI
+     *
+     * @param component The JLabel to get the font size of
+     * @return an int to be used for the font size
+     */
+    public int fontSizeToUse(JLabel component) {
+        Font fontOfLabel = component.getFont();
+        String textInLabel = component.getText();
+        int stringWidth = component.getFontMetrics(fontOfLabel).stringWidth(textInLabel);
+        int componentWidth = component.getWidth();
         double widthRatio = (double) componentWidth / (double) stringWidth;
-        int newFontSize = (int) (currentFont.getSize() * widthRatio);
-        int componentHeight = label.getHeight();
+        int newFontSize = (int) (fontOfLabel.getSize() * widthRatio);
+        int componentHeight = component.getHeight();
 
         return Math.min(newFontSize, componentHeight);
     }

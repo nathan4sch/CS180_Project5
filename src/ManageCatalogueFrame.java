@@ -67,6 +67,16 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
     }
 
     ActionListener actionListener = new ActionListener() {
+        /**
+         * @param e Invoked when any of the button in the frame is selected.
+         *          returnToDashButton - user is redirected back to MainSellerFrame.java
+         *          exportFileButton - exports a file containing all the product information of the store.
+         *                              The file format is "storeName--Items.csv".
+         *          addProductButton - creates a new item based on the information entered in the text fields.
+         *          editProductButton - changes the selected items information to the new information entered
+         *          in the text fields.
+         *          deleteProductButton - asks the current user to confirm to delete the selected item.
+         */
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
 
@@ -108,19 +118,29 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
                     String successOrFailure = bufferedReader.readLine();
 
                     switch (successOrFailure) {
-                        case "Missing Input" -> JOptionPane.showMessageDialog(null, "Missing Input in Text Fields",
-                                "Error", JOptionPane.ERROR_MESSAGE);
+                        case "Missing Input" -> JOptionPane.showMessageDialog(null,
+                                "Missing Input in Text Fields", "Error", JOptionPane.ERROR_MESSAGE);
 
                         case "Product Name Already Exists" ->
                                 JOptionPane.showMessageDialog(null, "Product Name Already Exists",
                                         "Error", JOptionPane.ERROR_MESSAGE);
 
-                        case "Invalid Quantity" -> JOptionPane.showMessageDialog(null, "Inputted Quantity must be a " +
-                                "Positive Integer", "Error", JOptionPane.ERROR_MESSAGE);
-
-                        case "Invalid Price" -> JOptionPane.showMessageDialog(null, "Inputted Price must be " +
-                                        "Positive and have Two Decimal Places", "Error",
+                        case "Invalid Quantity" -> JOptionPane.showMessageDialog(null,
+                                "Inputted Quantity must be a Positive Integer", "Error",
                                 JOptionPane.ERROR_MESSAGE);
+
+                        case "Invalid Price" -> JOptionPane.showMessageDialog(null,
+                                "Inputted Price must be Positive and have Two Decimal Places", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+
+                        case "Invalid Name Format" -> JOptionPane.showMessageDialog(null,
+                                "Invalid Name Format: Item name cannot have a comma or Exclamation Mark.",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+
+                        case "Invalid Description Format" -> JOptionPane.showMessageDialog(null,
+                                "Invalid Description Format: Item description cannot " +
+                                        "have a comma or Exclamation Mark.",
+                                "Error", JOptionPane.ERROR_MESSAGE);
 
                         case "Success" -> {
                             String[] newStoreItemNames = new String[storeItemNames.length + 1];
@@ -131,7 +151,8 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
                             JOptionPane.showMessageDialog(null, "Item Added",
                                     "Success", JOptionPane.INFORMATION_MESSAGE);
                             manageCatalogueFrame.dispose();
-                            SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, newStoreItemNames, userEmail));
+                            SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected,
+                                    newStoreItemNames, userEmail));
                         }
                     }
 
@@ -170,7 +191,8 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
                             JOptionPane.showMessageDialog(null, "Product Deleted",
                                     "Success", JOptionPane.INFORMATION_MESSAGE);
                             manageCatalogueFrame.dispose();
-                            SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, storeItemNames, userEmail));
+                            SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected,
+                                    storeItemNames, userEmail));
                         } else if (successOrFailure.equals("Failure")) {
                             JOptionPane.showMessageDialog(null, "No Item Selected",
                                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -211,35 +233,46 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
                             for (int i = 0; i < storeItemNames.length; i++) {
                                 storeItemNames[i] = newStoreItemNames.get(i);
                             }
-                            JOptionPane.showMessageDialog(null, "Product Name Successfully Changed",
-                                    "Success", JOptionPane.INFORMATION_MESSAGE);
+                            JOptionPane.showMessageDialog(null,
+                                    "Product Name Successfully Changed", "Success",
+                                    JOptionPane.INFORMATION_MESSAGE);
                             manageCatalogueFrame.dispose();
-                            SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected, storeItemNames, userEmail));
+                            SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected,
+                                    storeItemNames, userEmail));
                         }
-                        case "Success" -> JOptionPane.showMessageDialog(null, "Product Successfully Changed",
-                                "Success", JOptionPane.INFORMATION_MESSAGE);
+                        case "Success" -> JOptionPane.showMessageDialog(null,
+                                "Product Successfully Changed", "Success",
+                                JOptionPane.INFORMATION_MESSAGE);
 
-                        case "No Item Selected" -> JOptionPane.showMessageDialog(null, "Select an Item",
+                        case "No Item Selected" -> JOptionPane.showMessageDialog(null,
+                                "Select an Item", "Error", JOptionPane.ERROR_MESSAGE);
+
+                        case "Missing Input" -> JOptionPane.showMessageDialog(null,
+                                "Change One of the Input Fields", "Error", JOptionPane.ERROR_MESSAGE);
+
+                        case "Invalid Name Format" -> JOptionPane.showMessageDialog(null,
+                                "Invalid Name Format: Item name cannot have a ',' ",
                                 "Error", JOptionPane.ERROR_MESSAGE);
 
-                        case "Missing Input" -> JOptionPane.showMessageDialog(null, "Change One of the Input Fields",
+                        case "Invalid Description Format" -> JOptionPane.showMessageDialog(null,
+                                "Invalid Description Format: Item description cannot have a ',' ",
                                 "Error", JOptionPane.ERROR_MESSAGE);
 
-                        case "Changed More Than One Field" ->
-                                JOptionPane.showMessageDialog(null, "Only Change One of the Input Fields",
-                                        "Error", JOptionPane.ERROR_MESSAGE);
+                        case "Changed More Than One Field" -> JOptionPane.showMessageDialog(null,
+                                "Only Change One of the Input Fields", "Error",
+                                JOptionPane.ERROR_MESSAGE);
 
                         case "This Product Name Already Exists" ->
                                 JOptionPane.showMessageDialog(null, "Product Name Already Exists",
                                         "Invalid Name", JOptionPane.ERROR_MESSAGE);
 
-                        case "Quantity Must be a Positive Integer" ->
-                                JOptionPane.showMessageDialog(null, "Quantity must be a Positive Integer",
-                                        "Error", JOptionPane.ERROR_MESSAGE);
+                        case "Quantity Must be a Positive Integer" -> JOptionPane.showMessageDialog(null,
+                                "Quantity must be a Positive Integer", "Error",
+                                JOptionPane.ERROR_MESSAGE);
 
-                        case "Price Must be a Two Decimal Number" ->
-                                JOptionPane.showMessageDialog(null, "Price must be a Positive Number " +
-                                        "with Two Decimal Places", "Error", JOptionPane.ERROR_MESSAGE);
+                        case "Price Must be a Two Decimal Number" -> JOptionPane.showMessageDialog(null,
+                                "Price must be a Positive Number with Two Decimal Places",
+                                "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -419,16 +452,21 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
         manageCatalogueFrame.setVisible(true);
     }
 
-    public int fontSizeToUse(JLabel label) {
-        Font currentFont = label.getFont();
-        String textInLabel = label.getText();
-        int stringWidth = label.getFontMetrics(currentFont).stringWidth(textInLabel);
-        int componentWidth = label.getWidth();
+    /**
+     * Calculates a scalable font size for JLabels in the GUI
+     *
+     * @param component The JLabel to get the font size of
+     * @return an int to be used for the font size
+     */
+    public int fontSizeToUse(JLabel component) {
+        Font fontOfLabel = component.getFont();
+        String textInLabel = component.getText();
+        int stringWidth = component.getFontMetrics(fontOfLabel).stringWidth(textInLabel);
+        int componentWidth = component.getWidth();
         double widthRatio = (double) componentWidth / (double) stringWidth;
-        int newFontSize = (int) (currentFont.getSize() * widthRatio);
-        int componentHeight = label.getHeight();
-        int fontSizeToUse = Math.min(newFontSize, componentHeight);
+        int newFontSize = (int) (fontOfLabel.getSize() * widthRatio);
+        int componentHeight = component.getHeight();
 
-        return fontSizeToUse - 3;
+        return Math.min(newFontSize, componentHeight);
     }
 }

@@ -26,16 +26,25 @@ public class LoginFrame extends JComponent implements Runnable {
     String userRole;
 
     /**
-     *  The constructor of LoginFrame
+     * The constructor of LoginFrame
      *
      * @param socket The socket that connect this local machine with the server
      */
-    public LoginFrame (Socket socket) {
+    public LoginFrame(Socket socket) {
         this.socket = socket;
     }
 
     ActionListener actionListener = new ActionListener() {
-        public void actionPerformed (ActionEvent e) {
+        /**
+         * @param e Invoked when any of the button in the frame is selected.
+         *          signInButton - signs the user if the credentials match the information in FMCredentials.csv
+         *          createAccountButton - creates a new account for user
+         *                              Requires a valid email input which requires the email to have a "@" and
+         *                              requires the password to be at least 6 characters long.
+         *                              If the sign in credentials are correct, users will be redirected to either
+         *                              MainBuyerFrame or MainSellerFrame depending on the account type.
+         */
+        public void actionPerformed(ActionEvent e) {
             if (e.getSource() == signInButton) {
                 userEmail = emailText.getText();
                 userPassword = passwordText.getText();
@@ -51,7 +60,7 @@ public class LoginFrame extends JComponent implements Runnable {
                         JOptionPane.showMessageDialog(null, "Sign In Successful", "Success",
                                 JOptionPane.INFORMATION_MESSAGE);
                         String userRole = bufferedReader.readLine();
-                        if (userRole.equals("Buyer")){
+                        if (userRole.equals("Buyer")) {
                             SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
                             loginFrame.dispose();
                         } else if (userRole.equals("Seller")) {
@@ -60,7 +69,7 @@ public class LoginFrame extends JComponent implements Runnable {
                         }
                     } else if (successOrFailure.equals("Failure")) {
                         JOptionPane.showMessageDialog(null, "No Account Found or Account " +
-                                        "Already Logged In", "Sign In Failure", JOptionPane.ERROR_MESSAGE);
+                                "Already Logged In", "Sign In Failure", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -76,19 +85,34 @@ public class LoginFrame extends JComponent implements Runnable {
                     printWriter.println(userRole);
                     printWriter.flush();
                     String successOrFailure = bufferedReader.readLine();
-                    if (successOrFailure.equals("Success")) {
-                        JOptionPane.showMessageDialog(null, "Account Created", "Success",
-                                JOptionPane.INFORMATION_MESSAGE);
-                        if (userRole.equals("Buyer")){
-                            SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
-                            loginFrame.dispose();
-                        } else if (userRole.equals("Seller")) {
-                            SwingUtilities.invokeLater(new MainSellerFrame(socket, userEmail));
-                            loginFrame.dispose();
+                    switch (successOrFailure) {
+                        case "Failure" -> JOptionPane.showMessageDialog(null, "This email " +
+                                        "already owns an account", "Create Account Failure",
+                                JOptionPane.ERROR_MESSAGE);
+
+                        case "Input Short" -> JOptionPane.showMessageDialog(null, "Email and " +
+                                        "Password must have " + "at Least 6 Characters", "Create Account Failure",
+                                JOptionPane.ERROR_MESSAGE);
+
+                        case "Invalid Characters" -> JOptionPane.showMessageDialog(null,
+                                "Email and Password can not have a comma", "Create Account Failure",
+                                JOptionPane.ERROR_MESSAGE);
+
+                        case "Invalid Email" -> JOptionPane.showMessageDialog(null, "A Valid " +
+                                        "Email has an @ Sign", "Create Account Failure",
+                                JOptionPane.ERROR_MESSAGE);
+
+                        case "Success" -> {
+                            JOptionPane.showMessageDialog(null, "Account Created", "Success",
+                                    JOptionPane.INFORMATION_MESSAGE);
+                            if (userRole.equals("Buyer")) {
+                                SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
+                                loginFrame.dispose();
+                            } else if (userRole.equals("Seller")) {
+                                SwingUtilities.invokeLater(new MainSellerFrame(socket, userEmail));
+                                loginFrame.dispose();
+                            }
                         }
-                    } else if (successOrFailure.equals("Failure")) {
-                        JOptionPane.showMessageDialog(null, "This email already owns an account",
-                                "Create Account Failure", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -96,7 +120,6 @@ public class LoginFrame extends JComponent implements Runnable {
             }
         }
     };
-
 
     public void run() {
         try {
@@ -133,7 +156,7 @@ public class LoginFrame extends JComponent implements Runnable {
 
         //Buyer or Seller
         JLabel userRole = new JLabel("Role:");
-        userRole.setFont(new Font(userRole.getFont().getName(), Font.BOLD,15));
+        userRole.setFont(new Font(userRole.getFont().getName(), Font.BOLD, 15));
         userRole.setHorizontalAlignment(JLabel.CENTER);
         userRole.setBounds(250, 203, 50, 30);
         panel.add(userRole);
@@ -160,7 +183,7 @@ public class LoginFrame extends JComponent implements Runnable {
 
         //Finalize frame
         loginFrame.add(panel);
-        loginFrame.setSize(500 , 400);
+        loginFrame.setSize(500, 400);
         loginFrame.setLocationRelativeTo(null);
         loginFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 

@@ -1,7 +1,5 @@
-import java.util.ArrayList;
+import java.util.*;
 import java.io.*;
-import java.util.Arrays;
-import java.util.Collections;
 
 /**
  * Store class, contains important information methods about the store of the items
@@ -27,10 +25,10 @@ public class Store {
 
         try {
             items = new ArrayList<>();
-            File f = new File("FMItems.csv");
+            File fmItems = new File("../CS180_Project5/FMItems.csv");
             // Initialize item objects that this store has created
-            BufferedReader bfr = new BufferedReader(new FileReader(f));
-            String line = "";
+            BufferedReader bfr = new BufferedReader(new FileReader(fmItems));
+            String line;
             while ((line = bfr.readLine()) != null) {
                 String[] splitLine = line.split(",");
                 if (splitLine[0].equals(storeName)) {
@@ -55,9 +53,9 @@ public class Store {
     public synchronized void addItem(String name, String description, int quantity, double price) {
         items.add(new Item(storeName, name, description, quantity, price));
         // Also print item into csv file
-        File f = new File("FMItems.csv");
+        File fmItems = new File("../CS180_Project5/FMItems.csv");
         try {
-            PrintWriter pw = new PrintWriter(new FileOutputStream(f, true));
+            PrintWriter pw = new PrintWriter(new FileOutputStream(fmItems, true));
             pw.printf("%s,%s,%s,%d,%.2f\n", storeName, name, description, quantity, price);
             pw.close();
         } catch (Exception e) {
@@ -76,8 +74,9 @@ public class Store {
         ArrayList<String> lines = new ArrayList<>();
         try {
             // then remove item from FMItems.csv file
-            BufferedReader bfrOne = new BufferedReader(new FileReader("FMItems.csv"));
-            String line = "";
+            File fmItems = new File("../CS180_Project5/FMItems.csv");
+            BufferedReader bfrOne = new BufferedReader(new FileReader(fmItems));
+            String line;
             while ((line = bfrOne.readLine()) != null) {
                 String[] lineSplit = line.split(",");
                 if (!itemToDelete.getName().equals(lineSplit[1])) {
@@ -85,7 +84,7 @@ public class Store {
                 }
             }
             bfrOne.close();
-            PrintWriter pwOne = new PrintWriter(new FileOutputStream("FMItems.csv", false));
+            PrintWriter pwOne = new PrintWriter(new FileOutputStream(fmItems, false));
             for (String s : lines) {
                 pwOne.println(s);
             }
@@ -150,7 +149,8 @@ public class Store {
     public static void saveSale(String buyer, String store, String itemName, int amountSold, double price) {
         try {
             // Read FMStores to find the correct store to add sale information to
-            BufferedReader bfrOne = new BufferedReader(new FileReader("FMStores.csv"));
+            File fmStores = new File("../CS180_Project5/FMStores.csv");
+            BufferedReader bfrOne = new BufferedReader(new FileReader(fmStores));
             ArrayList<String> storeFile = new ArrayList<>();
             String line;
             while ((line = bfrOne.readLine()) != null) {
@@ -170,13 +170,13 @@ public class Store {
             bfrOne.close();
 
             // Prints FMStores file with added sale
-            PrintWriter pwOne = new PrintWriter(new FileOutputStream("FMStores.csv", false));
+            PrintWriter pwOne = new PrintWriter(new FileOutputStream(fmStores, false));
             for (int i = 0; i < storeFile.size(); i++) {
                 pwOne.println(storeFile.get(i));
             }
             pwOne.close();
             // Read file holding statistics and update buyer and item numbers if already present
-            File fmStats = new File("FMStats.csv");
+            File fmStats = new File("../CS180_Project5/FMStats.csv");
             BufferedReader bfrTwo = new BufferedReader(new FileReader(fmStats));
             ArrayList<String> statsFile = new ArrayList<>();
             boolean buyerFound = false;
@@ -208,7 +208,7 @@ public class Store {
             }
             bfrTwo.close();
             // Print updated statistics back to the file
-            PrintWriter pwTwo = new PrintWriter(new FileOutputStream("FMStats.csv", false));
+            PrintWriter pwTwo = new PrintWriter(new FileOutputStream(fmStats, false));
             for (int i = 0; i < statsFile.size(); i++) {
                 pwTwo.println(statsFile.get(i));
             }
@@ -224,7 +224,8 @@ public class Store {
     public synchronized String showSales() {
         try {
             // Read through CSV file
-            BufferedReader storeReader = new BufferedReader(new FileReader("FMStores.csv"));
+            File fmStores = new File("../CS180_Project5/FMStores.csv");
+            BufferedReader storeReader = new BufferedReader(new FileReader(fmStores));
             ArrayList<String> FMStores = new ArrayList<>();
 
             // Add existing stores to ArrayList;
@@ -240,8 +241,7 @@ public class Store {
                 // If arraylist index has correct store name
                 if (FMStores.get(i).contains(storeName)) {
                     String[] strSplit = FMStores.get(i).split(",");
-                    String saleHistoryStr = strSplit[2];
-                    return saleHistoryStr;
+                    return strSplit[2];
                 }
             }
         } catch (Exception e) {
@@ -256,13 +256,14 @@ public class Store {
      * @param storeName Name of store to search for
      * @param type      Type of statistic to show
      * @return String ArrayList of the statistics
-     * */
+     */
     public static ArrayList<String> showStats(String storeName, String type) {
         // type should be either buyer or item
         ArrayList<String> stats = new ArrayList<>();
         try {
             // Read csv file, if line has correct store name, add to array list
-            BufferedReader statsReader = new BufferedReader(new FileReader("FMStats.csv"));
+            File fmStats = new File("../CS180_Project5/FMStats.csv");
+            BufferedReader statsReader = new BufferedReader(new FileReader(fmStats));
             String line = statsReader.readLine();
             while (line != null) {
                 String[] splitLine = line.split(",");
@@ -285,12 +286,12 @@ public class Store {
      * @param storeName Name of store to search for
      * @param type      Type of statistic to show
      * @return String ArrayList of statistics, sorted
-     * */
+     */
     public static ArrayList<String> showSortedStats(String storeName, String type) {
         ArrayList<String> unsorted = showStats(storeName, type);
         ArrayList<Integer> amounts = new ArrayList<>();
         ArrayList<String> sorted = new ArrayList<>();
-        for (int i = 0; i < unsorted.size(); i++) {
+        for (int i = 0; i < Objects.requireNonNull(unsorted).size(); i++) {
             amounts.add(Integer.parseInt(unsorted.get(i).substring(unsorted.get(i).indexOf("~") + 1)));
         }
         amounts.sort(Collections.reverseOrder());

@@ -41,6 +41,12 @@ public class ManageAccountFrame extends JComponent implements Runnable {
 
     ActionListener actionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
+            /**
+             * @param e Invoked when any of the button in the frame is selected.
+             *          returnToDashButton - user is redirected back to MainBuyerFrame.java
+             *          editAccountButton - changes the user's password if it is valid
+             *          deleteAccountButton - deletes the user's account
+             */
             Object source = e.getSource();
             if (source == returnToDashButton) {
                 SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
@@ -50,16 +56,26 @@ public class ManageAccountFrame extends JComponent implements Runnable {
                 printWriter.println("Edit Credentials");
                 printWriter.println(passwordInput);
                 printWriter.flush();
+
                 try {
                     String successOrFailure = bufferedReader.readLine();
 
-                    if (successOrFailure.equals("No Changed Fields")) {
-                        JOptionPane.showMessageDialog(null, "Input a New Password",
+                    switch (successOrFailure) {
+                        case "No Changed Fields" -> JOptionPane.showMessageDialog(null,
+                                "Input a New Password", "Error", JOptionPane.ERROR_MESSAGE);
+
+                        case "Success" -> {
+                            JOptionPane.showMessageDialog(null, "Password Changed",
+                                    "Success", JOptionPane.INFORMATION_MESSAGE);
+                            newPassword.setText("");
+                        }
+                        case "Invalid Format" -> JOptionPane.showMessageDialog(null,
+                                "Invalid Format: Passwords cannot contain commas",
                                 "Error", JOptionPane.ERROR_MESSAGE);
-                    } else if (successOrFailure.equals("Success")) {
-                        JOptionPane.showMessageDialog(null, "Password Changed",
-                                "Success", JOptionPane.INFORMATION_MESSAGE);
-                        newPassword.setText("");
+
+                        case "Invalid Length" -> JOptionPane.showMessageDialog(null,
+                                "Passwords must be at least 6 characters long",
+                                "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -142,7 +158,8 @@ public class ManageAccountFrame extends JComponent implements Runnable {
         mainPanel.add(deleteAccountButton);
         deleteAccountButton.setVisible(false);
 
-        manageAccountGUI = new JComponent[]{manageAccountMainLabel, editAccountButton, deleteAccountButton, newPassword, passwordLabel, returnToDashButton};
+        manageAccountGUI = new JComponent[]{manageAccountMainLabel, editAccountButton, deleteAccountButton,
+                newPassword, passwordLabel, returnToDashButton};
 
         //Finalize frame
         accountFrame.add(mainPanel);
@@ -178,21 +195,27 @@ public class ManageAccountFrame extends JComponent implements Runnable {
         }
     }
 
-    public int fontSizeToUse(JLabel label) {
-        Font currentFont = label.getFont();
-        String textInLabel = label.getText();
-        int stringWidth = label.getFontMetrics(currentFont).stringWidth(textInLabel);
-        int componentWidth = label.getWidth();
+    /**
+     * Calculates a scalable font size for JLabels in the GUI
+     *
+     * @param component The JLabel to get the font size of
+     * @return an int to be used for the font size
+     */
+    public int fontSizeToUse(JLabel component) {
+        Font fontOfLabel = component.getFont();
+        String textInLabel = component.getText();
+        int stringWidth = component.getFontMetrics(fontOfLabel).stringWidth(textInLabel);
+        int componentWidth = component.getWidth();
         double widthRatio = (double) componentWidth / (double) stringWidth;
-        int newFontSize = (int) (currentFont.getSize() * widthRatio);
-        int componentHeight = label.getHeight();
+        int newFontSize = (int) (fontOfLabel.getSize() * widthRatio);
+        int componentHeight = component.getHeight();
 
         return Math.min(newFontSize, componentHeight);
     }
 
     /**
      * Sets currentlyVisible panel to false
-     * */
+     */
     public void resetVisible() {
         for (int i = 0; i < currentlyVisible.size(); i++) {
             currentlyVisible.get(i).setVisible(false);

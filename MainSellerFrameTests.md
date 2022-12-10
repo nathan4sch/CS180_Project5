@@ -117,6 +117,7 @@ Steps:
 <li> Buyer launches application and logs in.
 <li> From the main Buyer dashboard, the
    Buyer selects the "Manage Account" option.
+<li> The Seller inputs their pre-existing password in the change password text box
 <li> The Buyer selects the "Change Password" option.
 </ol>
 
