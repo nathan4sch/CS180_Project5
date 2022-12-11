@@ -185,10 +185,10 @@ public class Buyer {
     /**
      * Creates a new file of the user's purchase history
      *
-     * @param serachEmail Email to search for when exporting
+     * @param searchEmail Email to search for when exporting
      * @return a string denoting if the file is successfully exported
      */
-    public String exportPurchaseHistory(String serachEmail) {
+    public String exportPurchaseHistory(String searchEmail) {
         try {
             File credentials = new File("../CS180_Project5/FMCredentials.csv");
             BufferedReader purchasesReader = new BufferedReader(new FileReader(credentials));
@@ -207,7 +207,7 @@ public class Buyer {
             // loop through arraylist and find the correct account
             for (int i = 0; i < fmCredentials.size(); i++) {
                 // If arraylist index has email
-                if (fmCredentials.get(i).contains(serachEmail)) {
+                if (fmCredentials.get(i).contains(searchEmail)) {
                     String[] strSplit = fmCredentials.get(i).split(",");
                     String purchaseHistoryStr = strSplit[3];
                     String[] purchaseHistoryLine = purchaseHistoryStr.split("~");
@@ -215,7 +215,7 @@ public class Buyer {
                     if (purchaseHistoryStr.contains("!")) {
                         // Create export file
                         try {
-                            String[] emailSplit = serachEmail.split("~");
+                            String[] emailSplit = searchEmail.split("~");
                             String fileName = emailSplit[0] + "PurchaseHistory.csv";
                             File export = new File(fileName);
 
