@@ -208,7 +208,7 @@ public class ManageStoreFrame extends JComponent implements Runnable {
                             "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
                     String[] options = {"Buyer Statistics", "Sorted Buyer Statistics",
-                            "Item Statistics", "Sorted Item Statistics"};
+                        "Item Statistics", "Sorted Item Statistics"};
                     Object selectionObject = JOptionPane.showInputDialog(null,
                             "Select Statistics to View", "Statistics",
                             JOptionPane.PLAIN_MESSAGE, null, options, options[0]);

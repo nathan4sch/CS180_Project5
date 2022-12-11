@@ -169,7 +169,7 @@ public class PurchaseHistoryFrame extends JComponent implements Runnable {
         purchaseHistoryLabel.setVisible(false);
 
         purchaseHistoryGUI = new JComponent[]{purchaseHistoryLabel, viewHistoryButton,
-                exportHistoryButton, returnToDashButton};
+            exportHistoryButton, returnToDashButton};
 
         //Finalize frame
         purchaseHistoryFrame.add(mainPanel);

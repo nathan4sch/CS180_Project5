@@ -160,7 +160,7 @@ public class ManageAccountFrame extends JComponent implements Runnable {
         deleteAccountButton.setVisible(false);
 
         manageAccountGUI = new JComponent[]{manageAccountMainLabel, editAccountButton, deleteAccountButton,
-                newPassword, passwordLabel, returnToDashButton};
+            newPassword, passwordLabel, returnToDashButton};
 
         //Finalize frame
         accountFrame.add(mainPanel);

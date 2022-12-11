@@ -42,31 +42,31 @@ public class Buyer {
      * Reads through FMCredentials.csv and finds the currentUser's purchase history.
      * The purchase history is returned to be printed
      *
-     * @param email Email to search for when adding to array list
+     * @param searchEmail Email to search for when adding to array list
      * @return String ArrayList of purchase history
      */
-    public ArrayList<String> returnPurchaseHistory(String email) {
+    public ArrayList<String> returnPurchaseHistory(String searchEmail) {
         try {
             // Read through CSV file
             File credentials = new File("../CS180_Project5/FMCredentials.csv");
             BufferedReader purchasesReader = new BufferedReader(new FileReader(credentials));
 
-            ArrayList<String> FMCredentials = new ArrayList<>();
+            ArrayList<String> fmCredentials = new ArrayList<>();
 
             // Add existing items to ArrayList;
             String line = purchasesReader.readLine();
             while (line != null) {
-                FMCredentials.add(line);
+                fmCredentials.add(line);
                 line = purchasesReader.readLine();
             }
 
             purchasesReader.close();
 
             // loop through arraylist and find the correct account
-            for (int i = 0; i < FMCredentials.size(); i++) {
+            for (int i = 0; i < fmCredentials.size(); i++) {
                 // If arraylist index has email
-                if (FMCredentials.get(i).contains(email)) {
-                    String[] strSplit = FMCredentials.get(i).split(",");
+                if (fmCredentials.get(i).contains(searchEmail)) {
+                    String[] strSplit = fmCredentials.get(i).split(",");
                     String purchaseHistoryStr = strSplit[3];
                     if (purchaseHistoryStr.equals("x")) {
                         return new ArrayList<>();
@@ -185,10 +185,10 @@ public class Buyer {
     /**
      * Creates a new file of the user's purchase history
      *
-     * @param email Email to search for when exporting
+     * @param searchEmail Email to search for when exporting
      * @return a string denoting if the file is successfully exported
      */
-    public String exportPurchaseHistory(String email) {
+    public String exportPurchaseHistory(String searchEmail) {
         try {
             File credentials = new File("../CS180_Project5/FMCredentials.csv");
             BufferedReader purchasesReader = new BufferedReader(new FileReader(credentials));
@@ -207,7 +207,7 @@ public class Buyer {
             // loop through arraylist and find the correct account
             for (int i = 0; i < fmCredentials.size(); i++) {
                 // If arraylist index has email
-                if (fmCredentials.get(i).contains(email)) {
+                if (fmCredentials.get(i).contains(searchEmail)) {
                     String[] strSplit = fmCredentials.get(i).split(",");
                     String purchaseHistoryStr = strSplit[3];
                     String[] purchaseHistoryLine = purchaseHistoryStr.split("~");
@@ -215,7 +215,7 @@ public class Buyer {
                     if (purchaseHistoryStr.contains("!")) {
                         // Create export file
                         try {
-                            String[] emailSplit = email.split("~");
+                            String[] emailSplit = searchEmail.split("~");
                             String fileName = emailSplit[0] + "PurchaseHistory.csv";
                             File export = new File(fileName);
 
@@ -429,10 +429,10 @@ public class Buyer {
     /**
      * Reads through FMCredentials.csv and returns all items in the currentUser's cart
      *
-     * @param email Email to search for when adding to array list
+     * @param searchEmail Email to search for when adding to array list
      * @return String ArrayList of all the items in a buyer's cart
      **/
-    public ArrayList<String> showItemsInCart(String email) {
+    public ArrayList<String> showItemsInCart(String searchEmail) {
         try {
             File credentials = new File("../CS180_Project5/FMCredentials.csv");
             BufferedReader cartReader = new BufferedReader(new FileReader(credentials));
@@ -450,7 +450,7 @@ public class Buyer {
                 String[] strSplit = fmCredential.split(",");
 
                 // If arraylist index has email
-                if (strSplit[0].equals(email)) {
+                if (strSplit[0].equals(searchEmail)) {
                     String shoppingCartInfo = strSplit[4];
                     String[] shoppingCartLine = shoppingCartInfo.split("~");
 

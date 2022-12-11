@@ -226,21 +226,21 @@ public class Store {
             // Read through CSV file
             File fmStores = new File("../CS180_Project5/FMStores.csv");
             BufferedReader storeReader = new BufferedReader(new FileReader(fmStores));
-            ArrayList<String> FMStores = new ArrayList<>();
+            ArrayList<String> fmStoresLines = new ArrayList<>();
 
             // Add existing stores to ArrayList;
             String line = storeReader.readLine();
             while (line != null) {
-                FMStores.add(line);
+                fmStoresLines.add(line);
                 line = storeReader.readLine();
             }
             storeReader.close();
 
             // loop through arraylist and find the correct store
-            for (int i = 0; i < FMStores.size(); i++) {
+            for (int i = 0; i < fmStoresLines.size(); i++) {
                 // If arraylist index has correct store name
-                if (FMStores.get(i).contains(storeName)) {
-                    String[] strSplit = FMStores.get(i).split(",");
+                if (fmStoresLines.get(i).contains(storeName)) {
+                    String[] strSplit = fmStoresLines.get(i).split(",");
                     return strSplit[2];
                 }
             }

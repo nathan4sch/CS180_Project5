@@ -60,11 +60,11 @@ public class LoginFrame extends JComponent implements Runnable {
                     if (successOrFailure.equals("Success")) {
                         JOptionPane.showMessageDialog(null, "Sign In Successful", "Success",
                                 JOptionPane.INFORMATION_MESSAGE);
-                        String userRole = bufferedReader.readLine();
-                        if (userRole.equals("Buyer")) {
+                        String receivedUserRole = bufferedReader.readLine();
+                        if (receivedUserRole.equals("Buyer")) {
                             SwingUtilities.invokeLater(new MainBuyerFrame(socket, userEmail));
                             loginFrame.dispose();
-                        } else if (userRole.equals("Seller")) {
+                        } else if (receivedUserRole.equals("Seller")) {
                             SwingUtilities.invokeLater(new MainSellerFrame(socket, userEmail));
                             loginFrame.dispose();
                         }
@@ -156,11 +156,11 @@ public class LoginFrame extends JComponent implements Runnable {
         panel.add(passwordText);
 
         //Buyer or Seller
-        JLabel userRole = new JLabel("Role:");
-        userRole.setFont(new Font(userRole.getFont().getName(), Font.BOLD, 15));
-        userRole.setHorizontalAlignment(JLabel.CENTER);
-        userRole.setBounds(250, 203, 50, 30);
-        panel.add(userRole);
+        JLabel userRoleLabel = new JLabel("Role:");
+        userRoleLabel.setFont(new Font(userRoleLabel.getFont().getName(), Font.BOLD, 15));
+        userRoleLabel.setHorizontalAlignment(JLabel.CENTER);
+        userRoleLabel.setBounds(250, 203, 50, 30);
+        panel.add(userRoleLabel);
         userRoleSelection = new JComboBox<>();
         userRoleSelection.setBounds(310, 205, 100, 30);
         userRoleSelection.setFont(new Font(userRoleSelection.getFont().getName(), Font.BOLD, 13));
