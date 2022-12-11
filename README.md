@@ -19,7 +19,7 @@
 ### Create an account
 - Users can either create a Buyer account or a Seller account. They will need to enter an valid email and a password that is at least 6 characters long.
 
-## Step 4 - Main Dashboards
+## Step 5 - Main Dashboards
 - After sucessfully creating an account or signing in, the user will be able to use the Buyer and Seller Dashboards based on account type.
 
 ### Main Buyer Dashboard
