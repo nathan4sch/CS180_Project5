@@ -12,7 +12,8 @@ import java.util.*;
  * <p>
  * These statistics can be sorted by most amount of products sold to least
  *
- * @version 27/11/2022
+ * @author Nathan Schneider, Colin Wu, Ben Herrington, Andrei Deaconescu, Dakota Baldwin
+ * @version 12/10/2022
  */
 public class BuyerStatisticsFrame extends JComponent implements Runnable {
     Socket socket;
@@ -342,12 +343,9 @@ public class BuyerStatisticsFrame extends JComponent implements Runnable {
                 Font.PLAIN, fontSizeToUse(mainStatLabel)));
         mainPanel.add(mainStatLabel);
 
-        buyerStatisticsGUI = new JComponent[]{mainStatLabel,
-                buyerStatLabel, buyerStatSubLabel,
-                storeStatLabel, storeStatSubLabel,
-                buyerShowStatButton, buyerSortStatButton,
-                storeShowStatButton, storeSortStatButton,
-                returnToDashButton};
+        buyerStatisticsGUI = new JComponent[]{mainStatLabel, buyerStatLabel, buyerStatSubLabel, storeStatLabel,
+            storeStatSubLabel, buyerShowStatButton, buyerSortStatButton, storeShowStatButton,
+            storeSortStatButton, returnToDashButton};
 
         //Finalize frame
         buyerStatisticsFrame.add(mainPanel);

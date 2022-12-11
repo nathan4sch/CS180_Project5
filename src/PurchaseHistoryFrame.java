@@ -8,7 +8,8 @@ import java.util.*;
 /**
  * Interface that allows users to view their purchase history and export a file of their purchase history.
  *
- * @version 27/11/2022
+ * @author Nathan Schneider, Colin Wu, Ben Herrington, Andrei Deaconescu, Dakota Baldwin
+ * @version 12/10/2022
  */
 public class PurchaseHistoryFrame extends JComponent implements Runnable {
     Socket socket;
@@ -168,7 +169,7 @@ public class PurchaseHistoryFrame extends JComponent implements Runnable {
         purchaseHistoryLabel.setVisible(false);
 
         purchaseHistoryGUI = new JComponent[]{purchaseHistoryLabel, viewHistoryButton,
-                exportHistoryButton, returnToDashButton};
+            exportHistoryButton, returnToDashButton};
 
         //Finalize frame
         purchaseHistoryFrame.add(mainPanel);

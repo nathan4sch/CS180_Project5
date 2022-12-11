@@ -4,8 +4,8 @@ import java.util.ArrayList;
 /**
  * Item class, contains all relevant information for an item and print it when necessary
  *
- * @author Dakota Baldwin
- * @version 11/4/2022
+ * @author Nathan Schneider, Colin Wu, Ben Herrington, Andrei Deaconescu, Dakota Baldwin
+ * @version 12/10/2022
  */
 
 public class Item {
@@ -96,7 +96,8 @@ public class Item {
                 if (line.equals(String.format("%s,%s,%s,%d,%.2f", store, name, description, quantity, price))) {
                     switch (field) {
                         case "name" ->
-                                line = String.format("%s,%s,%s,%d,%.2f", store, newValue, description, quantity, price);
+                                line = String.format("%s,%s,%s,%d,%.2f", store, newValue, description,
+                                        quantity, price);
                         case "description" ->
                                 line = String.format("%s,%s,%s,%d,%.2f", store, name, newValue, quantity, price);
                         case "quantity" -> line = String.format("%s,%s,%s,%d,%.2f", store, name, description,

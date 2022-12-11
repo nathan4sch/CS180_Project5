@@ -8,7 +8,8 @@ import java.util.*;
 /**
  * Interface that allows users to manage their account. Users can either change their password or delete their account
  *
- * @version 27/11/2022
+ * @author Nathan Schneider, Colin Wu, Ben Herrington, Andrei Deaconescu, Dakota Baldwin
+ * @version 12/10/2022
  */
 public class ManageAccountFrame extends JComponent implements Runnable {
     Socket socket;
@@ -159,7 +160,7 @@ public class ManageAccountFrame extends JComponent implements Runnable {
         deleteAccountButton.setVisible(false);
 
         manageAccountGUI = new JComponent[]{manageAccountMainLabel, editAccountButton, deleteAccountButton,
-                newPassword, passwordLabel, returnToDashButton};
+            newPassword, passwordLabel, returnToDashButton};
 
         //Finalize frame
         accountFrame.add(mainPanel);

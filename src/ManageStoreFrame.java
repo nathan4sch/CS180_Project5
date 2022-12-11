@@ -11,7 +11,8 @@ import java.util.ArrayList;
  * view store statistics, delete their selected store, and import a product file with a list of products to be
  * added to a store.
  *
- * @version 24/11/2022
+ * @author Nathan Schneider, Colin Wu, Ben Herrington, Andrei Deaconescu, Dakota Baldwin
+ * @version 12/10/2022
  */
 public class ManageStoreFrame extends JComponent implements Runnable {
 
@@ -207,7 +208,7 @@ public class ManageStoreFrame extends JComponent implements Runnable {
                             "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
                     String[] options = {"Buyer Statistics", "Sorted Buyer Statistics",
-                            "Item Statistics", "Sorted Item Statistics"};
+                        "Item Statistics", "Sorted Item Statistics"};
                     Object selectionObject = JOptionPane.showInputDialog(null,
                             "Select Statistics to View", "Statistics",
                             JOptionPane.PLAIN_MESSAGE, null, options, options[0]);

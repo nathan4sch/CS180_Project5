@@ -9,7 +9,8 @@ import java.util.*;
  * The interface in which users with Seller accounts can access their information
  * Sellers can manage their stores, create products, view Buyer carts, and view their store statistics
  *
- * @version 24/11/2022
+ * @author Nathan Schneider, Colin Wu, Ben Herrington, Andrei Deaconescu, Dakota Baldwin
+ * @version 12/10/2022
  */
 public class MainSellerFrame extends JComponent implements Runnable {
     ArrayList<JComponent> currentlyVisible = new ArrayList<>();
@@ -304,7 +305,7 @@ public class MainSellerFrame extends JComponent implements Runnable {
         manageCatalogueButton.setVisible(false);
 
         manageStoreGUI = new JComponent[]{manageStoreMainLabel, manageStoreButtonLabel, manageCatalogueButton,
-                createStoreButton, newStoreName, inputStoreName};
+            createStoreButton, newStoreName, inputStoreName};
         for (int i = 0; i < manageStoreGUI.length; i++) {
             manageStoreGUI[i].setVisible(true);
             currentlyVisible.add(manageStoreGUI[i]);
@@ -349,7 +350,7 @@ public class MainSellerFrame extends JComponent implements Runnable {
         deleteAccountButton.setVisible(false);
 
         manageAccountGUI = new JComponent[]{manageAccountMainLabel, deleteAccountLabel, editAccountButton,
-                deleteAccountButton, newPassword, passwordLabel};
+            deleteAccountButton, newPassword, passwordLabel};
 
         //Finalize frame
         mainSellerFrame.add(splitPane);

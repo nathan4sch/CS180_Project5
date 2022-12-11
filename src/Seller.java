@@ -4,8 +4,8 @@ import java.util.*;
 /**
  * The Seller class and all the variables and methods they may use.
  *
- * @author Colin Wu
- * @version 2022-3-11
+ * @author Nathan Schneider, Colin Wu, Ben Herrington, Andrei Deaconescu, Dakota Baldwin
+ * @version 12/10/2022
  */
 public class Seller {
     private final String email; // the user's email (cannot be changed)
@@ -237,25 +237,25 @@ public class Seller {
      * Purpose: Prints customer shopping cart info for Sellers
      *
      * @param fileName Contains the file name that the imported files should be read from.
-     * @param stores   Array containing all the stores of the current seller
+     * @param availableStores   Array containing all the stores of the current seller
      * @return int number of successfully imported items
      */
-    public synchronized int importItems(String fileName, Store[] stores) { // Adds imported items to stores
+    public synchronized int importItems(String fileName, Store[] availableStores) { // Adds imported items to stores
         try {
             BufferedReader bfr = new BufferedReader(new FileReader(fileName));
             String line;
             int numberSuccess = 0;
             while ((line = bfr.readLine()) != null) {
                 String[] splitLine = line.split(",");
-                for (int i = 0; i < stores.length; i++) {
+                for (int i = 0; i < availableStores.length; i++) {
                     // Tests against all store names until one works
-                    if (splitLine[0].equals(stores[i].getStoreName())) {
+                    if (splitLine[0].equals(availableStores[i].getStoreName())) {
                         try {
-                            stores[i].addItem(splitLine[1], splitLine[2],
+                            availableStores[i].addItem(splitLine[1], splitLine[2],
                                     Integer.parseInt(splitLine[3]), Double.parseDouble(splitLine[4]));
                             numberSuccess++;
                             break;
-                        } catch (Exception e) {
+                        } catch (Exception ignored) {
 
                         }
                     }
@@ -263,7 +263,7 @@ public class Seller {
             }
             bfr.close();
             return numberSuccess;
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
         return -1;

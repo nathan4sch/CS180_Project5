@@ -10,7 +10,8 @@ import java.util.ArrayList;
  * Users can edit an existing product's information, create a new product, and deleted the selected product.
  * Users can also export a file with a list of all their products under the specific store
  *
- * @version 24/11/2022
+ * @author Nathan Schneider, Colin Wu, Ben Herrington, Andrei Deaconescu, Dakota Baldwin
+ * @version 12/10/2022
  */
 public class ManageCatalogueFrame extends JComponent implements Runnable {
     Socket socket;
@@ -183,16 +184,16 @@ public class ManageCatalogueFrame extends JComponent implements Runnable {
                             if (newStoreItemNames.size() == 0) {
                                 newStoreItemNames.add("No items");
                             }
-                            String[] storeItemNames = new String[newStoreItemNames.size()];
-                            for (int i = 0; i < storeItemNames.length; i++) {
-                                storeItemNames[i] = newStoreItemNames.get(i);
+                            String[] storeItemNamesList = new String[newStoreItemNames.size()];
+                            for (int i = 0; i < storeItemNamesList.length; i++) {
+                                storeItemNamesList[i] = newStoreItemNames.get(i);
                             }
 
                             JOptionPane.showMessageDialog(null, "Product Deleted",
                                     "Success", JOptionPane.INFORMATION_MESSAGE);
                             manageCatalogueFrame.dispose();
                             SwingUtilities.invokeLater(new ManageCatalogueFrame(socket, storeSelected,
-                                    storeItemNames, userEmail));
+                                    storeItemNamesList, userEmail));
                         } else if (successOrFailure.equals("Failure")) {
                             JOptionPane.showMessageDialog(null, "No Item Selected",
                                     "Error", JOptionPane.ERROR_MESSAGE);
