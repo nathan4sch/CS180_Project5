@@ -3,14 +3,16 @@
 ## CS 18000 GLD Capstone Project
 
 # How to run the project
-## Note: After cloning the project from Vocareum follow these steps:
 
-## Step 1 - Create a new project in your IDE (IntelliJ, Eclipse, etc.)
+### Note: After cloning the project from Vocareum follow these steps:
+
+## Step 1 - Clone the project and add to your IDE
+- Create a new project in your IDE (IntelliJ, Eclipse, etc.) to run the project.
 ## Step 2 - Move all the .java files to the src folder and move the .csv files outside the src folder inside the CS180_Project5 folder.
 - After doing this, you should be ready to run the project.
 ## Step 3 - Run Server.java and Client.java
 - This will run the server in which multiple clients will be able to access their accounts. 
-## Step 3 - Account Login & Creation
+## Step 4 - Account Login & Creation
 - Users will have an option to sign in to an existing account or create a new account.
 ### Sign In
 - Users will be signed in once they enter the correct password and email. 
@@ -18,6 +20,7 @@
 - Users can either create a Buyer account or a Seller account. They will need to enter an valid email and a password that is at least 6 characters long.
 
 ## Step 4 - Main Dashboards
+- After sucessfully creating an account or signing in, the user will be able to use the Buyer and Seller Dashboards based on account type.
 
 ### Main Buyer Dashboard
 
