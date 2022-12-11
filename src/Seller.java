@@ -255,16 +255,16 @@ public class Seller {
                                     Integer.parseInt(splitLine[3]), Double.parseDouble(splitLine[4]));
                             numberSuccess++;
                             break;
-                        } catch (Exception ignored) {
-
+                        } catch (Exception e) {
+                            System.out.print("");
                         }
                     }
                 }
             }
             bfr.close();
             return numberSuccess;
-        } catch (Exception ignored) {
-
+        } catch (Exception e) {
+            System.out.print("");
         }
         return -1;
     }
